@@ -13,6 +13,7 @@ import CareerMapPage from "./pages/CareerMapPage";
 import BooksPage from "./pages/resources/BooksPage";
 import RecordingsPage from "./pages/resources/RecordingsPage";
 import CommunityPage from "./pages/CommunityPage";
+import UtilityAppsPage from "./pages/UtilityAppsPage";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/career-map" element={<CareerMapPage />} />
           <Route path="/resources/books" element={<BooksPage />} />
           <Route path="/resources/recordings" element={<RecordingsPage />} />
+          <Route path="/utility-apps" element={<UtilityAppsPage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
