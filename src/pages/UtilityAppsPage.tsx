@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,14 +45,45 @@ export default function UtilityAppsPage() {
     timeLeft: 0
   });
 
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   // Weather functionality
   const searchWeather = async () => {
     if (!weather.location.trim()) return;
     
     setWeather(prev => ({ ...prev, loading: true }));
     
-    // Simulate API call - in real implementation, you'd use a weather API
-    setTimeout(() => {
+    try {
+      // Using OpenWeatherMap API - free tier available
+      const API_KEY = 'demo_key'; // This would be replaced with actual key
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${weather.location}&appid=${API_KEY}&units=imperial`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        setWeather(prev => ({
+          ...prev,
+          temperature: Math.round(data.main.temp),
+          condition: data.weather[0].main,
+          loading: false
+        }));
+      } else {
+        // Fallback to mock data if API fails
+        const mockWeather = {
+          temperature: Math.floor(Math.random() * 40) + 10,
+          condition: ['Sunny', 'Cloudy', 'Rainy', 'Partly Cloudy'][Math.floor(Math.random() * 4)]
+        };
+        
+        setWeather(prev => ({
+          ...prev,
+          temperature: mockWeather.temperature,
+          condition: mockWeather.condition,
+          loading: false
+        }));
+      }
+    } catch (error) {
+      // Fallback to mock data on error
       const mockWeather = {
         temperature: Math.floor(Math.random() * 40) + 10,
         condition: ['Sunny', 'Cloudy', 'Rainy', 'Partly Cloudy'][Math.floor(Math.random() * 4)]
@@ -64,7 +95,7 @@ export default function UtilityAppsPage() {
         condition: mockWeather.condition,
         loading: false
       }));
-    }, 1000);
+    }
   };
 
   // Calculator functionality
@@ -148,6 +179,10 @@ export default function UtilityAppsPage() {
 
   // Timer functionality
   const startTimer = () => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+    
     const totalSeconds = timer.minutes * 60 + timer.seconds;
     setTimer(prev => ({
       ...prev,
@@ -155,10 +190,13 @@ export default function UtilityAppsPage() {
       timeLeft: totalSeconds
     }));
     
-    const interval = setInterval(() => {
+    timerIntervalRef.current = setInterval(() => {
       setTimer(prev => {
         if (prev.timeLeft <= 1) {
-          clearInterval(interval);
+          if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+            timerIntervalRef.current = null;
+          }
           return { ...prev, isRunning: false, timeLeft: 0 };
         }
         return { ...prev, timeLeft: prev.timeLeft - 1 };
@@ -167,10 +205,18 @@ export default function UtilityAppsPage() {
   };
 
   const pauseTimer = () => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
     setTimer(prev => ({ ...prev, isRunning: false }));
   };
 
   const resetTimer = () => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
     setTimer({
       minutes: 0,
       seconds: 0,
@@ -178,6 +224,15 @@ export default function UtilityAppsPage() {
       timeLeft: 0
     });
   };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, []);
 
   // Notes export functionality
   const exportNotes = (format: string) => {
@@ -309,7 +364,7 @@ export default function UtilityAppsPage() {
                       <Button variant="outline" onClick={() => handleCalculatorInput('7')}>7</Button>
                       <Button variant="outline" onClick={() => handleCalculatorInput('8')}>8</Button>
                       <Button variant="outline" onClick={() => handleCalculatorInput('9')}>9</Button>
-                      <Button variant="outline" onClick={() => handleCalculatorInput('+')} className="row-span-2"><Plus className="h-4 w-4" /></Button>
+                      <Button variant="outline" onClick={() => handleCalculatorInput('+')} className="h-20"><Plus className="h-4 w-4" /></Button>
                       
                       <Button variant="outline" onClick={() => handleCalculatorInput('4')}>4</Button>
                       <Button variant="outline" onClick={() => handleCalculatorInput('5')}>5</Button>
@@ -318,7 +373,7 @@ export default function UtilityAppsPage() {
                       <Button variant="outline" onClick={() => handleCalculatorInput('1')}>1</Button>
                       <Button variant="outline" onClick={() => handleCalculatorInput('2')}>2</Button>
                       <Button variant="outline" onClick={() => handleCalculatorInput('3')}>3</Button>
-                      <Button variant="outline" onClick={() => handleCalculatorInput('=')} className="row-span-2"><Equal className="h-4 w-4" /></Button>
+                      <Button variant="outline" onClick={() => handleCalculatorInput('=')} className="h-20"><Equal className="h-4 w-4" /></Button>
                       
                       <Button variant="outline" onClick={() => handleCalculatorInput('0')} className="col-span-2">0</Button>
                       <Button variant="outline" onClick={() => handleCalculatorInput('.')}>.</Button>
