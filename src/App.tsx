@@ -14,6 +14,9 @@ import BooksPage from "./pages/resources/BooksPage";
 import RecordingsPage from "./pages/resources/RecordingsPage";
 import CommunityPage from "./pages/CommunityPage";
 import UtilityAppsPage from "./pages/UtilityAppsPage";
+import AdminPage from "./pages/AdminPage";
+import NewsPage from "./pages/NewsPage";
+import NewsDetailPage from "./pages/NewsDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +37,9 @@ const App = () => (
           <Route path="/resources/recordings" element={<RecordingsPage />} />
           <Route path="/utility-apps" element={<UtilityAppsPage />} />
           <Route path="/community" element={<CommunityPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/news" element={<NewsPage />} />
+          <Route path="/news/:id" element={<NewsDetailPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
