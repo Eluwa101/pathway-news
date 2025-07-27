@@ -54,19 +54,21 @@ const NewsDetailPage = () => {
       return;
     }
 
-    setArticle(articleData);
+    if (articleData) {
+      setArticle(articleData);
 
-    // Fetch related articles (same category, excluding current article)
-    const { data: relatedData } = await supabase
-      .from('news')
-      .select('*')
-      .eq('category', articleData.category)
-      .eq('is_published', true)
-      .neq('id', id)
-      .order('created_at', { ascending: false })
-      .limit(3);
+      // Fetch related articles (same category, excluding current article)
+      const { data: relatedData } = await supabase
+        .from('news')
+        .select('*')
+        .eq('category', articleData.category)
+        .eq('is_published', true)
+        .neq('id', id)
+        .order('created_at', { ascending: false })
+        .limit(3);
 
-    setRelatedArticles(relatedData || []);
+      setRelatedArticles(relatedData || []);
+    }
     setIsLoading(false);
   };
 
@@ -213,7 +215,7 @@ const NewsDetailPage = () => {
             {relatedArticles.map((relatedArticle) => (
               <Card key={relatedArticle.id} className="hover:shadow-lg transition-shadow duration-200">
                 <CardContent className="p-4 space-y-3">
-                  <Badge className={getCategoryColor(relatedArticle.category)} size="sm">
+                  <Badge className={getCategoryColor(relatedArticle.category)}>
                     {relatedArticle.category.replace('-', ' ').toUpperCase()}
                   </Badge>
                   

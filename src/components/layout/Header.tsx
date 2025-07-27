@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, BookOpen, Users, Map, Wrench, Home, Zap } from 'lucide-react';
+import { Menu, X, BookOpen, Users, Map, Wrench, Home, Zap, Newspaper, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   NavigationMenu,
@@ -114,6 +114,20 @@ export default function Header() {
                     <span>Community</span>
                   </Link>
                 </NavigationMenuItem>
+                
+                <NavigationMenuItem>
+                  <Link to="/news" className="flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-accent">
+                    <Newspaper className="h-4 w-4" />
+                    <span>News</span>
+                  </Link>
+                </NavigationMenuItem>
+                
+                <NavigationMenuItem>
+                  <Link to="/admin" className="flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-accent">
+                    <Settings className="h-4 w-4" />
+                    <span>Admin</span>
+                  </Link>
+                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
           </div>
@@ -158,6 +172,12 @@ export default function Header() {
             </Link>
             <Link to="/community" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
               Community
+            </Link>
+            <Link to="/news" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
+              News
+            </Link>
+            <Link to="/admin" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
+              Admin
             </Link>
           </div>
         )}
