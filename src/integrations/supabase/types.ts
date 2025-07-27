@@ -14,7 +14,192 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      books: {
+        Row: {
+          author: string
+          category: string
+          cover_image_url: string | null
+          created_at: string
+          description: string
+          file_url: string
+          id: string
+          is_published: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author: string
+          category: string
+          cover_image_url?: string | null
+          created_at?: string
+          description: string
+          file_url: string
+          id?: string
+          is_published?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string
+          file_url?: string
+          id?: string
+          is_published?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      career_events: {
+        Row: {
+          created_at: string
+          description: string
+          event_date: string
+          id: string
+          is_published: boolean
+          location: string
+          registration_url: string | null
+          speaker: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_date: string
+          id?: string
+          is_published?: boolean
+          location: string
+          registration_url?: string | null
+          speaker: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_date?: string
+          id?: string
+          is_published?: boolean
+          location?: string
+          registration_url?: string | null
+          speaker?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      devotionals: {
+        Row: {
+          author: string
+          content: string
+          created_at: string
+          id: string
+          is_published: boolean
+          scripture_reference: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author: string
+          content: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          scripture_reference?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          scripture_reference?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      news: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          is_hot: boolean
+          is_published: boolean
+          summary: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          is_hot?: boolean
+          is_published?: boolean
+          summary: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_hot?: boolean
+          is_published?: boolean
+          summary?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recordings: {
+        Row: {
+          audio_url: string
+          category: string
+          created_at: string
+          description: string
+          duration_minutes: number | null
+          id: string
+          is_published: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audio_url: string
+          category: string
+          created_at?: string
+          description: string
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audio_url?: string
+          category?: string
+          created_at?: string
+          description?: string
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
