@@ -106,8 +106,8 @@ export default function HomePage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground line-clamp-3 mb-4">{news.summary}</p>
-                  <Button variant="outline" size="sm" className="w-full">
-                    Read More
+                  <Button asChild variant="outline" size="sm" className="w-full">
+                    <Link to={`/news/${news.id}`}>Read More</Link>
                   </Button>
                 </CardContent>
               </Card>

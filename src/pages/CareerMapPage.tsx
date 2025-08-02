@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Map, Network, FileText, Download, Target, BookOpen, TrendingUp, Edit3, Plus, X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const careerPaths = [
   {
@@ -60,6 +61,7 @@ const careerPaths = [
 ];
 
 export default function CareerMapPage() {
+  const { toast } = useToast();
   const [selectedPath, setSelectedPath] = useState(careerPaths[0]);
   const [viewMode, setViewMode] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
@@ -435,7 +437,12 @@ ${path.prospects}
                       <div>
                         <p className="text-lg font-medium">Interactive Mind Map</p>
                         <p className="text-muted-foreground">Visual representation of your career path</p>
-                        <Button className="mt-4">
+                        <Button className="mt-4" onClick={() => {
+                          toast({
+                            title: "Mind Map Feature",
+                            description: "This feature is coming soon! It will generate an interactive mind map of your career path."
+                          });
+                        }}>
                           Generate Mind Map
                         </Button>
                       </div>

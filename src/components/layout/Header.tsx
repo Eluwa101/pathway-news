@@ -44,7 +44,7 @@ export default function Header() {
                     <div className="grid w-[400px] gap-3 p-4">
                       <NavigationMenuLink asChild>
                         <Link to="/student-tools/clock-calendar" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent">
-                          <div className="text-sm font-medium leading-none">Clock & Calendar</div>
+                          <div className="text-sm font-medium leading-none">Calendar & Events</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                             Digital clock, calendar, and upcoming events
                           </p>
@@ -150,7 +150,7 @@ export default function Header() {
               Home
             </Link>
             <Link to="/student-tools/clock-calendar" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
-              Clock & Calendar
+              Calendar & Events
             </Link>
             <Link to="/student-tools/devotionals" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
               Devotionals
