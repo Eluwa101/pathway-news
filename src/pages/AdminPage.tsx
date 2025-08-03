@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Upload, Edit, Trash2, Eye, Calendar, Clock, Video, Image } from "lucide-react";
+import { Plus, Upload, Edit, Trash2, Eye, Calendar, Clock, Video, Image, MessageCircle, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface News {
@@ -70,6 +70,20 @@ interface CareerEvent {
   created_at: string;
 }
 
+interface WhatsAppGroup {
+  id: string;
+  name: string;
+  category: string;
+  members: number;
+  description: string;
+  icon: string;
+  color: string;
+  link: string;
+  is_active: boolean;
+  is_published: boolean;
+  created_at: string;
+}
+
 const AdminPage = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -81,6 +95,7 @@ const AdminPage = () => {
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [devotionals, setDevotionals] = useState<Devotional[]>([]);
   const [careerEvents, setCareerEvents] = useState<CareerEvent[]>([]);
+  const [whatsappGroups, setWhatsappGroups] = useState<WhatsAppGroup[]>([]);
   
   // Editing state
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -92,12 +107,13 @@ const AdminPage = () => {
 
   const fetchContent = async () => {
     try {
-      const [newsRes, booksRes, recordingsRes, devotionalsRes, eventsRes] = await Promise.all([
+      const [newsRes, booksRes, recordingsRes, devotionalsRes, eventsRes, groupsRes] = await Promise.all([
         supabase.from('news').select('*').order('created_at', { ascending: false }),
         supabase.from('books').select('*').order('created_at', { ascending: false }),
         supabase.from('recordings').select('*').order('created_at', { ascending: false }),
         supabase.from('devotionals').select('*').order('created_at', { ascending: false }),
-        supabase.from('career_events').select('*').order('created_at', { ascending: false })
+        supabase.from('career_events').select('*').order('created_at', { ascending: false }),
+        supabase.from('whatsapp_groups').select('*').order('created_at', { ascending: false })
       ]);
 
       if (newsRes.data) setNews(newsRes.data);
@@ -105,6 +121,7 @@ const AdminPage = () => {
       if (recordingsRes.data) setRecordings(recordingsRes.data);
       if (devotionalsRes.data) setDevotionals(devotionalsRes.data);
       if (eventsRes.data) setCareerEvents(eventsRes.data);
+      if (groupsRes.data) setWhatsappGroups(groupsRes.data);
     } catch (error) {
       toast({
         title: "Error",
@@ -163,6 +180,7 @@ const AdminPage = () => {
             title: formData.get('title') as string,
             description: formData.get('description') as string,
             audio_url: formData.get('audio_url') as string,
+            video_url: formData.get('video_url') as string,
             duration_minutes: parseInt(formData.get('duration_minutes') as string),
             category: formData.get('category') as string,
             is_published: formData.get('is_published') === 'on'
@@ -205,6 +223,25 @@ const AdminPage = () => {
             result = await supabase.from('career_events').insert([eventData]);
           }
           break;
+
+        case 'whatsapp-groups':
+          const groupData = {
+            name: formData.get('name') as string,
+            category: formData.get('category') as string,
+            members: parseInt(formData.get('members') as string) || 0,
+            description: formData.get('description') as string,
+            icon: formData.get('icon') as string,
+            color: formData.get('color') as string,
+            link: formData.get('link') as string,
+            is_active: formData.get('is_active') === 'on',
+            is_published: formData.get('is_published') === 'on'
+          };
+          if (editingItem) {
+            result = await supabase.from('whatsapp_groups').update(groupData).eq('id', editingItem.id);
+          } else {
+            result = await supabase.from('whatsapp_groups').insert([groupData]);
+          }
+          break;
       }
 
       if (result?.error) throw result.error;
@@ -228,7 +265,7 @@ const AdminPage = () => {
     setIsLoading(false);
   };
 
-  const handleDelete = async (id: string, table: 'news' | 'books' | 'recordings' | 'devotionals' | 'career_events') => {
+  const handleDelete = async (id: string, table: 'news' | 'books' | 'recordings' | 'devotionals' | 'career_events' | 'whatsapp_groups') => {
     if (!confirm('Are you sure you want to delete this item?')) return;
 
     try {
@@ -257,7 +294,7 @@ const AdminPage = () => {
     return new Date(dateString) > new Date();
   };
 
-  const renderContentList = (items: any[], type: string, tableName: 'news' | 'books' | 'recordings' | 'devotionals' | 'career_events') => (
+  const renderContentList = (items: any[], type: string, tableName: 'news' | 'books' | 'recordings' | 'devotionals' | 'career_events' | 'whatsapp_groups') => (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">{type} Content</h3>
@@ -273,7 +310,7 @@ const AdminPage = () => {
             <CardContent className="p-4">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h4 className="font-medium">{item.title}</h4>
+                  <h4 className="font-medium">{item.title || item.name}</h4>
                   <p className="text-sm text-muted-foreground mt-1">
                     {item.summary || item.description || 'No description'}
                   </p>
@@ -282,6 +319,18 @@ const AdminPage = () => {
                       {item.is_published ? "Published" : "Draft"}
                     </Badge>
                     {item.is_hot && <Badge variant="destructive">Hot</Badge>}
+                    {item.is_active !== undefined && (
+                      <Badge variant={item.is_active ? "default" : "secondary"}>
+                        <MessageCircle className="h-3 w-3 mr-1" />
+                        {item.is_active ? "Active" : "Inactive"}
+                      </Badge>
+                    )}
+                    {item.members && (
+                      <Badge variant="outline">
+                        <Users className="h-3 w-3 mr-1" />
+                        {item.members} members
+                      </Badge>
+                    )}
                     {item.category && <Badge variant="outline">{item.category}</Badge>}
                     {item.event_date && (
                       <Badge variant={isUpcoming(item.event_date) ? "default" : "secondary"}>
@@ -337,7 +386,7 @@ const AdminPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={(e) => handleSubmit(e, type.toLowerCase())} className="space-y-4">
+          <form onSubmit={(e) => handleSubmit(e, type.toLowerCase().replace(' ', '-'))} className="space-y-4">
             {type === 'News' && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -419,6 +468,103 @@ const AdminPage = () => {
                     defaultValue={editingItem?.tags?.join(', ') || ''}
                   />
                 </div>
+                <div className="flex gap-4">
+                  <label className="flex items-center space-x-2">
+                    <input 
+                      type="checkbox" 
+                      name="is_hot" 
+                      defaultChecked={editingItem?.is_hot || false}
+                    />
+                    <span>Mark as Hot News</span>
+                  </label>
+                  <label className="flex items-center space-x-2">
+                    <input 
+                      type="checkbox" 
+                      name="is_published" 
+                      defaultChecked={editingItem?.is_published ?? true}
+                    />
+                    <span>Publish</span>
+                  </label>
+                </div>
+              </>
+            )}
+
+            {type === 'Book' && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="book-title">Title</Label>
+                    <Input 
+                      id="book-title" 
+                      name="title" 
+                      defaultValue={editingItem?.title || ''}
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="author">Author</Label>
+                    <Input 
+                      id="author" 
+                      name="author" 
+                      defaultValue={editingItem?.author || ''}
+                      required 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="book-description">Description</Label>
+                  <Textarea 
+                    id="book-description" 
+                    name="description" 
+                    defaultValue={editingItem?.description || ''}
+                    required 
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="file_url">File URL (PDF)</Label>
+                    <Input 
+                      id="file_url" 
+                      name="file_url" 
+                      type="url" 
+                      defaultValue={editingItem?.file_url || ''}
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="cover_image_url">Cover Image URL</Label>
+                    <Input 
+                      id="cover_image_url" 
+                      name="cover_image_url" 
+                      type="url" 
+                      defaultValue={editingItem?.cover_image_url || ''}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="book-category">Category</Label>
+                  <Select name="category" defaultValue={editingItem?.category || ''} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="academic">Academic</SelectItem>
+                      <SelectItem value="spiritual">Spiritual</SelectItem>
+                      <SelectItem value="career">Career Development</SelectItem>
+                      <SelectItem value="personal">Personal Development</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="flex items-center space-x-2">
+                    <input 
+                      type="checkbox" 
+                      name="is_published" 
+                      defaultChecked={editingItem?.is_published ?? true}
+                    />
+                    <span>Publish</span>
+                  </label>
+                </div>
               </>
             )}
 
@@ -490,6 +636,70 @@ const AdminPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                <div>
+                  <label className="flex items-center space-x-2">
+                    <input 
+                      type="checkbox" 
+                      name="is_published" 
+                      defaultChecked={editingItem?.is_published ?? true}
+                    />
+                    <span>Publish</span>
+                  </label>
+                </div>
+              </>
+            )}
+
+            {type === 'Devotional' && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="devotional-title">Title</Label>
+                    <Input 
+                      id="devotional-title" 
+                      name="title" 
+                      defaultValue={editingItem?.title || ''}
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="devotional-author">Author</Label>
+                    <Input 
+                      id="devotional-author" 
+                      name="author" 
+                      defaultValue={editingItem?.author || ''}
+                      required 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="devotional-content">Content</Label>
+                  <Textarea 
+                    id="devotional-content" 
+                    name="content" 
+                    rows={8}
+                    defaultValue={editingItem?.content || ''}
+                    required 
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="scripture_reference">Scripture Reference</Label>
+                  <Input 
+                    id="scripture_reference" 
+                    name="scripture_reference" 
+                    placeholder="e.g., John 3:16" 
+                    defaultValue={editingItem?.scripture_reference || ''}
+                  />
+                </div>
+                <div>
+                  <label className="flex items-center space-x-2">
+                    <input 
+                      type="checkbox" 
+                      name="is_published" 
+                      defaultChecked={editingItem?.is_published ?? true}
+                    />
+                    <span>Publish</span>
+                  </label>
+                </div>
               </>
             )}
 
@@ -557,27 +767,133 @@ const AdminPage = () => {
                     />
                   </div>
                 </div>
+                <div>
+                  <label className="flex items-center space-x-2">
+                    <input 
+                      type="checkbox" 
+                      name="is_published" 
+                      defaultChecked={editingItem?.is_published ?? true}
+                    />
+                    <span>Publish</span>
+                  </label>
+                </div>
               </>
             )}
 
-            <div className="flex gap-4">
-              <label className="flex items-center space-x-2">
-                <input 
-                  type="checkbox" 
-                  name="is_hot" 
-                  defaultChecked={editingItem?.is_hot || false}
-                />
-                <span>Mark as Hot News</span>
-              </label>
-              <label className="flex items-center space-x-2">
-                <input 
-                  type="checkbox" 
-                  name="is_published" 
-                  defaultChecked={editingItem?.is_published ?? true}
-                />
-                <span>Publish</span>
-              </label>
-            </div>
+            {type === 'WhatsApp Group' && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="group-name">Group Name</Label>
+                    <Input 
+                      id="group-name" 
+                      name="name" 
+                      defaultValue={editingItem?.name || ''}
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="group-category">Category</Label>
+                    <Select name="category" defaultValue={editingItem?.category || ''} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Major">Major</SelectItem>
+                        <SelectItem value="Course">Course</SelectItem>
+                        <SelectItem value="General">General</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="group-description">Description</Label>
+                  <Textarea 
+                    id="group-description" 
+                    name="description" 
+                    defaultValue={editingItem?.description || ''}
+                    required 
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="group-link">WhatsApp Link</Label>
+                    <Input 
+                      id="group-link" 
+                      name="link" 
+                      type="url" 
+                      placeholder="https://chat.whatsapp.com/..." 
+                      defaultValue={editingItem?.link || ''}
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="members">Members Count</Label>
+                    <Input 
+                      id="members" 
+                      name="members" 
+                      type="number" 
+                      defaultValue={editingItem?.members || '0'}
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="icon">Icon</Label>
+                    <Select name="icon" defaultValue={editingItem?.icon || 'MessageCircle'} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select icon" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="MessageCircle">Message Circle</SelectItem>
+                        <SelectItem value="Users">Users</SelectItem>
+                        <SelectItem value="Briefcase">Briefcase</SelectItem>
+                        <SelectItem value="BookOpen">Book Open</SelectItem>
+                        <SelectItem value="GraduationCap">Graduation Cap</SelectItem>
+                        <SelectItem value="Code">Code</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="color">Color Class</Label>
+                  <Select name="color" defaultValue={editingItem?.color || 'bg-gray-100 text-gray-800'} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select color" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="bg-blue-100 text-blue-800">Blue</SelectItem>
+                      <SelectItem value="bg-green-100 text-green-800">Green</SelectItem>
+                      <SelectItem value="bg-red-100 text-red-800">Red</SelectItem>
+                      <SelectItem value="bg-purple-100 text-purple-800">Purple</SelectItem>
+                      <SelectItem value="bg-yellow-100 text-yellow-800">Yellow</SelectItem>
+                      <SelectItem value="bg-indigo-100 text-indigo-800">Indigo</SelectItem>
+                      <SelectItem value="bg-orange-100 text-orange-800">Orange</SelectItem>
+                      <SelectItem value="bg-teal-100 text-teal-800">Teal</SelectItem>
+                      <SelectItem value="bg-pink-100 text-pink-800">Pink</SelectItem>
+                      <SelectItem value="bg-gray-100 text-gray-800">Gray</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex gap-4">
+                  <label className="flex items-center space-x-2">
+                    <input 
+                      type="checkbox" 
+                      name="is_active" 
+                      defaultChecked={editingItem?.is_active ?? true}
+                    />
+                    <span>Active Group</span>
+                  </label>
+                  <label className="flex items-center space-x-2">
+                    <input 
+                      type="checkbox" 
+                      name="is_published" 
+                      defaultChecked={editingItem?.is_published ?? true}
+                    />
+                    <span>Publish</span>
+                  </label>
+                </div>
+              </>
+            )}
 
             <div className="flex gap-2">
               <Button type="submit" disabled={isLoading}>
@@ -601,12 +917,13 @@ const AdminPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="news">News</TabsTrigger>
           <TabsTrigger value="books">Books</TabsTrigger>
           <TabsTrigger value="recordings">Recordings</TabsTrigger>
           <TabsTrigger value="devotionals">Devotionals</TabsTrigger>
           <TabsTrigger value="events">Career Events</TabsTrigger>
+          <TabsTrigger value="whatsapp-groups">WhatsApp Groups</TabsTrigger>
         </TabsList>
 
         <TabsContent value="news">
@@ -614,9 +931,19 @@ const AdminPage = () => {
           {renderContentList(news, 'News', 'news')}
         </TabsContent>
 
+        <TabsContent value="books">
+          {renderForm('Book')}
+          {renderContentList(books, 'Book', 'books')}
+        </TabsContent>
+
         <TabsContent value="recordings">
           {renderForm('Recording')}
           {renderContentList(recordings, 'Recording', 'recordings')}
+        </TabsContent>
+
+        <TabsContent value="devotionals">
+          {renderForm('Devotional')}
+          {renderContentList(devotionals, 'Devotional', 'devotionals')}
         </TabsContent>
 
         <TabsContent value="events">
@@ -624,12 +951,9 @@ const AdminPage = () => {
           {renderContentList(careerEvents, 'Event', 'career_events')}
         </TabsContent>
 
-        <TabsContent value="books">
-          {renderContentList(books, 'Book', 'books')}
-        </TabsContent>
-
-        <TabsContent value="devotionals">
-          {renderContentList(devotionals, 'Devotional', 'devotionals')}
+        <TabsContent value="whatsapp-groups">
+          {renderForm('WhatsApp Group')}
+          {renderContentList(whatsappGroups, 'WhatsApp Group', 'whatsapp_groups')}
         </TabsContent>
       </Tabs>
     </div>
