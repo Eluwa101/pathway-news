@@ -90,12 +90,6 @@ export default function Header() {
                         </Link>
                       </NavigationMenuLink>
                       <NavigationMenuLink asChild>
-                        <Link to="/resources/recordings" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent">
-                          <div className="text-sm font-medium leading-none">Recordings</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            Career chat recordings and past devotionals
-                          </p>
-                        </Link>
                       </NavigationMenuLink>
                     </div>
                   </NavigationMenuContent>
@@ -163,9 +157,6 @@ export default function Header() {
             </Link>
             <Link to="/resources/books" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
               Digital Books
-            </Link>
-            <Link to="/resources/recordings" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
-              Recordings
             </Link>
             <Link to="/utility-apps" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
               Utility Apps

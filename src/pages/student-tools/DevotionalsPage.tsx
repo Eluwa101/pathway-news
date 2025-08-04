@@ -1,62 +1,75 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Heart, Calendar, Clock, Play, Download } from 'lucide-react';
+import { WatchModal } from '@/components/ui/watch-modal';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
-const devotionals = [
-  {
-    id: 1,
-    title: "Faith and Learning: The Divine Connection",
-    speaker: "Elder David A. Bednar",
-    date: "2024-01-22",
-    time: "7:00 PM MT",
-    status: "upcoming",
-    description: "Explore how faith enhances our capacity to learn and grow intellectually and spiritually.",
-    topics: ["Faith", "Learning", "Spiritual Growth"],
-    liveLink: "https://example.com/live",
-    isLive: false
-  },
-  {
-    id: 2,
-    title: "Finding Joy in the Journey of Education",
-    speaker: "Sister Joy D. Jones",
-    date: "2024-01-25",
-    time: "8:00 PM MT",
-    status: "upcoming",
-    description: "Discover how to maintain joy and perspective during challenging academic pursuits.",
-    topics: ["Joy", "Education", "Perseverance"],
-    liveLink: "https://example.com/live2",
-    isLive: false
-  },
-  {
-    id: 3,
-    title: "The Purpose of Education",
-    speaker: "President Russell M. Nelson",
-    date: "2024-01-15",
-    time: "7:00 PM MT",
-    status: "completed",
-    description: "Understanding the eternal significance of learning and education in our lives.",
-    topics: ["Education", "Purpose", "Eternal Perspective"],
-    recordingLink: "https://example.com/recording1",
-    downloadLink: "https://example.com/download1"
-  },
-  {
-    id: 4,
-    title: "Overcoming Academic Challenges",
-    speaker: "Elder Dieter F. Uchtdorf",
-    date: "2024-01-08",
-    time: "8:00 PM MT",
-    status: "completed",
-    description: "Practical and spiritual insights for overcoming difficulties in our educational journey.",
-    topics: ["Challenges", "Resilience", "Faith"],
-    recordingLink: "https://example.com/recording2",
-    downloadLink: "https://example.com/download2"
-  }
-];
+interface Devotional {
+  id: string;
+  title: string;
+  content: string;
+  scripture_reference: string;
+  author: string;
+  speaker: string;
+  event_date: string;
+  event_time: string;
+  live_link: string;
+  recording_link: string;
+  download_link: string;
+  topics: string[];
+  status: string;
+  is_published: boolean;
+  created_at: string;
+}
 
 export default function DevotionalsPage() {
-  const upcomingDevotionals = devotionals.filter(d => d.status === "upcoming");
-  const pastDevotionals = devotionals.filter(d => d.status === "completed");
+  const [devotionals, setDevotionals] = useState<Devotional[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [watchModal, setWatchModal] = useState<{ isOpen: boolean; devotional: Devotional | null }>({
+    isOpen: false,
+    devotional: null
+  });
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchDevotionals();
+  }, []);
+
+  const fetchDevotionals = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('devotionals')
+        .select('*')
+        .eq('is_published', true)
+        .order('event_date', { ascending: false });
+
+      if (error) throw error;
+      setDevotionals(data || []);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch devotionals",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Auto-update status based on current date
+  const getDevotionalStatus = (devotional: Devotional) => {
+    if (!devotional.event_date) return devotional.status;
+    const eventDate = new Date(devotional.event_date);
+    const now = new Date();
+    return eventDate > now ? 'upcoming' : 'completed';
+  };
+
+  const upcomingDevotionals = devotionals.filter(d => getDevotionalStatus(d) === 'upcoming');
+  const pastDevotionals = devotionals.filter(d => getDevotionalStatus(d) === 'completed');
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -68,7 +81,11 @@ export default function DevotionalsPage() {
     });
   };
 
-  const DevotionalCard = ({ devotional, isPast = false }: { devotional: typeof devotionals[0], isPast?: boolean }) => (
+  const handleWatch = (devotional: Devotional) => {
+    setWatchModal({ isOpen: true, devotional });
+  };
+
+  const DevotionalCard = ({ devotional, isPast = false }: { devotional: Devotional, isPast?: boolean }) => (
     <Card className="mb-6 hover:shadow-lg transition-shadow">
       <CardHeader>
         <div className="flex items-start justify-between">
@@ -89,40 +106,61 @@ export default function DevotionalsPage() {
           <div className="flex items-center space-x-4 text-sm text-muted-foreground">
             <div className="flex items-center space-x-1">
               <Calendar className="h-4 w-4" />
-              <span>{formatDate(devotional.date)}</span>
+              <span>{devotional.event_date ? formatDate(devotional.event_date) : 'TBD'}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Clock className="h-4 w-4" />
-              <span>{devotional.time}</span>
+              <span>{devotional.event_time || 'TBD'}</span>
             </div>
           </div>
           
           <p className="text-muted-foreground">
-            {devotional.description}
+            {devotional.content}
           </p>
           
           <div className="flex flex-wrap gap-2">
-            {devotional.topics.map((topic, index) => (
+            {devotional.topics?.map((topic, index) => (
               <Badge key={index} variant="outline">{topic}</Badge>
             ))}
           </div>
           
           <div className="flex space-x-2 pt-2">
             {!isPast ? (
-              <Button className="flex items-center space-x-2">
-                <Play className="h-4 w-4" />
-                <span>Watch Live</span>
+              <Button 
+                className="flex items-center space-x-2"
+                asChild={!!devotional.live_link}
+                onClick={!devotional.live_link ? () => handleWatch(devotional) : undefined}
+              >
+                {devotional.live_link ? (
+                  <a href={devotional.live_link} target="_blank" rel="noopener noreferrer">
+                    <Play className="h-4 w-4" />
+                    <span>Watch Live</span>
+                  </a>
+                ) : (
+                  <>
+                    <Play className="h-4 w-4" />
+                    <span>Join Live</span>
+                  </>
+                )}
               </Button>
             ) : (
               <>
-                <Button variant="outline" className="flex items-center space-x-2">
+                <Button 
+                  variant="outline" 
+                  className="flex items-center space-x-2"
+                  onClick={() => handleWatch(devotional)}
+                >
                   <Play className="h-4 w-4" />
-                  <span>Watch Recording</span>
+                  <span>Watch</span>
                 </Button>
-                <Button variant="outline" className="flex items-center space-x-2">
-                  <Download className="h-4 w-4" />
-                  <span>Download</span>
-                </Button>
+                {devotional.download_link && (
+                  <Button variant="outline" className="flex items-center space-x-2" asChild>
+                    <a href={devotional.download_link} download>
+                      <Download className="h-4 w-4" />
+                      <span>Download</span>
+                    </a>
+                  </Button>
+                )}
               </>
             )}
           </div>
@@ -130,6 +168,17 @@ export default function DevotionalsPage() {
       </CardContent>
     </Card>
   );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Heart className="h-12 w-12 text-red-500 mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Loading devotionals...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -175,6 +224,15 @@ export default function DevotionalsPage() {
           </section>
         </div>
       </div>
+
+      <WatchModal 
+        isOpen={watchModal.isOpen}
+        onClose={() => setWatchModal({ isOpen: false, devotional: null })}
+        title={watchModal.devotional?.title || ''}
+        recordingLink={watchModal.devotional?.recording_link}
+        downloadLink={watchModal.devotional?.download_link}
+        type="devotional"
+      />
     </div>
   );
 }

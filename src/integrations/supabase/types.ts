@@ -55,39 +55,66 @@ export type Database = {
       }
       career_events: {
         Row: {
+          attendees: number | null
           created_at: string
           description: string
+          download_link: string | null
           event_date: string
           id: string
+          industry: string | null
           is_published: boolean
+          live_link: string | null
           location: string
+          position: string | null
+          recording_link: string | null
+          registration_required: boolean | null
           registration_url: string | null
           speaker: string
+          status: string | null
           title: string
+          topics: string[] | null
           updated_at: string
         }
         Insert: {
+          attendees?: number | null
           created_at?: string
           description: string
+          download_link?: string | null
           event_date: string
           id?: string
+          industry?: string | null
           is_published?: boolean
+          live_link?: string | null
           location: string
+          position?: string | null
+          recording_link?: string | null
+          registration_required?: boolean | null
           registration_url?: string | null
           speaker: string
+          status?: string | null
           title: string
+          topics?: string[] | null
           updated_at?: string
         }
         Update: {
+          attendees?: number | null
           created_at?: string
           description?: string
+          download_link?: string | null
           event_date?: string
           id?: string
+          industry?: string | null
           is_published?: boolean
+          live_link?: string | null
           location?: string
+          position?: string | null
+          recording_link?: string | null
+          registration_required?: boolean | null
           registration_url?: string | null
           speaker?: string
+          status?: string | null
           title?: string
+          topics?: string[] | null
           updated_at?: string
         }
         Relationships: []
@@ -97,30 +124,54 @@ export type Database = {
           author: string
           content: string
           created_at: string
+          download_link: string | null
+          event_date: string | null
+          event_time: string | null
           id: string
           is_published: boolean
+          live_link: string | null
+          recording_link: string | null
           scripture_reference: string | null
+          speaker: string | null
+          status: string | null
           title: string
+          topics: string[] | null
           updated_at: string
         }
         Insert: {
           author: string
           content: string
           created_at?: string
+          download_link?: string | null
+          event_date?: string | null
+          event_time?: string | null
           id?: string
           is_published?: boolean
+          live_link?: string | null
+          recording_link?: string | null
           scripture_reference?: string | null
+          speaker?: string | null
+          status?: string | null
           title: string
+          topics?: string[] | null
           updated_at?: string
         }
         Update: {
           author?: string
           content?: string
           created_at?: string
+          download_link?: string | null
+          event_date?: string | null
+          event_time?: string | null
           id?: string
           is_published?: boolean
+          live_link?: string | null
+          recording_link?: string | null
           scripture_reference?: string | null
+          speaker?: string | null
+          status?: string | null
           title?: string
+          topics?: string[] | null
           updated_at?: string
         }
         Relationships: []

@@ -54,6 +54,14 @@ interface Devotional {
   content: string;
   scripture_reference: string;
   author: string;
+  speaker: string;
+  event_date: string;
+  event_time: string;
+  live_link: string;
+  recording_link: string;
+  download_link: string;
+  topics: string[];
+  status: string;
   is_published: boolean;
   created_at: string;
 }
@@ -63,9 +71,18 @@ interface CareerEvent {
   title: string;
   description: string;
   speaker: string;
+  position: string;
+  industry: string;
   event_date: string;
   location: string;
   registration_url: string;
+  live_link: string;
+  recording_link: string;
+  download_link: string;
+  topics: string[];
+  attendees: number;
+  status: string;
+  registration_required: boolean;
   is_published: boolean;
   created_at: string;
 }
@@ -198,6 +215,14 @@ const AdminPage = () => {
             content: formData.get('content') as string,
             scripture_reference: formData.get('scripture_reference') as string,
             author: formData.get('author') as string,
+            speaker: formData.get('speaker') as string,
+            event_date: formData.get('event_date') as string,
+            event_time: formData.get('event_time') as string,
+            live_link: formData.get('live_link') as string,
+            recording_link: formData.get('recording_link') as string,
+            download_link: formData.get('download_link') as string,
+            topics: (formData.get('topics') as string)?.split(',').map(tag => tag.trim()) || [],
+            status: formData.get('status') as string || 'upcoming',
             is_published: formData.get('is_published') === 'on'
           };
           if (editingItem) {
@@ -212,9 +237,18 @@ const AdminPage = () => {
             title: formData.get('title') as string,
             description: formData.get('description') as string,
             speaker: formData.get('speaker') as string,
+            position: formData.get('position') as string,
+            industry: formData.get('industry') as string,
             event_date: formData.get('event_date') as string,
             location: formData.get('location') as string,
             registration_url: formData.get('registration_url') as string,
+            live_link: formData.get('live_link') as string,
+            recording_link: formData.get('recording_link') as string,
+            download_link: formData.get('download_link') as string,
+            topics: (formData.get('topics') as string)?.split(',').map(tag => tag.trim()) || [],
+            attendees: parseInt(formData.get('attendees') as string) || 0,
+            status: formData.get('status') as string || 'upcoming',
+            registration_required: formData.get('registration_required') === 'on',
             is_published: formData.get('is_published') === 'on'
           };
           if (editingItem) {
@@ -671,6 +705,26 @@ const AdminPage = () => {
                     />
                   </div>
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="speaker">Speaker</Label>
+                    <Input 
+                      id="speaker" 
+                      name="speaker" 
+                      defaultValue={editingItem?.speaker || ''}
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="event_time">Event Time</Label>
+                    <Input 
+                      id="event_time" 
+                      name="event_time" 
+                      placeholder="e.g., 7:00 PM MT"
+                      defaultValue={editingItem?.event_time || ''}
+                    />
+                  </div>
+                </div>
                 <div>
                   <Label htmlFor="devotional-content">Content</Label>
                   <Textarea 
@@ -681,24 +735,90 @@ const AdminPage = () => {
                     required 
                   />
                 </div>
-                <div>
-                  <Label htmlFor="scripture_reference">Scripture Reference</Label>
-                  <Input 
-                    id="scripture_reference" 
-                    name="scripture_reference" 
-                    placeholder="e.g., John 3:16" 
-                    defaultValue={editingItem?.scripture_reference || ''}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="scripture_reference">Scripture Reference</Label>
+                    <Input 
+                      id="scripture_reference" 
+                      name="scripture_reference" 
+                      placeholder="e.g., John 3:16" 
+                      defaultValue={editingItem?.scripture_reference || ''}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="event_date">
+                      <Calendar className="h-4 w-4 inline mr-2" />
+                      Event Date & Time
+                    </Label>
+                    <Input 
+                      id="event_date" 
+                      name="event_date" 
+                      type="datetime-local" 
+                      defaultValue={editingItem?.event_date ? new Date(editingItem.event_date).toISOString().slice(0, 16) : ''}
+                    />
+                  </div>
                 </div>
                 <div>
-                  <label className="flex items-center space-x-2">
-                    <input 
-                      type="checkbox" 
-                      name="is_published" 
-                      defaultChecked={editingItem?.is_published ?? true}
+                  <Label htmlFor="topics">Topics (comma separated)</Label>
+                  <Input 
+                    id="topics" 
+                    name="topics" 
+                    placeholder="Faith, Learning, Spiritual Growth" 
+                    defaultValue={editingItem?.topics?.join(', ') || ''}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="live_link">Live Link</Label>
+                    <Input 
+                      id="live_link" 
+                      name="live_link" 
+                      type="url" 
+                      defaultValue={editingItem?.live_link || ''}
                     />
-                    <span>Publish</span>
-                  </label>
+                  </div>
+                  <div>
+                    <Label htmlFor="recording_link">Recording Link</Label>
+                    <Input 
+                      id="recording_link" 
+                      name="recording_link" 
+                      type="url" 
+                      defaultValue={editingItem?.recording_link || ''}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="download_link">Download Link</Label>
+                    <Input 
+                      id="download_link" 
+                      name="download_link" 
+                      type="url" 
+                      defaultValue={editingItem?.download_link || ''}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="status">Status</Label>
+                    <Select name="status" defaultValue={editingItem?.status || 'upcoming'} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="upcoming">Upcoming</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="flex items-center space-x-2 pt-6">
+                      <input 
+                        type="checkbox" 
+                        name="is_published" 
+                        defaultChecked={editingItem?.is_published ?? true}
+                      />
+                      <span>Publish</span>
+                    </label>
+                  </div>
                 </div>
               </>
             )}
@@ -734,6 +854,35 @@ const AdminPage = () => {
                     />
                   </div>
                   <div>
+                    <Label htmlFor="position">Position/Title</Label>
+                    <Input 
+                      id="position" 
+                      name="position" 
+                      placeholder="e.g., CEO, TechCorp Solutions"
+                      defaultValue={editingItem?.position || ''}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="industry">Industry</Label>
+                    <Select name="industry" defaultValue={editingItem?.industry || ''} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select industry" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Business">Business</SelectItem>
+                        <SelectItem value="Technology">Technology</SelectItem>
+                        <SelectItem value="Healthcare">Healthcare</SelectItem>
+                        <SelectItem value="Finance">Finance</SelectItem>
+                        <SelectItem value="Education">Education</SelectItem>
+                        <SelectItem value="Engineering">Engineering</SelectItem>
+                        <SelectItem value="Legal">Legal</SelectItem>
+                        <SelectItem value="Marketing">Marketing</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
                     <Label htmlFor="event_date">
                       <Calendar className="h-4 w-4 inline mr-2" />
                       Event Date & Time
@@ -758,6 +907,26 @@ const AdminPage = () => {
                     />
                   </div>
                   <div>
+                    <Label htmlFor="attendees">Expected Attendees</Label>
+                    <Input 
+                      id="attendees" 
+                      name="attendees" 
+                      type="number" 
+                      defaultValue={editingItem?.attendees || '0'}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="topics">Topics (comma separated)</Label>
+                  <Input 
+                    id="topics" 
+                    name="topics" 
+                    placeholder="Leadership, Management, Digital Transformation" 
+                    defaultValue={editingItem?.topics?.join(', ') || ''}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
                     <Label htmlFor="registration_url">Registration URL</Label>
                     <Input 
                       id="registration_url" 
@@ -766,16 +935,69 @@ const AdminPage = () => {
                       defaultValue={editingItem?.registration_url || ''}
                     />
                   </div>
-                </div>
-                <div>
-                  <label className="flex items-center space-x-2">
-                    <input 
-                      type="checkbox" 
-                      name="is_published" 
-                      defaultChecked={editingItem?.is_published ?? true}
+                  <div>
+                    <Label htmlFor="live_link">Live Link</Label>
+                    <Input 
+                      id="live_link" 
+                      name="live_link" 
+                      type="url" 
+                      defaultValue={editingItem?.live_link || ''}
                     />
-                    <span>Publish</span>
-                  </label>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="recording_link">Recording Link</Label>
+                    <Input 
+                      id="recording_link" 
+                      name="recording_link" 
+                      type="url" 
+                      defaultValue={editingItem?.recording_link || ''}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="download_link">Download Link</Label>
+                    <Input 
+                      id="download_link" 
+                      name="download_link" 
+                      type="url" 
+                      defaultValue={editingItem?.download_link || ''}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="status">Status</Label>
+                    <Select name="status" defaultValue={editingItem?.status || 'upcoming'} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="upcoming">Upcoming</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="flex items-center space-x-2 pt-6">
+                      <input 
+                        type="checkbox" 
+                        name="registration_required" 
+                        defaultChecked={editingItem?.registration_required ?? false}
+                      />
+                      <span>Registration Required</span>
+                    </label>
+                  </div>
+                  <div>
+                    <label className="flex items-center space-x-2 pt-6">
+                      <input 
+                        type="checkbox" 
+                        name="is_published" 
+                        defaultChecked={editingItem?.is_published ?? true}
+                      />
+                      <span>Publish</span>
+                    </label>
+                  </div>
                 </div>
               </>
             )}
@@ -920,7 +1142,7 @@ const AdminPage = () => {
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="news">News</TabsTrigger>
           <TabsTrigger value="books">Books</TabsTrigger>
-          <TabsTrigger value="recordings">Recordings</TabsTrigger>
+          
           <TabsTrigger value="devotionals">Devotionals</TabsTrigger>
           <TabsTrigger value="events">Career Events</TabsTrigger>
           <TabsTrigger value="whatsapp-groups">WhatsApp Groups</TabsTrigger>

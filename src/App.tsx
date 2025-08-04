@@ -11,7 +11,7 @@ import DevotionalsPage from "./pages/student-tools/DevotionalsPage";
 import CareerChatsPage from "./pages/student-tools/CareerChatsPage";
 import CareerMapPage from "./pages/CareerMapPage";
 import BooksPage from "./pages/resources/BooksPage";
-import RecordingsPage from "./pages/resources/RecordingsPage";
+
 import CommunityPage from "./pages/CommunityPage";
 import UtilityAppsPage from "./pages/UtilityAppsPage";
 import AdminPage from "./pages/AdminPage";
@@ -34,7 +34,7 @@ const App = () => (
           <Route path="/student-tools/career-chats" element={<CareerChatsPage />} />
           <Route path="/career-map" element={<CareerMapPage />} />
           <Route path="/resources/books" element={<BooksPage />} />
-          <Route path="/resources/recordings" element={<RecordingsPage />} />
+          
           <Route path="/utility-apps" element={<UtilityAppsPage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/admin" element={<AdminPage />} />

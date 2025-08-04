@@ -1,89 +1,78 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Video, Calendar, Clock, Play, Download, Users } from 'lucide-react';
+import { WatchModal } from '@/components/ui/watch-modal';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
-const careerChats = [
-  {
-    id: 1,
-    title: "Business Leadership in the Digital Age",
-    speaker: "Sarah Johnson",
-    position: "CEO, TechCorp Solutions",
-    date: "2024-01-24",
-    time: "6:00 PM MT",
-    status: "upcoming",
-    description: "Learn essential leadership skills for navigating modern business challenges and building effective teams.",
-    topics: ["Leadership", "Management", "Digital Transformation"],
-    industry: "Business",
-    attendees: 250,
-    liveLink: "https://example.com/live",
-    registrationRequired: true
-  },
-  {
-    id: 2,
-    title: "Breaking into the Technology Sector",
-    speaker: "Michael Chen",
-    position: "Senior Software Engineer, Google",
-    date: "2024-01-26",
-    time: "7:30 PM MT",
-    status: "upcoming",
-    description: "Discover pathways to enter the tech industry, from coding bootcamps to computer science degrees.",
-    topics: ["Technology", "Software Development", "Career Transition"],
-    industry: "Technology",
-    attendees: 400,
-    liveLink: "https://example.com/live2",
-    registrationRequired: true
-  },
-  {
-    id: 3,
-    title: "Healthcare Administration Careers",
-    speaker: "Dr. Maria Rodriguez",
-    position: "Hospital Administrator, Regional Medical Center",
-    date: "2024-01-17",
-    time: "6:30 PM MT",
-    status: "completed",
-    description: "Explore opportunities in healthcare management and the skills needed to succeed in this growing field.",
-    topics: ["Healthcare", "Administration", "Management"],
-    industry: "Healthcare",
-    attendees: 180,
-    recordingLink: "https://example.com/recording1",
-    downloadLink: "https://example.com/download1"
-  },
-  {
-    id: 4,
-    title: "Financial Planning and Advisory",
-    speaker: "Robert Kim",
-    position: "Certified Financial Planner, Wealth Partners",
-    date: "2024-01-10",
-    time: "7:00 PM MT",
-    status: "completed",
-    description: "Learn about career opportunities in financial planning and the path to becoming a certified advisor.",
-    topics: ["Finance", "Planning", "Investment"],
-    industry: "Finance",
-    attendees: 320,
-    recordingLink: "https://example.com/recording2",
-    downloadLink: "https://example.com/download2"
-  },
-  {
-    id: 5,
-    title: "Education and Teaching Excellence",
-    speaker: "Jennifer Taylor",
-    position: "Principal, Lincoln Elementary",
-    date: "2024-01-03",
-    time: "8:00 PM MT",
-    status: "completed",
-    description: "Discover the rewards and challenges of a career in education and how to make a lasting impact.",
-    topics: ["Education", "Teaching", "Leadership"],
-    industry: "Education",
-    attendees: 150,
-    recordingLink: "https://example.com/recording3",
-    downloadLink: "https://example.com/download3"
-  }
-];
+interface CareerEvent {
+  id: string;
+  title: string;
+  description: string;
+  speaker: string;
+  position: string;
+  industry: string;
+  event_date: string;
+  location: string;
+  registration_url: string;
+  live_link: string;
+  recording_link: string;
+  download_link: string;
+  topics: string[];
+  attendees: number;
+  status: string;
+  registration_required: boolean;
+  is_published: boolean;
+  created_at: string;
+}
 
 export default function CareerChatsPage() {
-  const upcomingChats = careerChats.filter(chat => chat.status === "upcoming");
-  const pastChats = careerChats.filter(chat => chat.status === "completed");
+  const [careerEvents, setCareerEvents] = useState<CareerEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [watchModal, setWatchModal] = useState<{ isOpen: boolean; event: CareerEvent | null }>({
+    isOpen: false,
+    event: null
+  });
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchCareerEvents();
+  }, []);
+
+  const fetchCareerEvents = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('career_events')
+        .select('*')
+        .eq('is_published', true)
+        .order('event_date', { ascending: false });
+
+      if (error) throw error;
+      setCareerEvents(data || []);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch career events",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Auto-update status based on current date
+  const getEventStatus = (event: CareerEvent) => {
+    if (!event.event_date) return event.status;
+    const eventDate = new Date(event.event_date);
+    const now = new Date();
+    return eventDate > now ? 'upcoming' : 'completed';
+  };
+
+  const upcomingChats = careerEvents.filter(event => getEventStatus(event) === 'upcoming');
+  const pastChats = careerEvents.filter(event => getEventStatus(event) === 'completed');
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -106,7 +95,11 @@ export default function CareerChatsPage() {
     return colors[industry] || 'bg-gray-100 text-gray-800';
   };
 
-  const CareerChatCard = ({ chat, isPast = false }: { chat: typeof careerChats[0], isPast?: boolean }) => (
+  const handleWatch = (event: CareerEvent) => {
+    setWatchModal({ isOpen: true, event });
+  };
+
+  const CareerChatCard = ({ chat, isPast = false }: { chat: CareerEvent, isPast?: boolean }) => (
     <Card className="mb-6 hover:shadow-lg transition-shadow">
       <CardHeader>
         <div className="flex items-start justify-between">
@@ -115,9 +108,11 @@ export default function CareerChatsPage() {
             <CardTitle className="text-xl">{chat.title}</CardTitle>
           </div>
           <div className="flex space-x-2">
-            <Badge className={getIndustryColor(chat.industry)}>
-              {chat.industry}
-            </Badge>
+            {chat.industry && (
+              <Badge className={getIndustryColor(chat.industry)}>
+                {chat.industry}
+              </Badge>
+            )}
             <Badge variant={isPast ? "secondary" : "default"}>
               {isPast ? "Completed" : "Upcoming"}
             </Badge>
@@ -127,9 +122,11 @@ export default function CareerChatsPage() {
           <div className="text-lg font-medium text-primary">
             {chat.speaker}
           </div>
-          <div className="text-sm text-muted-foreground">
-            {chat.position}
-          </div>
+          {chat.position && (
+            <div className="text-sm text-muted-foreground">
+              {chat.position}
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -137,16 +134,14 @@ export default function CareerChatsPage() {
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center space-x-1">
               <Calendar className="h-4 w-4" />
-              <span>{formatDate(chat.date)}</span>
+              <span>{chat.event_date ? formatDate(chat.event_date) : 'TBD'}</span>
             </div>
-            <div className="flex items-center space-x-1">
-              <Clock className="h-4 w-4" />
-              <span>{chat.time}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Users className="h-4 w-4" />
-              <span>{chat.attendees} attendees</span>
-            </div>
+            {chat.attendees > 0 && (
+              <div className="flex items-center space-x-1">
+                <Users className="h-4 w-4" />
+                <span>{chat.attendees} attendees</span>
+              </div>
+            )}
           </div>
           
           <p className="text-muted-foreground">
@@ -154,7 +149,7 @@ export default function CareerChatsPage() {
           </p>
           
           <div className="flex flex-wrap gap-2">
-            {chat.topics.map((topic, index) => (
+            {chat.topics?.map((topic, index) => (
               <Badge key={index} variant="outline">{topic}</Badge>
             ))}
           </div>
@@ -162,26 +157,49 @@ export default function CareerChatsPage() {
           <div className="flex space-x-2 pt-2">
             {!isPast ? (
               <>
-                <Button className="flex items-center space-x-2">
-                  <Play className="h-4 w-4" />
-                  <span>Join Live</span>
+                <Button 
+                  className="flex items-center space-x-2"
+                  asChild={!!chat.live_link}
+                  onClick={!chat.live_link ? () => handleWatch(chat) : undefined}
+                >
+                  {chat.live_link ? (
+                    <a href={chat.live_link} target="_blank" rel="noopener noreferrer">
+                      <Play className="h-4 w-4" />
+                      <span>Join Live</span>
+                    </a>
+                  ) : (
+                    <>
+                      <Play className="h-4 w-4" />
+                      <span>Join Live</span>
+                    </>
+                  )}
                 </Button>
-                {chat.registrationRequired && (
-                  <Button variant="outline">
-                    Register Now
+                {chat.registration_required && chat.registration_url && (
+                  <Button variant="outline" asChild>
+                    <a href={chat.registration_url} target="_blank" rel="noopener noreferrer">
+                      Register Now
+                    </a>
                   </Button>
                 )}
               </>
             ) : (
               <>
-                <Button variant="outline" className="flex items-center space-x-2">
+                <Button 
+                  variant="outline" 
+                  className="flex items-center space-x-2"
+                  onClick={() => handleWatch(chat)}
+                >
                   <Play className="h-4 w-4" />
-                  <span>Watch Recording</span>
+                  <span>Watch</span>
                 </Button>
-                <Button variant="outline" className="flex items-center space-x-2">
-                  <Download className="h-4 w-4" />
-                  <span>Download</span>
-                </Button>
+                {chat.download_link && (
+                  <Button variant="outline" className="flex items-center space-x-2" asChild>
+                    <a href={chat.download_link} download>
+                      <Download className="h-4 w-4" />
+                      <span>Download</span>
+                    </a>
+                  </Button>
+                )}
               </>
             )}
           </div>
@@ -189,6 +207,17 @@ export default function CareerChatsPage() {
       </CardContent>
     </Card>
   );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Video className="h-12 w-12 text-blue-500 mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Loading career chats...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -234,6 +263,15 @@ export default function CareerChatsPage() {
           </section>
         </div>
       </div>
+
+      <WatchModal 
+        isOpen={watchModal.isOpen}
+        onClose={() => setWatchModal({ isOpen: false, event: null })}
+        title={watchModal.event?.title || ''}
+        recordingLink={watchModal.event?.recording_link}
+        downloadLink={watchModal.event?.download_link}
+        type="career-chat"
+      />
     </div>
   );
 }
