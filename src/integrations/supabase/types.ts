@@ -119,6 +119,48 @@ export type Database = {
         }
         Relationships: []
       }
+      career_paths: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          is_published: boolean
+          prospects: string
+          skills: string[]
+          steps: string[]
+          timeframe: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          is_published?: boolean
+          prospects: string
+          skills?: string[]
+          steps?: string[]
+          timeframe: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_published?: boolean
+          prospects?: string
+          skills?: string[]
+          steps?: string[]
+          timeframe?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       devotionals: {
         Row: {
           author: string

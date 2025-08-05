@@ -101,6 +101,20 @@ interface WhatsAppGroup {
   created_at: string;
 }
 
+interface CareerPath {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  steps: string[];
+  skills: string[];
+  timeframe: string;
+  prospects: string;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 const AdminPage = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -113,6 +127,7 @@ const AdminPage = () => {
   const [devotionals, setDevotionals] = useState<Devotional[]>([]);
   const [careerEvents, setCareerEvents] = useState<CareerEvent[]>([]);
   const [whatsappGroups, setWhatsappGroups] = useState<WhatsAppGroup[]>([]);
+  const [careerPaths, setCareerPaths] = useState<CareerPath[]>([]);
   
   // Editing state
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -124,13 +139,14 @@ const AdminPage = () => {
 
   const fetchContent = async () => {
     try {
-      const [newsRes, booksRes, recordingsRes, devotionalsRes, eventsRes, groupsRes] = await Promise.all([
+      const [newsRes, booksRes, recordingsRes, devotionalsRes, eventsRes, groupsRes, pathsRes] = await Promise.all([
         supabase.from('news').select('*').order('created_at', { ascending: false }),
         supabase.from('books').select('*').order('created_at', { ascending: false }),
         supabase.from('recordings').select('*').order('created_at', { ascending: false }),
         supabase.from('devotionals').select('*').order('created_at', { ascending: false }),
         supabase.from('career_events').select('*').order('created_at', { ascending: false }),
-        supabase.from('whatsapp_groups').select('*').order('created_at', { ascending: false })
+        supabase.from('whatsapp_groups').select('*').order('created_at', { ascending: false }),
+        supabase.from('career_paths').select('*').order('created_at', { ascending: false })
       ]);
 
       if (newsRes.data) setNews(newsRes.data);
@@ -139,6 +155,7 @@ const AdminPage = () => {
       if (devotionalsRes.data) setDevotionals(devotionalsRes.data);
       if (eventsRes.data) setCareerEvents(eventsRes.data);
       if (groupsRes.data) setWhatsappGroups(groupsRes.data);
+      if (pathsRes.data) setCareerPaths(pathsRes.data);
     } catch (error) {
       toast({
         title: "Error",
@@ -276,6 +293,24 @@ const AdminPage = () => {
             result = await supabase.from('whatsapp_groups').insert([groupData]);
           }
           break;
+
+        case 'career-paths':
+          const pathData = {
+            title: formData.get('title') as string,
+            category: formData.get('category') as string,
+            description: formData.get('description') as string,
+            steps: (formData.get('steps') as string)?.split('\n').filter(step => step.trim()) || [],
+            skills: (formData.get('skills') as string)?.split(',').map(skill => skill.trim()) || [],
+            timeframe: formData.get('timeframe') as string,
+            prospects: formData.get('prospects') as string,
+            is_published: formData.get('is_published') === 'on'
+          };
+          if (editingItem) {
+            result = await supabase.from('career_paths').update(pathData).eq('id', editingItem.id);
+          } else {
+            result = await supabase.from('career_paths').insert([pathData]);
+          }
+          break;
       }
 
       if (result?.error) throw result.error;
@@ -299,7 +334,7 @@ const AdminPage = () => {
     setIsLoading(false);
   };
 
-  const handleDelete = async (id: string, table: 'news' | 'books' | 'recordings' | 'devotionals' | 'career_events' | 'whatsapp_groups') => {
+  const handleDelete = async (id: string, table: 'news' | 'books' | 'recordings' | 'devotionals' | 'career_events' | 'whatsapp_groups' | 'career_paths') => {
     if (!confirm('Are you sure you want to delete this item?')) return;
 
     try {
@@ -328,7 +363,7 @@ const AdminPage = () => {
     return new Date(dateString) > new Date();
   };
 
-  const renderContentList = (items: any[], type: string, tableName: 'news' | 'books' | 'recordings' | 'devotionals' | 'career_events' | 'whatsapp_groups') => (
+  const renderContentList = (items: any[], type: string, tableName: 'news' | 'books' | 'recordings' | 'devotionals' | 'career_events' | 'whatsapp_groups' | 'career_paths') => (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">{type} Content</h3>
@@ -1002,6 +1037,105 @@ const AdminPage = () => {
               </>
             )}
 
+            {type === 'Career Path' && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="path-title">Title</Label>
+                    <Input 
+                      id="path-title" 
+                      name="title" 
+                      defaultValue={editingItem?.title || ''}
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="path-category">Category</Label>
+                    <Select name="category" defaultValue={editingItem?.category || ''} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Business">Business</SelectItem>
+                        <SelectItem value="Technology">Technology</SelectItem>
+                        <SelectItem value="Healthcare">Healthcare</SelectItem>
+                        <SelectItem value="Education">Education</SelectItem>
+                        <SelectItem value="Finance">Finance</SelectItem>
+                        <SelectItem value="Engineering">Engineering</SelectItem>
+                        <SelectItem value="Legal">Legal</SelectItem>
+                        <SelectItem value="Marketing">Marketing</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="path-description">Description</Label>
+                  <Textarea 
+                    id="path-description" 
+                    name="description" 
+                    defaultValue={editingItem?.description || ''}
+                    required 
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="steps">Steps to Success (one per line)</Label>
+                    <Textarea 
+                      id="steps" 
+                      name="steps" 
+                      rows={6}
+                      placeholder="Complete foundations courses&#10;Choose specialization&#10;Build portfolio&#10;Apply for positions"
+                      defaultValue={editingItem?.steps?.join('\n') || ''}
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="skills">Skills (comma separated)</Label>
+                    <Textarea 
+                      id="skills" 
+                      name="skills" 
+                      rows={6}
+                      placeholder="Leadership, Communication, Strategic Thinking"
+                      defaultValue={editingItem?.skills?.join(', ') || ''}
+                      required 
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="timeframe">Timeframe</Label>
+                    <Input 
+                      id="timeframe" 
+                      name="timeframe" 
+                      placeholder="e.g., 2-4 years"
+                      defaultValue={editingItem?.timeframe || ''}
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <label className="flex items-center space-x-2 pt-6">
+                      <input 
+                        type="checkbox" 
+                        name="is_published" 
+                        defaultChecked={editingItem?.is_published ?? true}
+                      />
+                      <span>Publish</span>
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="prospects">Job Market Outlook</Label>
+                  <Textarea 
+                    id="prospects" 
+                    name="prospects" 
+                    placeholder="High demand across industries, excellent growth opportunities..."
+                    defaultValue={editingItem?.prospects || ''}
+                    required 
+                  />
+                </div>
+              </>
+            )}
+
             {type === 'WhatsApp Group' && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1142,9 +1276,9 @@ const AdminPage = () => {
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="news">News</TabsTrigger>
           <TabsTrigger value="books">Books</TabsTrigger>
-          
           <TabsTrigger value="devotionals">Devotionals</TabsTrigger>
           <TabsTrigger value="events">Career Events</TabsTrigger>
+          <TabsTrigger value="career-paths">Career Paths</TabsTrigger>
           <TabsTrigger value="whatsapp-groups">WhatsApp Groups</TabsTrigger>
         </TabsList>
 
@@ -1158,10 +1292,6 @@ const AdminPage = () => {
           {renderContentList(books, 'Book', 'books')}
         </TabsContent>
 
-        <TabsContent value="recordings">
-          {renderForm('Recording')}
-          {renderContentList(recordings, 'Recording', 'recordings')}
-        </TabsContent>
 
         <TabsContent value="devotionals">
           {renderForm('Devotional')}
@@ -1171,6 +1301,11 @@ const AdminPage = () => {
         <TabsContent value="events">
           {renderForm('Event')}
           {renderContentList(careerEvents, 'Event', 'career_events')}
+        </TabsContent>
+
+        <TabsContent value="career-paths">
+          {renderForm('Career Path')}
+          {renderContentList(careerPaths, 'Career Path', 'career_paths')}
         </TabsContent>
 
         <TabsContent value="whatsapp-groups">

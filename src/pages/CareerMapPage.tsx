@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,66 +8,62 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Map, Network, FileText, Download, Target, BookOpen, TrendingUp, Edit3, Plus, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
-const careerPaths = [
-  {
-    id: 1,
-    title: "Business Administration",
-    category: "Business",
-    description: "Learn fundamental business principles and management skills",
-    steps: [
-      "Complete Business Foundations courses",
-      "Choose specialization (Marketing, Finance, Operations)",
-      "Complete internship or work experience",
-      "Develop leadership skills",
-      "Build professional network"
-    ],
-    skills: ["Leadership", "Strategic Thinking", "Communication", "Analysis"],
-    timeframe: "2-4 years",
-    prospects: "High demand across industries"
-  },
-  {
-    id: 2,
-    title: "Software Development",
-    category: "Technology",
-    description: "Build applications and software solutions",
-    steps: [
-      "Learn programming fundamentals",
-      "Master a programming language",
-      "Build portfolio projects",
-      "Contribute to open source",
-      "Apply for entry-level positions"
-    ],
-    skills: ["Programming", "Problem Solving", "Logic", "Continuous Learning"],
-    timeframe: "1-3 years",
-    prospects: "Excellent growth opportunities"
-  },
-  {
-    id: 3,
-    title: "Healthcare Administration",
-    category: "Healthcare",
-    description: "Manage healthcare facilities and operations",
-    steps: [
-      "Complete healthcare management courses",
-      "Gain healthcare industry experience",
-      "Develop regulatory knowledge",
-      "Build leadership skills",
-      "Pursue certification"
-    ],
-    skills: ["Healthcare Knowledge", "Management", "Compliance", "Communication"],
-    timeframe: "3-5 years",
-    prospects: "Growing field with aging population"
-  }
-];
+interface CareerPath {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  steps: string[];
+  skills: string[];
+  timeframe: string;
+  prospects: string;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 export default function CareerMapPage() {
   const { toast } = useToast();
-  const [selectedPath, setSelectedPath] = useState(careerPaths[0]);
+  const [careerPaths, setCareerPaths] = useState<CareerPath[]>([]);
+  const [selectedPath, setSelectedPath] = useState<CareerPath | null>(null);
   const [viewMode, setViewMode] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
-  const [editedPath, setEditedPath] = useState(careerPaths[0]);
-  const [userPaths, setUserPaths] = useState(careerPaths);
+  const [editedPath, setEditedPath] = useState<CareerPath | null>(null);
   const [selectedMajor, setSelectedMajor] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCareerPaths();
+  }, []);
+
+  const fetchCareerPaths = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('career_paths')
+        .select('*')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      const paths = data || [];
+      setCareerPaths(paths);
+      if (paths.length > 0 && !selectedPath) {
+        setSelectedPath(paths[0]);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch career paths",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const majors = [
     "Business Administration",
@@ -81,75 +77,93 @@ export default function CareerMapPage() {
   ];
 
   const handleEditPath = () => {
-    setEditedPath({ ...selectedPath });
-    setIsEditing(true);
+    if (selectedPath) {
+      setEditedPath({ ...selectedPath });
+      setIsEditing(true);
+    }
   };
 
   const handleSavePath = () => {
-    const updatedPaths = userPaths.map(path => 
-      path.id === editedPath.id ? editedPath : path
-    );
-    setUserPaths(updatedPaths);
-    setSelectedPath(editedPath);
-    setIsEditing(false);
+    if (editedPath && selectedPath) {
+      const updatedPaths = careerPaths.map(path => 
+        path.id === editedPath.id ? editedPath : path
+      );
+      setCareerPaths(updatedPaths);
+      setSelectedPath(editedPath);
+      setIsEditing(false);
+    }
   };
 
   const handleCancelEdit = () => {
-    setEditedPath(selectedPath);
-    setIsEditing(false);
+    if (selectedPath) {
+      setEditedPath(selectedPath);
+      setIsEditing(false);
+    }
   };
 
   const handleAddStep = () => {
-    setEditedPath(prev => ({
-      ...prev,
-      steps: [...prev.steps, ""]
-    }));
+    if (editedPath) {
+      setEditedPath(prev => prev ? ({
+        ...prev,
+        steps: [...prev.steps, ""]
+      }) : null);
+    }
   };
 
   const handleRemoveStep = (index: number) => {
-    setEditedPath(prev => ({
-      ...prev,
-      steps: prev.steps.filter((_, i) => i !== index)
-    }));
+    if (editedPath) {
+      setEditedPath(prev => prev ? ({
+        ...prev,
+        steps: prev.steps.filter((_, i) => i !== index)
+      }) : null);
+    }
   };
 
   const handleStepChange = (index: number, value: string) => {
-    setEditedPath(prev => ({
-      ...prev,
-      steps: prev.steps.map((step, i) => i === index ? value : step)
-    }));
+    if (editedPath) {
+      setEditedPath(prev => prev ? ({
+        ...prev,
+        steps: prev.steps.map((step, i) => i === index ? value : step)
+      }) : null);
+    }
   };
 
   const handleAddSkill = () => {
-    setEditedPath(prev => ({
-      ...prev,
-      skills: [...prev.skills, ""]
-    }));
+    if (editedPath) {
+      setEditedPath(prev => prev ? ({
+        ...prev,
+        skills: [...prev.skills, ""]
+      }) : null);
+    }
   };
 
   const handleRemoveSkill = (index: number) => {
-    setEditedPath(prev => ({
-      ...prev,
-      skills: prev.skills.filter((_, i) => i !== index)
-    }));
+    if (editedPath) {
+      setEditedPath(prev => prev ? ({
+        ...prev,
+        skills: prev.skills.filter((_, i) => i !== index)
+      }) : null);
+    }
   };
 
   const handleSkillChange = (index: number, value: string) => {
-    setEditedPath(prev => ({
-      ...prev,
-      skills: prev.skills.map((skill, i) => i === index ? value : skill)
-    }));
+    if (editedPath) {
+      setEditedPath(prev => prev ? ({
+        ...prev,
+        skills: prev.skills.map((skill, i) => i === index ? value : skill)
+      }) : null);
+    }
   };
 
   const filterPathsByMajor = () => {
-    if (!selectedMajor) return userPaths;
-    return userPaths.filter(path => 
+    if (!selectedMajor) return careerPaths;
+    return careerPaths.filter(path => 
       path.title.toLowerCase().includes(selectedMajor.toLowerCase()) ||
       path.category.toLowerCase().includes(selectedMajor.toLowerCase())
     );
   };
 
-  const generateMarkdown = (path: typeof careerPaths[0]) => {
+  const generateMarkdown = (path: CareerPath) => {
     return `# ${path.title} Career Path
 
 ## Overview
@@ -168,6 +182,28 @@ ${path.timeframe}
 ${path.prospects}
 `;
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Map className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Loading career paths...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedPath) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Map className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground">No career paths available</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -240,7 +276,7 @@ ${path.prospects}
                         <div
                           key={path.id}
                           className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                            selectedPath.id === path.id 
+                            selectedPath?.id === path.id 
                               ? 'border-primary bg-primary/5' 
                               : 'border-border hover:bg-accent'
                           }`}
@@ -263,25 +299,25 @@ ${path.prospects}
                       <div className="flex items-start justify-between">
                         <div>
                           <CardTitle className="text-2xl">
-                            {isEditing ? (
+                            {isEditing && editedPath ? (
                               <Input
                                 value={editedPath.title}
-                                onChange={(e) => setEditedPath(prev => ({ ...prev, title: e.target.value }))}
+                                onChange={(e) => setEditedPath(prev => prev ? ({ ...prev, title: e.target.value }) : null)}
                                 className="text-2xl font-bold"
                               />
                             ) : (
-                              selectedPath.title
+                              selectedPath?.title
                             )}
                           </CardTitle>
                           <Badge className="mt-2">
-                            {isEditing ? (
+                            {isEditing && editedPath ? (
                               <Input
                                 value={editedPath.category}
-                                onChange={(e) => setEditedPath(prev => ({ ...prev, category: e.target.value }))}
+                                onChange={(e) => setEditedPath(prev => prev ? ({ ...prev, category: e.target.value }) : null)}
                                 className="h-6 text-xs"
                               />
                             ) : (
-                              selectedPath.category
+                              selectedPath?.category
                             )}
                           </Badge>
                         </div>
@@ -289,14 +325,14 @@ ${path.prospects}
                           <div className="text-right text-sm text-muted-foreground">
                             <div className="flex items-center space-x-1">
                               <Target className="h-4 w-4" />
-                              {isEditing ? (
+                              {isEditing && editedPath ? (
                                 <Input
                                   value={editedPath.timeframe}
-                                  onChange={(e) => setEditedPath(prev => ({ ...prev, timeframe: e.target.value }))}
+                                  onChange={(e) => setEditedPath(prev => prev ? ({ ...prev, timeframe: e.target.value }) : null)}
                                   className="h-6 text-xs w-24"
                                 />
                               ) : (
-                                <span>{selectedPath.timeframe}</span>
+                                <span>{selectedPath?.timeframe}</span>
                               )}
                             </div>
                           </div>
@@ -320,14 +356,14 @@ ${path.prospects}
                     </CardHeader>
                     <CardContent className="space-y-6">
                       <div>
-                        {isEditing ? (
+                        {isEditing && editedPath ? (
                           <Textarea
                             value={editedPath.description}
-                            onChange={(e) => setEditedPath(prev => ({ ...prev, description: e.target.value }))}
+                            onChange={(e) => setEditedPath(prev => prev ? ({ ...prev, description: e.target.value }) : null)}
                             className="min-h-20"
                           />
                         ) : (
-                          <p className="text-muted-foreground">{selectedPath.description}</p>
+                          <p className="text-muted-foreground">{selectedPath?.description}</p>
                         )}
                       </div>
                       
@@ -345,7 +381,7 @@ ${path.prospects}
                           )}
                         </div>
                         <ol className="space-y-2">
-                          {(isEditing ? editedPath.steps : selectedPath.steps).map((step, index) => (
+                          {(isEditing && editedPath ? editedPath.steps : selectedPath?.steps || []).map((step, index) => (
                             <li key={index} className="flex items-start space-x-2">
                               <span className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full text-sm flex items-center justify-center">
                                 {index + 1}
@@ -380,7 +416,7 @@ ${path.prospects}
                           )}
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {(isEditing ? editedPath.skills : selectedPath.skills).map((skill, index) => (
+                          {(isEditing && editedPath ? editedPath.skills : selectedPath?.skills || []).map((skill, index) => (
                             <div key={index} className="flex items-center">
                               {isEditing ? (
                                 <div className="flex items-center space-x-1">
@@ -406,14 +442,14 @@ ${path.prospects}
                           <TrendingUp className="h-4 w-4" />
                           <span>Job Market Outlook</span>
                         </h3>
-                        {isEditing ? (
+                        {isEditing && editedPath ? (
                           <Textarea
                             value={editedPath.prospects}
-                            onChange={(e) => setEditedPath(prev => ({ ...prev, prospects: e.target.value }))}
+                            onChange={(e) => setEditedPath(prev => prev ? ({ ...prev, prospects: e.target.value }) : null)}
                             className="min-h-16"
                           />
                         ) : (
-                          <p className="text-muted-foreground">{selectedPath.prospects}</p>
+                          <p className="text-muted-foreground">{selectedPath?.prospects}</p>
                         )}
                       </div>
                     </CardContent>
@@ -427,7 +463,7 @@ ${path.prospects}
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Network className="h-5 w-5" />
-                    <span>Mind Map View - {selectedPath.title}</span>
+                    <span>Mind Map View - {selectedPath?.title}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -457,15 +493,32 @@ ${path.prospects}
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <FileText className="h-5 w-5" />
-                    <span>Markdown Format - {selectedPath.title}</span>
+                    <span>Markdown Format - {selectedPath?.title}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <pre className="bg-muted p-4 rounded-lg overflow-auto text-sm whitespace-pre-wrap">
-                    {generateMarkdown(selectedPath)}
+                    {selectedPath ? generateMarkdown(selectedPath) : ''}
                   </pre>
                   <div className="mt-4">
-                    <Button variant="outline">
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        if (selectedPath) {
+                          const element = document.createElement('a');
+                          const file = new Blob([generateMarkdown(selectedPath)], { type: 'text/markdown' });
+                          element.href = URL.createObjectURL(file);
+                          element.download = `${selectedPath.title.replace(/\s+/g, '_')}_career_path.md`;
+                          document.body.appendChild(element);
+                          element.click();
+                          document.body.removeChild(element);
+                          toast({
+                            title: "Success",
+                            description: "Markdown file downloaded!"
+                          });
+                        }
+                      }}
+                    >
                       <Download className="h-4 w-4 mr-2" />
                       Download Markdown
                     </Button>
