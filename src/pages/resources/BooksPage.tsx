@@ -1,159 +1,82 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BookOpen, Download, Search, Filter } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
-const books = [
-  {
-    id: 1,
-    title: "Principles of Management",
-    author: "Dr. Richard L. Daft",
-    subject: "Business",
-    pages: 624,
-    format: "PDF",
-    size: "15.2 MB",
-    description: "Comprehensive guide to modern management practices and organizational behavior.",
-    downloadLink: "https://example.com/book1.pdf",
-    coverImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=300&fit=crop",
-    semester: "Fall 2024",
-    required: true
-  },
-  {
-    id: 2,
-    title: "Introduction to Algorithms",
-    author: "Thomas H. Cormen",
-    subject: "Technology",
-    pages: 1292,
-    format: "PDF",
-    size: "28.7 MB",
-    description: "The definitive guide to algorithms and data structures for computer science students.",
-    downloadLink: "https://example.com/book2.pdf",
-    coverImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=200&h=300&fit=crop",
-    semester: "Spring 2024",
-    required: true
-  },
-  {
-    id: 3,
-    title: "Healthcare Operations Management",
-    author: "Dr. Yasar A. Ozcan",
-    subject: "Healthcare",
-    pages: 456,
-    format: "PDF",
-    size: "8.3 MB",
-    description: "Strategic approaches to managing healthcare delivery systems and operations.",
-    downloadLink: "https://example.com/book3.pdf",
-    coverImage: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=200&h=300&fit=crop",
-    semester: "Fall 2024",
-    required: false
-  },
-  {
-    id: 4,
-    title: "Personal Financial Planning",
-    author: "Randy Billingsley",
-    subject: "Finance",
-    pages: 736,
-    format: "PDF",
-    size: "12.1 MB",
-    description: "Comprehensive guide to personal finance, investments, and retirement planning.",
-    downloadLink: "https://example.com/book4.pdf",
-    coverImage: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=200&h=300&fit=crop",
-    semester: "Spring 2024",
-    required: true
-  },
-  {
-    id: 5,
-    title: "Educational Psychology: Theory and Practice",
-    author: "Dr. Robert E. Slavin",
-    subject: "Education",
-    pages: 528,
-    format: "PDF",
-    size: "18.9 MB",
-    description: "Research-based approaches to understanding student learning and motivation.",
-    downloadLink: "https://example.com/book5.pdf",
-    coverImage: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=200&h=300&fit=crop",
-    semester: "Fall 2024",
-    required: false
-  },
-  {
-    id: 6,
-    title: "Study Skills and Learning Strategies",
-    author: "Dr. Claire E. Weinstein",
-    subject: "Study Skills",
-    pages: 284,
-    format: "PDF",
-    size: "4.7 MB",
-    description: "Evidence-based techniques for effective studying, memory, and academic success.",
-    downloadLink: "https://example.com/book6.pdf",
-    coverImage: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=200&h=300&fit=crop",
-    semester: "All Semesters",
-    required: false
-  },
-  {
-    id: 7,
-    title: "Statistics for Business and Economics",
-    author: "Paul Newbold",
-    subject: "Mathematics",
-    pages: 896,
-    format: "PDF",
-    size: "22.4 MB",
-    description: "Essential statistical methods and applications for business decision making.",
-    downloadLink: "https://example.com/book7.pdf",
-    coverImage: "https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=200&h=300&fit=crop",
-    semester: "Spring 2024",
-    required: true
-  },
-  {
-    id: 8,
-    title: "Marketing Management",
-    author: "Philip Kotler",
-    subject: "Business",
-    pages: 832,
-    format: "PDF",
-    size: "19.8 MB",
-    description: "The world's leading marketing textbook covering strategy, planning, and implementation.",
-    downloadLink: "https://example.com/book8.pdf",
-    coverImage: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=200&h=300&fit=crop",
-    semester: "Fall 2024",
-    required: true
-  }
-];
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  category: string;
+  description: string;
+  file_url: string;
+  cover_image_url?: string;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 export default function BooksPage() {
+  const [books, setBooks] = useState<Book[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSubject, setSelectedSubject] = useState("all");
-  const [selectedSemester, setSelectedSemester] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const { toast } = useToast();
 
-  const subjects = [...new Set(books.map(book => book.subject))];
-  const semesters = [...new Set(books.map(book => book.semester))];
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  const fetchBooks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('books')
+        .select('*')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBooks(data || []);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch books",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const categories = [...new Set(books.map(book => book.category))];
 
   const filteredBooks = books.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          book.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSubject = selectedSubject === "all" || book.subject === selectedSubject;
-    const matchesSemester = selectedSemester === "all" || book.semester === selectedSemester;
+    const matchesCategory = selectedCategory === "all" || book.category === selectedCategory;
     
-    return matchesSearch && matchesSubject && matchesSemester;
+    return matchesSearch && matchesCategory;
   });
 
-  const BookCard = ({ book }: { book: typeof books[0] }) => (
+  const BookCard = ({ book }: { book: Book }) => (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <div className="flex">
         <div className="w-24 h-32 bg-muted flex items-center justify-center">
-          <img 
-            src={book.coverImage} 
-            alt={book.title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <BookOpen className="h-8 w-8" />
-          </div>
+          {book.cover_image_url ? (
+            <img 
+              src={book.cover_image_url} 
+              alt={book.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <BookOpen className="h-8 w-8 text-muted-foreground" />
+          )}
         </div>
         
         <div className="flex-1">
@@ -163,12 +86,7 @@ export default function BooksPage() {
                 <CardTitle className="text-lg line-clamp-1">{book.title}</CardTitle>
                 <p className="text-sm text-muted-foreground">{book.author}</p>
               </div>
-              <div className="flex space-x-1">
-                <Badge variant={book.required ? "default" : "secondary"}>
-                  {book.required ? "Required" : "Optional"}
-                </Badge>
-                <Badge variant="outline">{book.subject}</Badge>
-              </div>
+              <Badge variant="outline">{book.category}</Badge>
             </div>
           </CardHeader>
           
@@ -178,14 +96,10 @@ export default function BooksPage() {
                 {book.description}
               </p>
               
-              <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                <span>{book.pages} pages</span>
-                <span>{book.format}</span>
-                <span>{book.size}</span>
-                <span>{book.semester}</span>
-              </div>
-              
-              <Button className="w-full sm:w-auto">
+              <Button 
+                className="w-full sm:w-auto"
+                onClick={() => window.open(book.file_url, '_blank')}
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Download PDF
               </Button>
@@ -195,6 +109,17 @@ export default function BooksPage() {
       </div>
     </Card>
   );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading books...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -210,7 +135,7 @@ export default function BooksPage() {
           {/* Search and Filters */}
           <Card>
             <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
                   <div className="relative">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -223,26 +148,16 @@ export default function BooksPage() {
                   </div>
                 </div>
                 
-                <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger>
-                    <SelectValue placeholder="All Subjects" />
+                    <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Subjects</SelectItem>
-                    {subjects.map(subject => (
-                      <SelectItem key={subject} value={subject}>{subject}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                <Select value={selectedSemester} onValueChange={setSelectedSemester}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Semesters" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Semesters</SelectItem>
-                    {semesters.map(semester => (
-                      <SelectItem key={semester} value={semester}>{semester}</SelectItem>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {categories.map(category => (
+                      <SelectItem key={category} value={category}>
+                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -255,10 +170,6 @@ export default function BooksPage() {
             <p className="text-sm text-muted-foreground">
               Showing {filteredBooks.length} of {books.length} books
             </p>
-            <div className="flex items-center space-x-2 text-sm">
-              <Filter className="h-4 w-4" />
-              <span>Filter: {selectedSubject !== "all" && selectedSubject} {selectedSemester !== "all" && selectedSemester}</span>
-            </div>
           </div>
 
           {/* Books Grid */}
