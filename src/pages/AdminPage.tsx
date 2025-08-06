@@ -1,135 +1,32 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Upload, Edit, Trash2, Eye, Calendar, Clock, Video, Image, MessageCircle, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { AdminForm } from "@/components/admin/AdminForm";
+import { AdminList } from "@/components/admin/AdminList";
 
-interface News {
+interface AdminContent {
   id: string;
-  title: string;
-  content: string;
-  summary: string;
-  category: string;
-  tags: string[];
-  is_hot: boolean;
+  title?: string;
+  name?: string;
+  description?: string;
+  summary?: string;
   is_published: boolean;
   created_at: string;
-}
-
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  description: string;
-  file_url: string;
-  cover_image_url: string;
-  category: string;
-  is_published: boolean;
-  created_at: string;
-}
-
-interface Recording {
-  id: string;
-  title: string;
-  description: string;
-  audio_url: string;
-  video_url?: string;
-  duration_minutes: number;
-  category: string;
-  is_published: boolean;
-  created_at: string;
-}
-
-interface Devotional {
-  id: string;
-  title: string;
-  content: string;
-  scripture_reference: string;
-  author: string;
-  speaker: string;
-  event_date: string;
-  event_time: string;
-  live_link: string;
-  recording_link: string;
-  download_link: string;
-  topics: string[];
-  status: string;
-  is_published: boolean;
-  created_at: string;
-}
-
-interface CareerEvent {
-  id: string;
-  title: string;
-  description: string;
-  speaker: string;
-  position: string;
-  industry: string;
-  event_date: string;
-  location: string;
-  registration_url: string;
-  live_link: string;
-  recording_link: string;
-  download_link: string;
-  topics: string[];
-  attendees: number;
-  status: string;
-  registration_required: boolean;
-  is_published: boolean;
-  created_at: string;
-}
-
-interface WhatsAppGroup {
-  id: string;
-  name: string;
-  category: string;
-  members: number;
-  description: string;
-  icon: string;
-  color: string;
-  link: string;
-  is_active: boolean;
-  is_published: boolean;
-  created_at: string;
-}
-
-interface CareerPath {
-  id: string;
-  title: string;
-  category: string;
-  description: string;
-  steps: string[];
-  skills: string[];
-  timeframe: string;
-  prospects: string;
-  is_published: boolean;
-  created_at: string;
-  updated_at: string;
 }
 
 const AdminPage = () => {
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("news");
   
   // Content state
-  const [news, setNews] = useState<News[]>([]);
-  const [books, setBooks] = useState<Book[]>([]);
-  const [recordings, setRecordings] = useState<Recording[]>([]);
-  const [devotionals, setDevotionals] = useState<Devotional[]>([]);
-  const [careerEvents, setCareerEvents] = useState<CareerEvent[]>([]);
-  const [whatsappGroups, setWhatsappGroups] = useState<WhatsAppGroup[]>([]);
-  const [careerPaths, setCareerPaths] = useState<CareerPath[]>([]);
+  const [news, setNews] = useState<AdminContent[]>([]);
+  const [books, setBooks] = useState<AdminContent[]>([]);
+  const [devotionals, setDevotionals] = useState<AdminContent[]>([]);
+  const [careerEvents, setCareerEvents] = useState<AdminContent[]>([]);
+  const [whatsappGroups, setWhatsappGroups] = useState<AdminContent[]>([]);
   
-  // Editing state
+  // Form state
   const [editingItem, setEditingItem] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
 
@@ -139,24 +36,21 @@ const AdminPage = () => {
 
   const fetchContent = async () => {
     try {
-      const [newsRes, booksRes, recordingsRes, devotionalsRes, eventsRes, groupsRes, pathsRes] = await Promise.all([
+      const [newsRes, booksRes, devotionalsRes, eventsRes, groupsRes] = await Promise.all([
         supabase.from('news').select('*').order('created_at', { ascending: false }),
         supabase.from('books').select('*').order('created_at', { ascending: false }),
-        supabase.from('recordings').select('*').order('created_at', { ascending: false }),
         supabase.from('devotionals').select('*').order('created_at', { ascending: false }),
         supabase.from('career_events').select('*').order('created_at', { ascending: false }),
-        supabase.from('whatsapp_groups').select('*').order('created_at', { ascending: false }),
-        supabase.from('career_paths').select('*').order('created_at', { ascending: false })
+        supabase.from('whatsapp_groups').select('*').order('created_at', { ascending: false })
       ]);
 
       if (newsRes.data) setNews(newsRes.data);
       if (booksRes.data) setBooks(booksRes.data);
-      if (recordingsRes.data) setRecordings(recordingsRes.data);
       if (devotionalsRes.data) setDevotionals(devotionalsRes.data);
       if (eventsRes.data) setCareerEvents(eventsRes.data);
       if (groupsRes.data) setWhatsappGroups(groupsRes.data);
-      if (pathsRes.data) setCareerPaths(pathsRes.data);
     } catch (error) {
+      console.error('Fetch error:', error);
       toast({
         title: "Error",
         description: "Failed to fetch content",
@@ -165,1104 +59,25 @@ const AdminPage = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, type: string) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-    
-    try {
-      let result;
-      
-      switch (type) {
-        case 'news':
-          const newsData = {
-            title: formData.get('title') as string,
-            content: formData.get('content') as string,
-            summary: formData.get('summary') as string,
-            category: formData.get('category') as string,
-            tags: (formData.get('tags') as string)?.split(',').map(tag => tag.trim()) || [],
-            is_hot: formData.get('is_hot') === 'on',
-            is_published: formData.get('is_published') === 'on'
-          };
-          if (editingItem) {
-            result = await supabase.from('news').update(newsData).eq('id', editingItem.id);
-          } else {
-            result = await supabase.from('news').insert([newsData]);
-          }
-          break;
-          
-        case 'books':
-          const bookData = {
-            title: formData.get('title') as string,
-            author: formData.get('author') as string,
-            description: formData.get('description') as string,
-            file_url: formData.get('file_url') as string,
-            cover_image_url: formData.get('cover_image_url') as string,
-            category: formData.get('category') as string,
-            is_published: formData.get('is_published') === 'on'
-          };
-          if (editingItem) {
-            result = await supabase.from('books').update(bookData).eq('id', editingItem.id);
-          } else {
-            result = await supabase.from('books').insert([bookData]);
-          }
-          break;
-          
-        case 'recordings':
-          const recordingData = {
-            title: formData.get('title') as string,
-            description: formData.get('description') as string,
-            audio_url: formData.get('audio_url') as string,
-            video_url: formData.get('video_url') as string,
-            duration_minutes: parseInt(formData.get('duration_minutes') as string),
-            category: formData.get('category') as string,
-            is_published: formData.get('is_published') === 'on'
-          };
-          if (editingItem) {
-            result = await supabase.from('recordings').update(recordingData).eq('id', editingItem.id);
-          } else {
-            result = await supabase.from('recordings').insert([recordingData]);
-          }
-          break;
-          
-        case 'devotionals':
-          const devotionalData = {
-            title: formData.get('title') as string,
-            content: formData.get('content') as string,
-            scripture_reference: formData.get('scripture_reference') as string,
-            author: formData.get('author') as string,
-            speaker: formData.get('speaker') as string,
-            event_date: formData.get('event_date') as string,
-            event_time: formData.get('event_time') as string,
-            live_link: formData.get('live_link') as string,
-            recording_link: formData.get('recording_link') as string,
-            download_link: formData.get('download_link') as string,
-            topics: (formData.get('topics') as string)?.split(',').map(tag => tag.trim()) || [],
-            status: formData.get('status') as string || 'upcoming',
-            is_published: formData.get('is_published') === 'on'
-          };
-          if (editingItem) {
-            result = await supabase.from('devotionals').update(devotionalData).eq('id', editingItem.id);
-          } else {
-            result = await supabase.from('devotionals').insert([devotionalData]);
-          }
-          break;
-          
-        case 'events':
-          const eventData = {
-            title: formData.get('title') as string,
-            description: formData.get('description') as string,
-            speaker: formData.get('speaker') as string,
-            position: formData.get('position') as string,
-            industry: formData.get('industry') as string,
-            event_date: formData.get('event_date') as string,
-            location: formData.get('location') as string,
-            registration_url: formData.get('registration_url') as string,
-            live_link: formData.get('live_link') as string,
-            recording_link: formData.get('recording_link') as string,
-            download_link: formData.get('download_link') as string,
-            topics: (formData.get('topics') as string)?.split(',').map(tag => tag.trim()) || [],
-            attendees: parseInt(formData.get('attendees') as string) || 0,
-            status: formData.get('status') as string || 'upcoming',
-            registration_required: formData.get('registration_required') === 'on',
-            is_published: formData.get('is_published') === 'on'
-          };
-          if (editingItem) {
-            result = await supabase.from('career_events').update(eventData).eq('id', editingItem.id);
-          } else {
-            result = await supabase.from('career_events').insert([eventData]);
-          }
-          break;
-
-        case 'whatsapp-groups':
-          const groupData = {
-            name: formData.get('name') as string,
-            category: formData.get('category') as string,
-            members: parseInt(formData.get('members') as string) || 0,
-            description: formData.get('description') as string,
-            icon: formData.get('icon') as string,
-            color: formData.get('color') as string,
-            link: formData.get('link') as string,
-            is_active: formData.get('is_active') === 'on',
-            is_published: formData.get('is_published') === 'on'
-          };
-          if (editingItem) {
-            result = await supabase.from('whatsapp_groups').update(groupData).eq('id', editingItem.id);
-          } else {
-            result = await supabase.from('whatsapp_groups').insert([groupData]);
-          }
-          break;
-
-        case 'career-paths':
-          const pathData = {
-            title: formData.get('title') as string,
-            category: formData.get('category') as string,
-            description: formData.get('description') as string,
-            steps: (formData.get('steps') as string)?.split('\n').filter(step => step.trim()) || [],
-            skills: (formData.get('skills') as string)?.split(',').map(skill => skill.trim()) || [],
-            timeframe: formData.get('timeframe') as string,
-            prospects: formData.get('prospects') as string,
-            is_published: formData.get('is_published') === 'on'
-          };
-          if (editingItem) {
-            result = await supabase.from('career_paths').update(pathData).eq('id', editingItem.id);
-          } else {
-            result = await supabase.from('career_paths').insert([pathData]);
-          }
-          break;
-      }
-
-      if (result?.error) throw result.error;
-
-      toast({
-        title: "Success",
-        description: `${type} ${editingItem ? 'updated' : 'created'} successfully`
-      });
-      
-      (e.target as HTMLFormElement).reset();
-      setEditingItem(null);
-      setShowForm(false);
-      fetchContent();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: `Failed to ${editingItem ? 'update' : 'create'} ${type}`,
-        variant: "destructive"
-      });
-    }
-    setIsLoading(false);
+  const handleFormSuccess = () => {
+    setShowForm(false);
+    setEditingItem(null);
+    fetchContent();
   };
 
-  const handleDelete = async (id: string, table: 'news' | 'books' | 'recordings' | 'devotionals' | 'career_events' | 'whatsapp_groups' | 'career_paths') => {
-    if (!confirm('Are you sure you want to delete this item?')) return;
-
-    try {
-      const { error } = await supabase.from(table).delete().eq('id', id);
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Item deleted successfully"
-      });
-      fetchContent();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete item",
-        variant: "destructive"
-      });
-    }
+  const handleFormCancel = () => {
+    setShowForm(false);
+    setEditingItem(null);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+  const handleEdit = (item: any) => {
+    setEditingItem(item);
+    setShowForm(true);
   };
 
-  const isUpcoming = (dateString: string) => {
-    return new Date(dateString) > new Date();
-  };
-
-  const renderContentList = (items: any[], type: string, tableName: 'news' | 'books' | 'recordings' | 'devotionals' | 'career_events' | 'whatsapp_groups' | 'career_paths') => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">{type} Content</h3>
-        <Button onClick={() => { setEditingItem(null); setShowForm(true); }}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add {type}
-        </Button>
-      </div>
-      
-      <div className="grid gap-4">
-        {items.map((item) => (
-          <Card key={item.id}>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h4 className="font-medium">{item.title || item.name}</h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {item.summary || item.description || 'No description'}
-                  </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge variant={item.is_published ? "default" : "secondary"}>
-                      {item.is_published ? "Published" : "Draft"}
-                    </Badge>
-                    {item.is_hot && <Badge variant="destructive">Hot</Badge>}
-                    {item.is_active !== undefined && (
-                      <Badge variant={item.is_active ? "default" : "secondary"}>
-                        <MessageCircle className="h-3 w-3 mr-1" />
-                        {item.is_active ? "Active" : "Inactive"}
-                      </Badge>
-                    )}
-                    {item.members && (
-                      <Badge variant="outline">
-                        <Users className="h-3 w-3 mr-1" />
-                        {item.members} members
-                      </Badge>
-                    )}
-                    {item.category && <Badge variant="outline">{item.category}</Badge>}
-                    {item.event_date && (
-                      <Badge variant={isUpcoming(item.event_date) ? "default" : "secondary"}>
-                        <Clock className="h-3 w-3 mr-1" />
-                        {isUpcoming(item.event_date) ? "Upcoming" : "Past"}
-                      </Badge>
-                    )}
-                    <span className="text-xs text-muted-foreground">
-                      {formatDate(item.created_at)}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {type === 'News' && (
-                    <Button asChild size="sm" variant="ghost">
-                      <Link to={`/news/${item.id}`}>
-                        <Eye className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  )}
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => { setEditingItem(item); setShowForm(true); }}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDelete(item.id, tableName)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderForm = (type: string) => {
-    if (!showForm) return null;
-
-    return (
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
-            {editingItem ? `Edit ${type}` : `Add ${type}`}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={(e) => handleSubmit(e, type.toLowerCase().replace(' ', '-'))} className="space-y-4">
-            {type === 'News' && (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="title">Title</Label>
-                    <Input 
-                      id="title" 
-                      name="title" 
-                      defaultValue={editingItem?.title || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="category">Category</Label>
-                    <Select name="category" defaultValue={editingItem?.category || ''} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="academic">Academic</SelectItem>
-                        <SelectItem value="student-life">Student Life</SelectItem>
-                        <SelectItem value="career">Career</SelectItem>
-                        <SelectItem value="spiritual">Spiritual</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="summary">Summary</Label>
-                  <Textarea 
-                    id="summary" 
-                    name="summary" 
-                    defaultValue={editingItem?.summary || ''}
-                    required 
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="content">Content</Label>
-                  <Textarea 
-                    id="content" 
-                    name="content" 
-                    rows={8} 
-                    defaultValue={editingItem?.content || ''}
-                    required 
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="image_url">
-                      <Image className="h-4 w-4 inline mr-2" />
-                      Image URL
-                    </Label>
-                    <Input 
-                      id="image_url" 
-                      name="image_url" 
-                      type="url" 
-                      defaultValue={editingItem?.image_url || ''}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="video_url">
-                      <Video className="h-4 w-4 inline mr-2" />
-                      Video URL
-                    </Label>
-                    <Input 
-                      id="video_url" 
-                      name="video_url" 
-                      type="url" 
-                      defaultValue={editingItem?.video_url || ''}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="tags">Tags (comma separated)</Label>
-                  <Input 
-                    id="tags" 
-                    name="tags" 
-                    placeholder="tag1, tag2, tag3" 
-                    defaultValue={editingItem?.tags?.join(', ') || ''}
-                  />
-                </div>
-                <div className="flex gap-4">
-                  <label className="flex items-center space-x-2">
-                    <input 
-                      type="checkbox" 
-                      name="is_hot" 
-                      defaultChecked={editingItem?.is_hot || false}
-                    />
-                    <span>Mark as Hot News</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input 
-                      type="checkbox" 
-                      name="is_published" 
-                      defaultChecked={editingItem?.is_published ?? true}
-                    />
-                    <span>Publish</span>
-                  </label>
-                </div>
-              </>
-            )}
-
-            {type === 'Book' && (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="book-title">Title</Label>
-                    <Input 
-                      id="book-title" 
-                      name="title" 
-                      defaultValue={editingItem?.title || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="author">Author</Label>
-                    <Input 
-                      id="author" 
-                      name="author" 
-                      defaultValue={editingItem?.author || ''}
-                      required 
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="book-description">Description</Label>
-                  <Textarea 
-                    id="book-description" 
-                    name="description" 
-                    defaultValue={editingItem?.description || ''}
-                    required 
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="file_url">File URL (PDF)</Label>
-                    <Input 
-                      id="file_url" 
-                      name="file_url" 
-                      type="url" 
-                      defaultValue={editingItem?.file_url || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="cover_image_url">Cover Image URL</Label>
-                    <Input 
-                      id="cover_image_url" 
-                      name="cover_image_url" 
-                      type="url" 
-                      defaultValue={editingItem?.cover_image_url || ''}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="book-category">Category</Label>
-                  <Select name="category" defaultValue={editingItem?.category || ''} required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="academic">Academic</SelectItem>
-                      <SelectItem value="spiritual">Spiritual</SelectItem>
-                      <SelectItem value="career">Career Development</SelectItem>
-                      <SelectItem value="personal">Personal Development</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="flex items-center space-x-2">
-                    <input 
-                      type="checkbox" 
-                      name="is_published" 
-                      defaultChecked={editingItem?.is_published ?? true}
-                    />
-                    <span>Publish</span>
-                  </label>
-                </div>
-              </>
-            )}
-
-            {type === 'Recording' && (
-              <>
-                <div>
-                  <Label htmlFor="recording-title">Title</Label>
-                  <Input 
-                    id="recording-title" 
-                    name="title" 
-                    defaultValue={editingItem?.title || ''}
-                    required 
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="recording-description">Description</Label>
-                  <Textarea 
-                    id="recording-description" 
-                    name="description" 
-                    defaultValue={editingItem?.description || ''}
-                    required 
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="audio_url">Audio URL</Label>
-                    <Input 
-                      id="audio_url" 
-                      name="audio_url" 
-                      type="url" 
-                      defaultValue={editingItem?.audio_url || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="video_url">
-                      <Video className="h-4 w-4 inline mr-2" />
-                      Video URL
-                    </Label>
-                    <Input 
-                      id="video_url" 
-                      name="video_url" 
-                      type="url" 
-                      defaultValue={editingItem?.video_url || ''}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="duration_minutes">Duration (minutes)</Label>
-                    <Input 
-                      id="duration_minutes" 
-                      name="duration_minutes" 
-                      type="number" 
-                      defaultValue={editingItem?.duration_minutes || ''}
-                      required 
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="recording-category">Category</Label>
-                  <Select name="category" defaultValue={editingItem?.category || ''} required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="devotional">Devotional</SelectItem>
-                      <SelectItem value="academic">Academic</SelectItem>
-                      <SelectItem value="career">Career</SelectItem>
-                      <SelectItem value="testimony">Testimony</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="flex items-center space-x-2">
-                    <input 
-                      type="checkbox" 
-                      name="is_published" 
-                      defaultChecked={editingItem?.is_published ?? true}
-                    />
-                    <span>Publish</span>
-                  </label>
-                </div>
-              </>
-            )}
-
-            {type === 'Devotional' && (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="devotional-title">Title</Label>
-                    <Input 
-                      id="devotional-title" 
-                      name="title" 
-                      defaultValue={editingItem?.title || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="devotional-author">Author</Label>
-                    <Input 
-                      id="devotional-author" 
-                      name="author" 
-                      defaultValue={editingItem?.author || ''}
-                      required 
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="speaker">Speaker</Label>
-                    <Input 
-                      id="speaker" 
-                      name="speaker" 
-                      defaultValue={editingItem?.speaker || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="event_time">Event Time</Label>
-                    <Input 
-                      id="event_time" 
-                      name="event_time" 
-                      placeholder="e.g., 7:00 PM MT"
-                      defaultValue={editingItem?.event_time || ''}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="devotional-content">Content</Label>
-                  <Textarea 
-                    id="devotional-content" 
-                    name="content" 
-                    rows={8}
-                    defaultValue={editingItem?.content || ''}
-                    required 
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="scripture_reference">Scripture Reference</Label>
-                    <Input 
-                      id="scripture_reference" 
-                      name="scripture_reference" 
-                      placeholder="e.g., John 3:16" 
-                      defaultValue={editingItem?.scripture_reference || ''}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="event_date">
-                      <Calendar className="h-4 w-4 inline mr-2" />
-                      Event Date & Time
-                    </Label>
-                    <Input 
-                      id="event_date" 
-                      name="event_date" 
-                      type="datetime-local" 
-                      defaultValue={editingItem?.event_date ? new Date(editingItem.event_date).toISOString().slice(0, 16) : ''}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="topics">Topics (comma separated)</Label>
-                  <Input 
-                    id="topics" 
-                    name="topics" 
-                    placeholder="Faith, Learning, Spiritual Growth" 
-                    defaultValue={editingItem?.topics?.join(', ') || ''}
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="live_link">Live Link</Label>
-                    <Input 
-                      id="live_link" 
-                      name="live_link" 
-                      type="url" 
-                      defaultValue={editingItem?.live_link || ''}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="recording_link">Recording Link</Label>
-                    <Input 
-                      id="recording_link" 
-                      name="recording_link" 
-                      type="url" 
-                      defaultValue={editingItem?.recording_link || ''}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="download_link">Download Link</Label>
-                    <Input 
-                      id="download_link" 
-                      name="download_link" 
-                      type="url" 
-                      defaultValue={editingItem?.download_link || ''}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="status">Status</Label>
-                    <Select name="status" defaultValue={editingItem?.status || 'upcoming'} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="upcoming">Upcoming</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="flex items-center space-x-2 pt-6">
-                      <input 
-                        type="checkbox" 
-                        name="is_published" 
-                        defaultChecked={editingItem?.is_published ?? true}
-                      />
-                      <span>Publish</span>
-                    </label>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {type === 'Event' && (
-              <>
-                <div>
-                  <Label htmlFor="event-title">Title</Label>
-                  <Input 
-                    id="event-title" 
-                    name="title" 
-                    defaultValue={editingItem?.title || ''}
-                    required 
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="event-description">Description</Label>
-                  <Textarea 
-                    id="event-description" 
-                    name="description" 
-                    defaultValue={editingItem?.description || ''}
-                    required 
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="speaker">Speaker</Label>
-                    <Input 
-                      id="speaker" 
-                      name="speaker" 
-                      defaultValue={editingItem?.speaker || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="position">Position/Title</Label>
-                    <Input 
-                      id="position" 
-                      name="position" 
-                      placeholder="e.g., CEO, TechCorp Solutions"
-                      defaultValue={editingItem?.position || ''}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="industry">Industry</Label>
-                    <Select name="industry" defaultValue={editingItem?.industry || ''} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select industry" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Business">Business</SelectItem>
-                        <SelectItem value="Technology">Technology</SelectItem>
-                        <SelectItem value="Healthcare">Healthcare</SelectItem>
-                        <SelectItem value="Finance">Finance</SelectItem>
-                        <SelectItem value="Education">Education</SelectItem>
-                        <SelectItem value="Engineering">Engineering</SelectItem>
-                        <SelectItem value="Legal">Legal</SelectItem>
-                        <SelectItem value="Marketing">Marketing</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="event_date">
-                      <Calendar className="h-4 w-4 inline mr-2" />
-                      Event Date & Time
-                    </Label>
-                    <Input 
-                      id="event_date" 
-                      name="event_date" 
-                      type="datetime-local" 
-                      defaultValue={editingItem?.event_date ? new Date(editingItem.event_date).toISOString().slice(0, 16) : ''}
-                      required 
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="location">Location</Label>
-                    <Input 
-                      id="location" 
-                      name="location" 
-                      defaultValue={editingItem?.location || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="attendees">Expected Attendees</Label>
-                    <Input 
-                      id="attendees" 
-                      name="attendees" 
-                      type="number" 
-                      defaultValue={editingItem?.attendees || '0'}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="topics">Topics (comma separated)</Label>
-                  <Input 
-                    id="topics" 
-                    name="topics" 
-                    placeholder="Leadership, Management, Digital Transformation" 
-                    defaultValue={editingItem?.topics?.join(', ') || ''}
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="registration_url">Registration URL</Label>
-                    <Input 
-                      id="registration_url" 
-                      name="registration_url" 
-                      type="url" 
-                      defaultValue={editingItem?.registration_url || ''}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="live_link">Live Link</Label>
-                    <Input 
-                      id="live_link" 
-                      name="live_link" 
-                      type="url" 
-                      defaultValue={editingItem?.live_link || ''}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="recording_link">Recording Link</Label>
-                    <Input 
-                      id="recording_link" 
-                      name="recording_link" 
-                      type="url" 
-                      defaultValue={editingItem?.recording_link || ''}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="download_link">Download Link</Label>
-                    <Input 
-                      id="download_link" 
-                      name="download_link" 
-                      type="url" 
-                      defaultValue={editingItem?.download_link || ''}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="status">Status</Label>
-                    <Select name="status" defaultValue={editingItem?.status || 'upcoming'} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="upcoming">Upcoming</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="flex items-center space-x-2 pt-6">
-                      <input 
-                        type="checkbox" 
-                        name="registration_required" 
-                        defaultChecked={editingItem?.registration_required ?? false}
-                      />
-                      <span>Registration Required</span>
-                    </label>
-                  </div>
-                  <div>
-                    <label className="flex items-center space-x-2 pt-6">
-                      <input 
-                        type="checkbox" 
-                        name="is_published" 
-                        defaultChecked={editingItem?.is_published ?? true}
-                      />
-                      <span>Publish</span>
-                    </label>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {type === 'Career Path' && (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="path-title">Title</Label>
-                    <Input 
-                      id="path-title" 
-                      name="title" 
-                      defaultValue={editingItem?.title || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="path-category">Category</Label>
-                    <Select name="category" defaultValue={editingItem?.category || ''} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Business">Business</SelectItem>
-                        <SelectItem value="Technology">Technology</SelectItem>
-                        <SelectItem value="Healthcare">Healthcare</SelectItem>
-                        <SelectItem value="Education">Education</SelectItem>
-                        <SelectItem value="Finance">Finance</SelectItem>
-                        <SelectItem value="Engineering">Engineering</SelectItem>
-                        <SelectItem value="Legal">Legal</SelectItem>
-                        <SelectItem value="Marketing">Marketing</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="path-description">Description</Label>
-                  <Textarea 
-                    id="path-description" 
-                    name="description" 
-                    defaultValue={editingItem?.description || ''}
-                    required 
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="steps">Steps to Success (one per line)</Label>
-                    <Textarea 
-                      id="steps" 
-                      name="steps" 
-                      rows={6}
-                      placeholder="Complete foundations courses&#10;Choose specialization&#10;Build portfolio&#10;Apply for positions"
-                      defaultValue={editingItem?.steps?.join('\n') || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="skills">Skills (comma separated)</Label>
-                    <Textarea 
-                      id="skills" 
-                      name="skills" 
-                      rows={6}
-                      placeholder="Leadership, Communication, Strategic Thinking"
-                      defaultValue={editingItem?.skills?.join(', ') || ''}
-                      required 
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="timeframe">Timeframe</Label>
-                    <Input 
-                      id="timeframe" 
-                      name="timeframe" 
-                      placeholder="e.g., 2-4 years"
-                      defaultValue={editingItem?.timeframe || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <label className="flex items-center space-x-2 pt-6">
-                      <input 
-                        type="checkbox" 
-                        name="is_published" 
-                        defaultChecked={editingItem?.is_published ?? true}
-                      />
-                      <span>Publish</span>
-                    </label>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="prospects">Job Market Outlook</Label>
-                  <Textarea 
-                    id="prospects" 
-                    name="prospects" 
-                    placeholder="High demand across industries, excellent growth opportunities..."
-                    defaultValue={editingItem?.prospects || ''}
-                    required 
-                  />
-                </div>
-              </>
-            )}
-
-            {type === 'WhatsApp Group' && (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="group-name">Group Name</Label>
-                    <Input 
-                      id="group-name" 
-                      name="name" 
-                      defaultValue={editingItem?.name || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="group-category">Category</Label>
-                    <Select name="category" defaultValue={editingItem?.category || ''} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Major">Major</SelectItem>
-                        <SelectItem value="Course">Course</SelectItem>
-                        <SelectItem value="General">General</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="group-description">Description</Label>
-                  <Textarea 
-                    id="group-description" 
-                    name="description" 
-                    defaultValue={editingItem?.description || ''}
-                    required 
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="group-link">WhatsApp Link</Label>
-                    <Input 
-                      id="group-link" 
-                      name="link" 
-                      type="url" 
-                      placeholder="https://chat.whatsapp.com/..." 
-                      defaultValue={editingItem?.link || ''}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="members">Members Count</Label>
-                    <Input 
-                      id="members" 
-                      name="members" 
-                      type="number" 
-                      defaultValue={editingItem?.members || '0'}
-                      required 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="icon">Icon</Label>
-                    <Select name="icon" defaultValue={editingItem?.icon || 'MessageCircle'} required>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select icon" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="MessageCircle">Message Circle</SelectItem>
-                        <SelectItem value="Users">Users</SelectItem>
-                        <SelectItem value="Briefcase">Briefcase</SelectItem>
-                        <SelectItem value="BookOpen">Book Open</SelectItem>
-                        <SelectItem value="GraduationCap">Graduation Cap</SelectItem>
-                        <SelectItem value="Code">Code</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="color">Color Class</Label>
-                  <Select name="color" defaultValue={editingItem?.color || 'bg-gray-100 text-gray-800'} required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select color" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="bg-blue-100 text-blue-800">Blue</SelectItem>
-                      <SelectItem value="bg-green-100 text-green-800">Green</SelectItem>
-                      <SelectItem value="bg-red-100 text-red-800">Red</SelectItem>
-                      <SelectItem value="bg-purple-100 text-purple-800">Purple</SelectItem>
-                      <SelectItem value="bg-yellow-100 text-yellow-800">Yellow</SelectItem>
-                      <SelectItem value="bg-indigo-100 text-indigo-800">Indigo</SelectItem>
-                      <SelectItem value="bg-orange-100 text-orange-800">Orange</SelectItem>
-                      <SelectItem value="bg-teal-100 text-teal-800">Teal</SelectItem>
-                      <SelectItem value="bg-pink-100 text-pink-800">Pink</SelectItem>
-                      <SelectItem value="bg-gray-100 text-gray-800">Gray</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex gap-4">
-                  <label className="flex items-center space-x-2">
-                    <input 
-                      type="checkbox" 
-                      name="is_active" 
-                      defaultChecked={editingItem?.is_active ?? true}
-                    />
-                    <span>Active Group</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input 
-                      type="checkbox" 
-                      name="is_published" 
-                      defaultChecked={editingItem?.is_published ?? true}
-                    />
-                    <span>Publish</span>
-                  </label>
-                </div>
-              </>
-            )}
-
-            <div className="flex gap-2">
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : editingItem ? "Update" : "Create"}
-              </Button>
-              <Button type="button" variant="outline" onClick={() => { setShowForm(false); setEditingItem(null); }}>
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    );
+  const handleAdd = () => {
+    setEditingItem(null);
+    setShowForm(true);
   };
 
   return (
@@ -1273,48 +88,117 @@ const AdminPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="news">News</TabsTrigger>
           <TabsTrigger value="books">Books</TabsTrigger>
           <TabsTrigger value="devotionals">Devotionals</TabsTrigger>
-          <TabsTrigger value="events">Career Events</TabsTrigger>
-          <TabsTrigger value="career-paths">Career Paths</TabsTrigger>
-          <TabsTrigger value="whatsapp-groups">WhatsApp Groups</TabsTrigger>
+          <TabsTrigger value="career_events">Career Events</TabsTrigger>
+          <TabsTrigger value="whatsapp_groups">WhatsApp Groups</TabsTrigger>
         </TabsList>
 
         <TabsContent value="news">
-          {renderForm('News')}
-          {renderContentList(news, 'News', 'news')}
+          {showForm && (
+            <AdminForm
+              type="news"
+              tableName="news"
+              editingItem={editingItem}
+              onSuccess={handleFormSuccess}
+              onCancel={handleFormCancel}
+            />
+          )}
+          <AdminList
+            items={news}
+            type="News"
+            tableName="news"
+            onEdit={handleEdit}
+            onAdd={handleAdd}
+            onRefresh={fetchContent}
+          />
         </TabsContent>
 
         <TabsContent value="books">
-          {renderForm('Book')}
-          {renderContentList(books, 'Book', 'books')}
+          {showForm && (
+            <AdminForm
+              type="books"
+              tableName="books"
+              editingItem={editingItem}
+              onSuccess={handleFormSuccess}
+              onCancel={handleFormCancel}
+            />
+          )}
+          <AdminList
+            items={books}
+            type="Books"
+            tableName="books"
+            onEdit={handleEdit}
+            onAdd={handleAdd}
+            onRefresh={fetchContent}
+          />
         </TabsContent>
-
 
         <TabsContent value="devotionals">
-          {renderForm('Devotional')}
-          {renderContentList(devotionals, 'Devotional', 'devotionals')}
+          {showForm && (
+            <AdminForm
+              type="devotionals"
+              tableName="devotionals"
+              editingItem={editingItem}
+              onSuccess={handleFormSuccess}
+              onCancel={handleFormCancel}
+            />
+          )}
+          <AdminList
+            items={devotionals}
+            type="Devotionals"
+            tableName="devotionals"
+            onEdit={handleEdit}
+            onAdd={handleAdd}
+            onRefresh={fetchContent}
+          />
         </TabsContent>
 
-        <TabsContent value="events">
-          {renderForm('Event')}
-          {renderContentList(careerEvents, 'Event', 'career_events')}
+        <TabsContent value="career_events">
+          {showForm && (
+            <AdminForm
+              type="career_events"
+              tableName="career_events"
+              editingItem={editingItem}
+              onSuccess={handleFormSuccess}
+              onCancel={handleFormCancel}
+            />
+          )}
+          <AdminList
+            items={careerEvents}
+            type="Career Events"
+            tableName="career_events"
+            onEdit={handleEdit}
+            onAdd={handleAdd}
+            onRefresh={fetchContent}
+          />
         </TabsContent>
 
-        <TabsContent value="career-paths">
-          {renderForm('Career Path')}
-          {renderContentList(careerPaths, 'Career Path', 'career_paths')}
-        </TabsContent>
-
-        <TabsContent value="whatsapp-groups">
-          {renderForm('WhatsApp Group')}
-          {renderContentList(whatsappGroups, 'WhatsApp Group', 'whatsapp_groups')}
+        <TabsContent value="whatsapp_groups">
+          {showForm && (
+            <AdminForm
+              type="whatsapp_groups"
+              tableName="whatsapp_groups"
+              editingItem={editingItem}
+              onSuccess={handleFormSuccess}
+              onCancel={handleFormCancel}
+            />
+          )}
+          <AdminList
+            items={whatsappGroups}
+            type="WhatsApp Groups"
+            tableName="whatsapp_groups"
+            onEdit={handleEdit}
+            onAdd={handleAdd}
+            onRefresh={fetchContent}
+          />
         </TabsContent>
       </Tabs>
     </div>
   );
+
 };
 
 export default AdminPage;
