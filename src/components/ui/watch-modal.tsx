@@ -39,27 +39,53 @@ export const WatchModal: React.FC<WatchModalProps> = ({
               <div className="aspect-video bg-black rounded-lg overflow-hidden">
                 {recordingLink.includes('youtube.com') || recordingLink.includes('youtu.be') ? (
                   <iframe
-                    src={recordingLink.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                    src={recordingLink.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/').replace('https://youtube.com/embed/', 'https://www.youtube.com/embed/')}
                     className="w-full h-full"
                     allowFullScreen
                     title={title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   />
                 ) : recordingLink.includes('vimeo.com') ? (
                   <iframe
-                    src={recordingLink.replace('vimeo.com/', 'player.vimeo.com/video/')}
+                    src={recordingLink.replace('vimeo.com/', 'player.vimeo.com/video/').replace('https://player.vimeo.com/video/', 'https://player.vimeo.com/video/')}
                     className="w-full h-full"
                     allowFullScreen
                     title={title}
+                    allow="autoplay; fullscreen; picture-in-picture"
                   />
-                ) : (
+                ) : recordingLink.includes('zoom.us') ? (
+                  <iframe
+                    src={recordingLink}
+                    className="w-full h-full"
+                    allowFullScreen
+                    title={title}
+                    allow="camera; microphone; display-capture"
+                  />
+                ) : recordingLink.includes('.mp4') || recordingLink.includes('.webm') || recordingLink.includes('.ogg') ? (
                   <video
                     src={recordingLink}
                     controls
                     className="w-full h-full"
                     title={title}
+                    preload="metadata"
                   >
                     Your browser does not support the video tag.
                   </video>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-muted">
+                    <div className="text-center p-6">
+                      <div className="text-lg font-medium mb-2">Video Preview Not Available</div>
+                      <p className="text-muted-foreground mb-4">
+                        Click "Open in New Tab" to view the content
+                      </p>
+                      <Button asChild>
+                        <a href={recordingLink} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Open in New Tab
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
               

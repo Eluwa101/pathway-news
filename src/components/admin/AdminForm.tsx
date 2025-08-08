@@ -52,9 +52,9 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
       });
 
       if (editingItem) {
-        result = await supabase.from(tableName).update(data).eq('id', editingItem.id);
+        result = await supabase.from(tableName).update(data).eq('id', editingItem.id).select();
       } else {
-        result = await supabase.from(tableName).insert([data]);
+        result = await supabase.from(tableName).insert([data]).select();
       }
 
       if (result.error) throw result.error;

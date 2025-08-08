@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Clock, TrendingUp, Users, BookOpen, Map } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import UpcomingEvents from '@/components/home/UpcomingEvents';
 
 const hotNews = [
   {
@@ -70,6 +71,9 @@ export default function HomePage() {
       </section>
 
       <div className="container mx-auto px-4 py-12 space-y-12">
+        {/* Upcoming Events */}
+        <UpcomingEvents />
+
         {/* Quick Stats */}
         <section>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
