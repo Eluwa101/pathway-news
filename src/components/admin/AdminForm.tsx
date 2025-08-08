@@ -44,7 +44,7 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
           }
         } else if (key === 'members' || key === 'attendees' || key === 'duration_minutes') {
           data[key] = parseInt(value as string) || 0;
-        } else if (key === 'is_published' || key === 'is_hot' || key === 'is_active' || key === 'registration_required') {
+        } else if (key === 'is_published' || key === 'is_hot' || key === 'is_active' || key === 'registration_required' || key === 'featured_on_homepage') {
           data[key] = value === 'on';
         } else {
           data[key] = value as string;
@@ -118,6 +118,10 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
         <label className="flex items-center space-x-2">
           <input type="checkbox" name="is_published" defaultChecked={editingItem?.is_published ?? true} />
           <span>Publish</span>
+        </label>
+        <label className="flex items-center space-x-2">
+          <input type="checkbox" name="featured_on_homepage" defaultChecked={editingItem?.featured_on_homepage || false} />
+          <span>Feature on Homepage</span>
         </label>
       </div>
     </>
@@ -253,6 +257,12 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
             <span>Publish</span>
           </label>
         </div>
+        <div>
+          <label className="flex items-center space-x-2 pt-6">
+            <input type="checkbox" name="featured_on_homepage" defaultChecked={editingItem?.featured_on_homepage || false} />
+            <span>Feature on Homepage</span>
+          </label>
+        </div>
       </div>
     </>
   );
@@ -367,6 +377,12 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
           <label className="flex items-center space-x-2 pt-6">
             <input type="checkbox" name="is_published" defaultChecked={editingItem?.is_published ?? true} />
             <span>Publish</span>
+          </label>
+        </div>
+        <div>
+          <label className="flex items-center space-x-2 pt-6">
+            <input type="checkbox" name="featured_on_homepage" defaultChecked={editingItem?.featured_on_homepage || false} />
+            <span>Feature on Homepage</span>
           </label>
         </div>
       </div>

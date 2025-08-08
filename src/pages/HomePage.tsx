@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Clock, TrendingUp, Users, BookOpen, Map } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import UpcomingEvents from '@/components/home/UpcomingEvents';
+import FeaturedNews from '@/components/home/FeaturedNews';
 
 const hotNews = [
   {
@@ -89,35 +90,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Hot News Section */}
-        <section>
-          <div className="flex items-center space-x-2 mb-6">
-            <TrendingUp className="h-6 w-6 text-primary" />
-            <h2 className="text-3xl font-bold">Latest Highlights</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {hotNews.map((news) => (
-              <Card key={news.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <Badge variant={news.isHot ? "destructive" : "secondary"}>
-                      {news.isHot ? "🔥 Hot" : news.category}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">{news.date}</span>
-                  </div>
-                  <CardTitle className="line-clamp-2">{news.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground line-clamp-3 mb-4">{news.summary}</p>
-                  <Button asChild variant="outline" size="sm" className="w-full">
-                    <Link to={`/news/${news.id}`}>Read More</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
+        {/* Featured News Section */}
+        <FeaturedNews />
 
         {/* Quick Access Tools */}
         <section>

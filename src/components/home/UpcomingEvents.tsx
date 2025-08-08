@@ -45,25 +45,27 @@ export default function UpcomingEvents() {
       setIsLoading(true);
       const now = new Date().toISOString();
 
-      // Fetch upcoming devotionals
+      // Fetch upcoming devotionals (prioritize featured, then by date)
       const { data: devotionalsData, error: devotionalsError } = await supabase
         .from('devotionals')
-        .select('id, title, speaker, event_date, event_time, live_link, topics')
+        .select('id, title, speaker, event_date, event_time, live_link, topics, featured_on_homepage')
         .eq('is_published', true)
         .gt('event_date', now)
+        .order('featured_on_homepage', { ascending: false })
         .order('event_date', { ascending: true })
-        .limit(2);
+        .limit(3);
 
       if (devotionalsError) throw devotionalsError;
 
-      // Fetch upcoming career events
+      // Fetch upcoming career events (prioritize featured, then by date)
       const { data: careerEventsData, error: careerEventsError } = await supabase
         .from('career_events')
-        .select('id, title, speaker, position, industry, event_date, live_link, registration_url, registration_required, topics')
+        .select('id, title, speaker, position, industry, event_date, live_link, registration_url, registration_required, topics, featured_on_homepage')
         .eq('is_published', true)
         .gt('event_date', now)
+        .order('featured_on_homepage', { ascending: false })
         .order('event_date', { ascending: true })
-        .limit(2);
+        .limit(3);
 
       if (careerEventsError) throw careerEventsError;
 

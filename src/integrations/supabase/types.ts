@@ -60,6 +60,7 @@ export type Database = {
           description: string
           download_link: string | null
           event_date: string
+          featured_on_homepage: boolean | null
           id: string
           industry: string | null
           is_published: boolean
@@ -81,6 +82,7 @@ export type Database = {
           description: string
           download_link?: string | null
           event_date: string
+          featured_on_homepage?: boolean | null
           id?: string
           industry?: string | null
           is_published?: boolean
@@ -102,6 +104,7 @@ export type Database = {
           description?: string
           download_link?: string | null
           event_date?: string
+          featured_on_homepage?: boolean | null
           id?: string
           industry?: string | null
           is_published?: boolean
@@ -169,6 +172,7 @@ export type Database = {
           download_link: string | null
           event_date: string | null
           event_time: string | null
+          featured_on_homepage: boolean | null
           id: string
           is_published: boolean
           live_link: string | null
@@ -187,6 +191,7 @@ export type Database = {
           download_link?: string | null
           event_date?: string | null
           event_time?: string | null
+          featured_on_homepage?: boolean | null
           id?: string
           is_published?: boolean
           live_link?: string | null
@@ -205,6 +210,7 @@ export type Database = {
           download_link?: string | null
           event_date?: string | null
           event_time?: string | null
+          featured_on_homepage?: boolean | null
           id?: string
           is_published?: boolean
           live_link?: string | null
@@ -223,6 +229,7 @@ export type Database = {
           category: string
           content: string
           created_at: string
+          featured_on_homepage: boolean | null
           id: string
           is_hot: boolean
           is_published: boolean
@@ -235,6 +242,7 @@ export type Database = {
           category: string
           content: string
           created_at?: string
+          featured_on_homepage?: boolean | null
           id?: string
           is_hot?: boolean
           is_published?: boolean
@@ -247,6 +255,7 @@ export type Database = {
           category?: string
           content?: string
           created_at?: string
+          featured_on_homepage?: boolean | null
           id?: string
           is_hot?: boolean
           is_published?: boolean

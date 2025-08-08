@@ -1,9 +1,22 @@
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { AdminForm } from "@/components/admin/AdminForm";
 import { AdminList } from "@/components/admin/AdminList";
+import HomepageFeaturedManager from "@/components/admin/HomepageFeaturedManager";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  Newspaper, 
+  BookOpen, 
+  Heart, 
+  Video, 
+  MessageCircle, 
+  BarChart3,
+  Star,
+  Shield 
+} from "lucide-react";
 
 interface AdminContent {
   id: string;
@@ -88,13 +101,21 @@ const AdminPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="homepage">
+            <Star className="h-4 w-4 mr-2" />
+            Homepage
+          </TabsTrigger>
           <TabsTrigger value="news">News</TabsTrigger>
           <TabsTrigger value="books">Books</TabsTrigger>
           <TabsTrigger value="devotionals">Devotionals</TabsTrigger>
           <TabsTrigger value="career_events">Career Events</TabsTrigger>
           <TabsTrigger value="whatsapp_groups">WhatsApp Groups</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="homepage">
+          <HomepageFeaturedManager />
+        </TabsContent>
 
         <TabsContent value="news">
           {showForm && (
