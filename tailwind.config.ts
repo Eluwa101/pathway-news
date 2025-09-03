@@ -61,6 +61,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				'byu-yellow': {
+					DEFAULT: 'hsl(var(--byu-yellow))',
+					light: 'hsl(var(--byu-yellow-light))',
+					dark: 'hsl(var(--byu-yellow-dark))'
+				},
+				'byu-blue': {
+					DEFAULT: 'hsl(var(--byu-blue))',
+					light: 'hsl(var(--byu-blue-light))'
 				}
 			},
 			borderRadius: {

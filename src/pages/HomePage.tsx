@@ -5,6 +5,7 @@ import { CalendarDays, Clock, TrendingUp, Users, BookOpen, Map } from 'lucide-re
 import { Link } from 'react-router-dom';
 import UpcomingEvents from '@/components/home/UpcomingEvents';
 import FeaturedNews from '@/components/home/FeaturedNews';
+import heroImage from '@/assets/hero-image.jpg';
 
 const hotNews = [
   {
@@ -43,24 +44,30 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/10 to-secondary/10 py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center space-y-6">
+      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroImage})` }}
+        >
+          <div className="absolute inset-0 bg-black/40"></div>
+        </div>
+        <div className="relative z-10 container mx-auto px-4">
+          <div className="text-center space-y-6 text-white">
             <h1 className="text-4xl md:text-6xl font-bold">
               Welcome to <span className="text-primary">BYU-Pathway</span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-xl max-w-3xl mx-auto">
               Your gateway to education, career growth, and spiritual development. 
               Stay connected with the latest news, tools, and resources.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Button asChild size="lg">
+              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Link to="/student-tools/clock-calendar">
                   <Clock className="mr-2 h-5 w-5" />
                   Student Tools
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
+              <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-foreground">
                 <Link to="/career-map">
                   <Map className="mr-2 h-5 w-5" />
                   Career Map
