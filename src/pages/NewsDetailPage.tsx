@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Calendar, Tag, Flame, Share2 } from "lucide-react";
+import MediaRenderer from "@/components/ui/media-renderer";
 
 interface NewsArticle {
   id: string;
@@ -18,6 +19,8 @@ interface NewsArticle {
   is_published: boolean;
   created_at: string;
   updated_at: string;
+  media_url?: string;
+  media_type?: 'image' | 'video';
 }
 
 const NewsDetailPage = () => {
@@ -198,6 +201,18 @@ const NewsDetailPage = () => {
             {article.summary}
           </p>
         </div>
+
+        {/* Featured Media */}
+        {article.media_url && (
+          <div className="my-8">
+            <MediaRenderer 
+              src={article.media_url}
+              alt={`Media for ${article.title}`}
+              type={article.media_type}
+              className="w-full h-64 md:h-96 rounded-lg"
+            />
+          </div>
+        )}
 
         {/* Article Content */}
         <div className="prose prose-lg max-w-none">

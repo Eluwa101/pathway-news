@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Clock, TrendingUp, Users, BookOpen, Map } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import UpcomingEvents from '@/components/home/UpcomingEvents';
+import UpcomingEventsCarousel from '@/components/home/UpcomingEventsCarousel';
 import FeaturedNews from '@/components/home/FeaturedNews';
 import heroImage from '@/assets/hero-image.jpg';
 
@@ -67,7 +67,7 @@ export default function HomePage() {
                   Student Tools
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-foreground">
+              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Link to="/career-map">
                   <Map className="mr-2 h-5 w-5" />
                   Career Map
@@ -80,7 +80,7 @@ export default function HomePage() {
 
       <div className="container mx-auto px-4 py-12 space-y-12">
         {/* Upcoming Events */}
-        <UpcomingEvents />
+        <UpcomingEventsCarousel />
 
         {/* Quick Stats */}
         <section>
@@ -103,62 +103,62 @@ export default function HomePage() {
         {/* Quick Access Tools */}
         <section>
           <h2 className="text-3xl font-bold mb-6">Quick Access</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center">
-                <CalendarDays className="h-12 w-12 text-primary mx-auto" />
-                <CardTitle>Calendar & Events</CardTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="hover:shadow-lg transition-shadow h-fit">
+              <CardHeader className="text-center pb-3">
+                <CalendarDays className="h-8 w-8 text-primary mx-auto" />
+                <CardTitle className="text-lg">Calendar & Events</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-center text-muted-foreground mb-4">
-                  View upcoming devotionals, career chats, and important dates.
+              <CardContent className="pt-0">
+                <p className="text-center text-muted-foreground text-sm mb-3">
+                  View upcoming devotionals and career chats.
                 </p>
-                <Button asChild className="w-full">
+                <Button asChild className="w-full" size="sm">
                   <Link to="/student-tools/clock-calendar">Open Calendar</Link>
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center">
-                <BookOpen className="h-12 w-12 text-primary mx-auto" />
-                <CardTitle>Digital Resources</CardTitle>
+            <Card className="hover:shadow-lg transition-shadow h-fit">
+              <CardHeader className="text-center pb-3">
+                <BookOpen className="h-8 w-8 text-primary mx-auto" />
+                <CardTitle className="text-lg">Digital Resources</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-center text-muted-foreground mb-4">
+              <CardContent className="pt-0">
+                <p className="text-center text-muted-foreground text-sm mb-3">
                   Access textbooks, recordings, and study materials.
                 </p>
-                <Button asChild className="w-full">
+                <Button asChild className="w-full" size="sm">
                   <Link to="/resources/books">Browse Resources</Link>
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center">
-                <Map className="h-12 w-12 text-primary mx-auto" />
-                <CardTitle>Career Planning</CardTitle>
+            <Card className="hover:shadow-lg transition-shadow h-fit">
+              <CardHeader className="text-center pb-3">
+                <Map className="h-8 w-8 text-primary mx-auto" />
+                <CardTitle className="text-lg">Career Planning</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-center text-muted-foreground mb-4">
-                  Plan your career path with interactive tools and guidance.
+              <CardContent className="pt-0">
+                <p className="text-center text-muted-foreground text-sm mb-3">
+                  Plan your career path with interactive tools.
                 </p>
-                <Button asChild className="w-full">
+                <Button asChild className="w-full" size="sm">
                   <Link to="/career-map">Start Planning</Link>
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center">
-                <Users className="h-12 w-12 text-primary mx-auto" />
-                <CardTitle>Connect</CardTitle>
+            <Card className="hover:shadow-lg transition-shadow h-fit">
+              <CardHeader className="text-center pb-3">
+                <Users className="h-8 w-8 text-primary mx-auto" />
+                <CardTitle className="text-lg">Connect</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-center text-muted-foreground mb-4">
+              <CardContent className="pt-0">
+                <p className="text-center text-muted-foreground text-sm mb-3">
                   Join study groups and connect with fellow students.
                 </p>
-                <Button asChild className="w-full">
+                <Button asChild className="w-full" size="sm">
                   <Link to="/community">Join Community</Link>
                 </Button>
               </CardContent>
