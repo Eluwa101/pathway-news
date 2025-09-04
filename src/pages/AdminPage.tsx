@@ -94,7 +94,7 @@ const AdminPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-6 py-8 max-w-7xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">Admin Dashboard</h1>
         <p className="text-muted-foreground">Manage all content for BYU-Pathway Connect</p>

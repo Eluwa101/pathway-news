@@ -114,7 +114,7 @@ const NewsDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
         </div>
@@ -124,7 +124,7 @@ const NewsDetailPage = () => {
 
   if (!article) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold mb-4">Article Not Found</h2>
           <p className="text-muted-foreground mb-6">The article you're looking for doesn't exist or has been removed.</p>
@@ -140,7 +140,7 @@ const NewsDetailPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-6 py-8 max-w-4xl">
       {/* Header */}
       <div className="mb-6">
         <Link to="/news">

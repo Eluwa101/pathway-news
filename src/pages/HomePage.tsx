@@ -78,7 +78,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-12 space-y-12">
+      <div className="container mx-auto px-6 py-12 space-y-12 max-w-7xl">
         {/* Upcoming Events */}
         <UpcomingEventsCarousel />
 
@@ -120,13 +120,13 @@ export default function HomePage() {
             </Card>
 
             <Card className="hover:shadow-lg transition-shadow h-fit">
-              <CardHeader className="text-center pb-3">
-                <BookOpen className="h-8 w-8 text-primary mx-auto" />
-                <CardTitle className="text-lg">Digital Resources</CardTitle>
+              <CardHeader className="text-center pb-2">
+                <BookOpen className="h-6 w-6 text-primary mx-auto" />
+                <CardTitle className="text-base">Digital Resources</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="text-center text-muted-foreground text-sm mb-3">
-                  Access textbooks, recordings, and study materials.
+                <p className="text-center text-muted-foreground text-xs mb-2">
+                  Access textbooks and study materials.
                 </p>
                 <Button asChild className="w-full" size="sm">
                   <Link to="/resources/books">Browse Resources</Link>

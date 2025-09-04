@@ -112,7 +112,7 @@ const NewsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
         </div>
@@ -121,7 +121,7 @@ const NewsPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-6 py-8 max-w-7xl">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-foreground mb-4">Latest News</h1>
         <p className="text-muted-foreground text-lg">Stay updated with the latest from BYU-Pathway Connect</p>
