@@ -54,7 +54,7 @@ export default function HomePage() {
         <div className="relative z-10 container mx-auto px-4">
           <div className="text-center space-y-6 text-white">
             <h1 className="text-4xl md:text-6xl font-bold">
-              Welcome to <span className="text-primary">BYU-Pathway</span>
+              Welcome to <span className="text-primary">BYU-Pathway News</span>
             </h1>
             <p className="text-xl max-w-3xl mx-auto">
               Your gateway to education, career growth, and spiritual development. 
@@ -78,7 +78,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <div className="container mx-auto px-6 py-12 space-y-12 max-w-7xl">
+      <div className="container mx-auto px-6 py-12 space-y-12 max-w-7xl bg-primary">
         {/* Upcoming Events */}
         <UpcomingEventsCarousel />
 
