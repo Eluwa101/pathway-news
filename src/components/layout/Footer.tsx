@@ -18,7 +18,6 @@ export default function Footer() {
               Empowering students worldwide through accessible education, career development, and spiritual growth.
             </p>
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Heart className="h-4 w-4 text-primary" />
               <span>Building futures, one student at a time</span>
             </div>
           </div>
