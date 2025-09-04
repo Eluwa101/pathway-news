@@ -126,7 +126,7 @@ export default function HomePage() {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-center text-muted-foreground text-xs mb-2">
-                  Access textbooks and study materials easily.
+                  Access a wide range of textbooks and study materials easily, all in one convenient place.
                 </p>
                 <Button asChild className="w-full" size="sm">
                   <Link to="/resources/books">Browse Resources</Link>
