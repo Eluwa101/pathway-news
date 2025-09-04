@@ -120,8 +120,8 @@ export default function HomePage() {
             </Card>
 
             <Card className="hover:shadow-lg transition-shadow h-fit">
-              <CardHeader className="text-center pb-2">
-                <BookOpen className="h-6 w-6 text-primary mx-auto" />
+              <CardHeader className="text-center pb-3">
+                <BookOpen className="h-8 w-8 text-primary mx-auto" />
                 <CardTitle className="text-base">Digital Resources</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
