@@ -117,7 +117,7 @@ export default function UpcomingEventsCarousel() {
 
   return (
     <section>
-      <div className="flex items-center space-x-2 mb-6">
+      <div className="flex items-center space-x-2 mb-6 bg-primary">
         <Calendar className="h-6 w-6 text-primary" />
         <h2 className="text-3xl font-bold">Upcoming Events</h2>
       </div>
@@ -153,7 +153,7 @@ export default function UpcomingEventsCarousel() {
           opts={{ align: "start", loop: true }}
           plugins={[Autoplay({ delay: 4000 })]}
         >
-          <CarouselContent className="-ml-2 md:-ml-4 bg-primary">
+          <CarouselContent className="-ml-2 md:-ml-4">
             {allEvents.map((event) => (
               <CarouselItem key={event.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
                 <Card className="hover:shadow-lg transition-shadow h-full">
