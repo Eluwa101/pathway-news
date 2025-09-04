@@ -125,7 +125,7 @@ export default function HomePage() {
                 <CardTitle className="text-base">Digital Resources</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="text-center text-muted-foreground text-xs mb-2">
+                <p className="text-center text-muted-foreground text-sm mb-3">
                   Access a wide range of textbooks and study materials easily, all in one convenient place.
                 </p>
                 <Button asChild className="w-full" size="sm">
