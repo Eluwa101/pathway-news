@@ -79,31 +79,26 @@ export default function Footer() {
             <h3 className="text-lg font-semibold text-foreground">Connect With Us</h3>
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline" size="icon" className="h-9 w-9">
-                <a href="https://facebook.com/byupathway" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.facebook.com/BYUPathway" target="_blank" rel="noopener noreferrer">
                   <Facebook className="h-4 w-4" />
                   <span className="sr-only">Facebook</span>
                 </a>
               </Button>
+
               <Button asChild variant="outline" size="icon" className="h-9 w-9">
-                <a href="https://twitter.com/byupathway" target="_blank" rel="noopener noreferrer">
-                  <Twitter className="h-4 w-4" />
-                  <span className="sr-only">Twitter</span>
-                </a>
-              </Button>
-              <Button asChild variant="outline" size="icon" className="h-9 w-9">
-                <a href="https://instagram.com/byupathway" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.instagram.com/byupathwayworldwide/" target="_blank" rel="noopener noreferrer">
                   <Instagram className="h-4 w-4" />
                   <span className="sr-only">Instagram</span>
                 </a>
               </Button>
               <Button asChild variant="outline" size="icon" className="h-9 w-9">
-                <a href="https://linkedin.com/school/byu-pathway-worldwide" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.linkedin.com/school/byupathway" target="_blank" rel="noopener noreferrer">
                   <Linkedin className="h-4 w-4" />
                   <span className="sr-only">LinkedIn</span>
                 </a>
               </Button>
               <Button asChild variant="outline" size="icon" className="h-9 w-9">
-                <a href="https://youtube.com/byupathway" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.youtube.com/@BYUPathwayWorldwideOfficial/featured" target="_blank" rel="noopener noreferrer">
                   <Youtube className="h-4 w-4" />
                   <span className="sr-only">YouTube</span>
                 </a>
@@ -120,19 +115,10 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="text-sm text-muted-foreground">
-            © {currentYear} BYU-Pathway Worldwide. All rights reserved.
+            © {currentYear} Eluwa Victor Monday. All rights reserved.
           </div>
           <div className="flex flex-wrap gap-4 text-sm">
-            <a href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
-              Privacy Policy
-            </a>
-            <a href="/terms" className="text-muted-foreground hover:text-primary transition-colors">
-              Terms of Service
-            </a>
-            <a href="/accessibility" className="text-muted-foreground hover:text-primary transition-colors">
-              Accessibility
-            </a>
-            <a href="/support" className="text-muted-foreground hover:text-primary transition-colors">
+            <a href="https://help.byupathway.edu/" className="text-muted-foreground hover:text-primary transition-colors">
               Support
             </a>
           </div>
