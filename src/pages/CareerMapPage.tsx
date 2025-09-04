@@ -524,27 +524,33 @@ Generated on: ${new Date().toLocaleDateString()}
                     <CardTitle>Visual Career Map</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="relative min-h-96 bg-gradient-to-br from-background to-muted/20 rounded-lg p-8 overflow-hidden">
+                    <div className="relative min-h-[500px] bg-gradient-to-br from-background to-muted/20 rounded-lg p-8 overflow-hidden">
                       {/* Central Career Goal */}
                       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <div className="bg-primary text-primary-foreground px-6 py-3 rounded-full text-lg font-semibold shadow-lg">
-                          Career Goal
+                        <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-8 py-4 rounded-full text-xl font-bold shadow-xl border-2 border-primary-foreground/20">
+                          {preferences.goals ? preferences.goals.slice(0, 30) + '...' : 'Career Goal'}
                         </div>
                       </div>
                       
                       {/* Interests Branch */}
                       {preferences.interests.length > 0 && (
-                        <div className="absolute top-1/4 left-1/4">
-                          <div className="bg-accent text-accent-foreground px-4 py-2 rounded-lg mb-2 shadow-md">
-                            Interests
+                        <div className="absolute top-1/6 left-1/6">
+                          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-3 rounded-lg mb-3 shadow-lg font-semibold">
+                            🎯 Interests
                           </div>
                           <div className="space-y-2">
-                            {preferences.interests.slice(0, 4).map((interest, index) => (
+                            {preferences.interests.slice(0, 6).map((interest, index) => (
                               <div key={interest} 
-                                className="bg-secondary text-secondary-foreground px-3 py-1 rounded-md text-sm shadow-sm ml-2"
+                                className={`px-4 py-2 rounded-md text-sm shadow-md ml-2 font-medium transition-all hover:scale-105 ${
+                                  index % 4 === 0 ? 'bg-gradient-to-r from-blue-400 to-blue-500 text-white' :
+                                  index % 4 === 1 ? 'bg-gradient-to-r from-green-400 to-green-500 text-white' :
+                                  index % 4 === 2 ? 'bg-gradient-to-r from-purple-400 to-purple-500 text-white' :
+                                  'bg-gradient-to-r from-pink-400 to-pink-500 text-white'
+                                }`}
                                 style={{ 
-                                  transform: `rotate(${index * 5 - 10}deg)`,
-                                  marginLeft: `${index * 8}px`
+                                  transform: `rotate(${index * 8 - 16}deg)`,
+                                  marginLeft: `${index * 12}px`,
+                                  marginTop: `${index * 4}px`
                                 }}
                               >
                                 {interest}
@@ -556,17 +562,23 @@ Generated on: ${new Date().toLocaleDateString()}
                       
                       {/* Skills Branch */}
                       {preferences.skills.length > 0 && (
-                        <div className="absolute top-1/4 right-1/4">
-                          <div className="bg-accent text-accent-foreground px-4 py-2 rounded-lg mb-2 shadow-md">
-                            Skills
+                        <div className="absolute top-1/6 right-1/6">
+                          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-5 py-3 rounded-lg mb-3 shadow-lg font-semibold">
+                            ⚡ Skills
                           </div>
                           <div className="space-y-2">
-                            {preferences.skills.slice(0, 4).map((skill, index) => (
+                            {preferences.skills.slice(0, 6).map((skill, index) => (
                               <div key={skill} 
-                                className="bg-secondary text-secondary-foreground px-3 py-1 rounded-md text-sm shadow-sm mr-2"
+                                className={`px-4 py-2 rounded-md text-sm shadow-md mr-2 font-medium transition-all hover:scale-105 ${
+                                  index % 4 === 0 ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white' :
+                                  index % 4 === 1 ? 'bg-gradient-to-r from-red-400 to-red-500 text-white' :
+                                  index % 4 === 2 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white' :
+                                  'bg-gradient-to-r from-indigo-400 to-indigo-500 text-white'
+                                }`}
                                 style={{ 
-                                  transform: `rotate(${index * -5 + 10}deg)`,
-                                  marginRight: `${index * 8}px`
+                                  transform: `rotate(${index * -8 + 16}deg)`,
+                                  marginRight: `${index * 12}px`,
+                                  marginTop: `${index * 4}px`
                                 }}
                               >
                                 {skill}
@@ -576,19 +588,53 @@ Generated on: ${new Date().toLocaleDateString()}
                         </div>
                       )}
                       
-                      {/* Industry & Work Style */}
+                      {/* Industry Branch */}
                       {preferences.industry && (
-                        <div className="absolute bottom-1/4 left-1/3">
-                          <div className="bg-muted text-muted-foreground px-4 py-2 rounded-lg shadow-md">
-                            Industry: {preferences.industry}
+                        <div className="absolute bottom-1/4 left-1/4">
+                          <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-5 py-3 rounded-lg shadow-lg font-semibold">
+                            🏢 Industry
+                          </div>
+                          <div className="bg-gradient-to-r from-teal-400 to-teal-500 text-white px-4 py-2 rounded-md shadow-md mt-2 font-medium">
+                            {preferences.industry}
                           </div>
                         </div>
                       )}
                       
+                      {/* Work Style Branch */}
                       {preferences.workStyle && (
-                        <div className="absolute bottom-1/4 right-1/3">
-                          <div className="bg-muted text-muted-foreground px-4 py-2 rounded-lg shadow-md">
-                            Style: {preferences.workStyle}
+                        <div className="absolute bottom-1/4 right-1/4">
+                          <div className="bg-gradient-to-r from-violet-500 to-violet-600 text-white px-5 py-3 rounded-lg shadow-lg font-semibold">
+                            💼 Work Style
+                          </div>
+                          <div className="bg-gradient-to-r from-violet-400 to-violet-500 text-white px-4 py-2 rounded-md shadow-md mt-2 font-medium">
+                            {preferences.workStyle}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Timeline Branch */}
+                      {preferences.timeframe && (
+                        <div className="absolute top-3/4 left-1/2 transform -translate-x-1/2">
+                          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-5 py-3 rounded-lg shadow-lg font-semibold">
+                            ⏰ Timeline
+                          </div>
+                          <div className="bg-gradient-to-r from-emerald-400 to-emerald-500 text-white px-4 py-2 rounded-md shadow-md mt-2 font-medium text-center">
+                            {preferences.timeframe === 'immediate' ? '0-6 months' :
+                             preferences.timeframe === 'short' ? '6-12 months' :
+                             preferences.timeframe === 'medium' ? '1-2 years' : '2+ years'}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Plan Type Branch */}
+                      {preferences.planType && (
+                        <div className="absolute top-1/8 left-1/2 transform -translate-x-1/2">
+                          <div className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-5 py-3 rounded-lg shadow-lg font-semibold">
+                            📋 Plan Type
+                          </div>
+                          <div className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-white px-4 py-2 rounded-md shadow-md mt-2 font-medium text-center">
+                            {preferences.planType === 'short' ? 'Short-term' :
+                             preferences.planType === 'long' ? 'Long-term' : 'Comprehensive'}
                           </div>
                         </div>
                       )}
@@ -596,17 +642,36 @@ Generated on: ${new Date().toLocaleDateString()}
                       {/* Connecting Lines */}
                       <svg className="absolute inset-0 pointer-events-none" style={{ zIndex: -1 }}>
                         <defs>
-                          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.1"/>
+                          <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+                            <path d="M 30 0 L 0 0 0 30" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.1"/>
                           </pattern>
+                          <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stopColor="currentColor" stopOpacity="0.1"/>
+                            <stop offset="100%" stopColor="currentColor" stopOpacity="0"/>
+                          </radialGradient>
                         </defs>
                         <rect width="100%" height="100%" fill="url(#grid)" />
+                        <circle cx="50%" cy="50%" r="200" fill="url(#centerGlow)" />
                         
-                        {/* Center to branches lines */}
-                        <line x1="50%" y1="50%" x2="25%" y2="25%" stroke="currentColor" strokeWidth="2" opacity="0.3" />
-                        <line x1="50%" y1="50%" x2="75%" y2="25%" stroke="currentColor" strokeWidth="2" opacity="0.3" />
-                        <line x1="50%" y1="50%" x2="33%" y2="75%" stroke="currentColor" strokeWidth="2" opacity="0.3" />
-                        <line x1="50%" y1="50%" x2="67%" y2="75%" stroke="currentColor" strokeWidth="2" opacity="0.3" />
+                        {/* Animated connecting lines */}
+                        <line x1="50%" y1="50%" x2="17%" y2="17%" stroke="hsl(var(--primary))" strokeWidth="3" opacity="0.4" strokeDasharray="5,5">
+                          <animate attributeName="stroke-dashoffset" values="10;0" dur="2s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="50%" y1="50%" x2="83%" y2="17%" stroke="hsl(var(--primary))" strokeWidth="3" opacity="0.4" strokeDasharray="5,5">
+                          <animate attributeName="stroke-dashoffset" values="0;10" dur="2s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="50%" y1="50%" x2="25%" y2="75%" stroke="hsl(var(--primary))" strokeWidth="3" opacity="0.4" strokeDasharray="5,5">
+                          <animate attributeName="stroke-dashoffset" values="10;0" dur="2s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="50%" y1="50%" x2="75%" y2="75%" stroke="hsl(var(--primary))" strokeWidth="3" opacity="0.4" strokeDasharray="5,5">
+                          <animate attributeName="stroke-dashoffset" values="0;10" dur="2s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="50%" y1="50%" x2="50%" y2="87%" stroke="hsl(var(--primary))" strokeWidth="3" opacity="0.4" strokeDasharray="5,5">
+                          <animate attributeName="stroke-dashoffset" values="10;0" dur="2s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="50%" y1="50%" x2="50%" y2="12%" stroke="hsl(var(--primary))" strokeWidth="3" opacity="0.4" strokeDasharray="5,5">
+                          <animate attributeName="stroke-dashoffset" values="0;10" dur="2s" repeatCount="indefinite"/>
+                        </line>
                       </svg>
                     </div>
                   </CardContent>

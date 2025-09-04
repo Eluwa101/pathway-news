@@ -65,45 +65,42 @@ export default function BooksPage() {
   });
 
   const BookCard = ({ book }: { book: Book }) => (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="flex">
-        <div className="w-24 h-32 bg-muted flex items-center justify-center">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow max-w-sm">
+      <div className="flex h-28">
+        <div className="w-20 h-full bg-muted flex items-center justify-center flex-shrink-0">
           {book.cover_image_url ? (
             <img 
               src={book.cover_image_url} 
               alt={book.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-l-lg"
             />
           ) : (
-            <BookOpen className="h-8 w-8 text-muted-foreground" />
+            <BookOpen className="h-6 w-6 text-muted-foreground" />
           )}
         </div>
         
-        <div className="flex-1">
-          <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-lg line-clamp-1">{book.title}</CardTitle>
-                <p className="text-sm text-muted-foreground">{book.author}</p>
-              </div>
-              <Badge variant="outline">{book.category}</Badge>
+        <div className="flex-1 flex flex-col">
+          <CardHeader className="pb-2 pt-3 px-3">
+            <div className="space-y-1">
+              <CardTitle className="text-sm line-clamp-1 leading-tight">{book.title}</CardTitle>
+              <p className="text-xs text-muted-foreground">{book.author}</p>
+              <Badge variant="outline" className="text-xs w-fit">{book.category}</Badge>
             </div>
           </CardHeader>
           
-          <CardContent>
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {book.description}
-              </p>
-              
-              <Button 
-                className="w-full sm:w-auto"
-                onClick={() => window.open(book.file_url, '_blank')}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
-              </Button>
-            </div>
+          <CardContent className="pt-0 px-3 pb-3 flex-1 flex flex-col justify-between">
+            <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+              {book.description}
+            </p>
+            
+            <Button 
+              size="sm"
+              className="w-full text-xs h-7"
+              onClick={() => window.open(book.file_url, '_blank')}
+            >
+              <Download className="h-3 w-3 mr-1" />
+              Download
+            </Button>
           </CardContent>
         </div>
       </div>
@@ -113,9 +110,12 @@ export default function BooksPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading books...</p>
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-2 border-muted border-t-primary mx-auto"></div>
+          <div className="space-y-2">
+            <p className="text-lg font-medium">Loading Digital Library</p>
+            <p className="text-sm text-muted-foreground">Preparing your study materials...</p>
+          </div>
         </div>
       </div>
     );
@@ -173,7 +173,7 @@ export default function BooksPage() {
           </div>
 
           {/* Books Grid */}
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredBooks.length > 0 ? (
               filteredBooks.map(book => (
                 <BookCard key={book.id} book={book} />
