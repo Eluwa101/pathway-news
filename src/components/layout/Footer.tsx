@@ -118,7 +118,7 @@ export default function Footer() {
           </div>
           <div className="flex flex-wrap gap-4 text-sm">
             <a href="https://help.byupathway.edu/" className="text-muted-foreground hover:text-primary transition-colors">
-              Support
+              Contact Support
             </a>
           </div>
         </div>

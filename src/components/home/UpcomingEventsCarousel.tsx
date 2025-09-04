@@ -153,7 +153,7 @@ export default function UpcomingEventsCarousel() {
           opts={{ align: "start", loop: true }}
           plugins={[Autoplay({ delay: 4000 })]}
         >
-          <CarouselContent className="-ml-2 md:-ml-4">
+          <CarouselContent className="-ml-2 md:-ml-4 bg-primary">
             {allEvents.map((event) => (
               <CarouselItem key={event.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
                 <Card className="hover:shadow-lg transition-shadow h-full">

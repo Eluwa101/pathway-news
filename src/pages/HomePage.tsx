@@ -78,9 +78,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <div className="container mx-auto px-6 py-12 space-y-12 max-w-7xl bg-primary">
+      <div className="container mx-auto px-6 py-12 space-y-12 max-w-7xl">
         {/* Upcoming Events */}
-        <UpcomingEventsCarousel />
+        <UpcomingEventsCarousel/>
 
         {/* Quick Stats */}
         <section>
