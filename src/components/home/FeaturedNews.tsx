@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import Autoplay from "embla-carousel-autoplay";
 
 interface NewsItem {
   id: string;
@@ -99,6 +101,38 @@ export default function FeaturedNews() {
     );
   }
 
+  // Show single card if only one news item
+  if (featuredNews.length === 1) {
+    return (
+      <section>
+        <div className="flex items-center space-x-2 mb-6">
+          <TrendingUp className="h-6 w-6 text-primary" />
+          <h2 className="text-3xl font-bold">Latest Highlights</h2>
+        </div>
+        
+        <Card className="bg-primary text-primary-foreground hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <Badge variant={featuredNews[0].is_hot ? "destructive" : "secondary"}>
+                {featuredNews[0].is_hot ? "🔥 Hot" : featuredNews[0].category}
+              </Badge>
+              <span className="text-sm text-primary-foreground/70">
+                {new Date(featuredNews[0].created_at).toLocaleDateString()}
+              </span>
+            </div>
+            <CardTitle className="line-clamp-2 text-primary-foreground">{featuredNews[0].title}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-primary-foreground/80 line-clamp-3 mb-4">{featuredNews[0].summary}</p>
+            <Button asChild variant="secondary" size="sm" className="w-full">
+              <Link to={`/news/${featuredNews[0].id}`}>Read More</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </section>
+    );
+  }
+
   return (
     <section>
       <div className="flex items-center space-x-2 mb-6">
@@ -106,29 +140,46 @@ export default function FeaturedNews() {
         <h2 className="text-3xl font-bold">Latest Highlights</h2>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {featuredNews.map((news) => (
-          <Card key={news.id} className="bg-primary text-primary-foreground hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <Badge variant={news.is_hot ? "destructive" : "secondary"}>
-                  {news.is_hot ? "🔥 Hot" : news.category}
-                </Badge>
-                <span className="text-sm text-primary-foreground/70">
-                  {new Date(news.created_at).toLocaleDateString()}
-                </span>
-              </div>
-              <CardTitle className="line-clamp-2 text-primary-foreground">{news.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-primary-foreground/80 line-clamp-3 mb-4">{news.summary}</p>
-              <Button asChild variant="secondary" size="sm" className="w-full">
-                <Link to={`/news/${news.id}`}>Read More</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Carousel
+        opts={{
+          align: "start",
+          loop: true,
+        }}
+        plugins={[
+          Autoplay({
+            delay: 5000,
+          }),
+        ]}
+        className="w-full"
+      >
+        <CarouselContent>
+          {featuredNews.map((news) => (
+            <CarouselItem key={news.id} className="md:basis-1/2 lg:basis-1/3">
+              <Card className="bg-primary text-primary-foreground hover:shadow-lg transition-shadow h-full">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <Badge variant={news.is_hot ? "destructive" : "secondary"}>
+                      {news.is_hot ? "🔥 Hot" : news.category}
+                    </Badge>
+                    <span className="text-sm text-primary-foreground/70">
+                      {new Date(news.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <CardTitle className="line-clamp-2 text-primary-foreground">{news.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-primary-foreground/80 line-clamp-3 mb-4">{news.summary}</p>
+                  <Button asChild variant="secondary" size="sm" className="w-full">
+                    <Link to={`/news/${news.id}`}>Read More</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
     </section>
   );
 }

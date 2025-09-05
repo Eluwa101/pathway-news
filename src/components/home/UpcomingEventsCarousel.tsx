@@ -20,6 +20,7 @@ interface BaseEvent {
   live_link?: string;
   recording_link?: string;
   download_link?: string;
+  cover_image_url?: string;
 }
 
 interface Devotional extends BaseEvent {
@@ -157,6 +158,16 @@ export default function UpcomingEventsCarousel() {
             {allEvents.map((event) => (
               <CarouselItem key={event.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
                 <Card className="hover:shadow-lg transition-shadow h-full">
+                  {/* Cover Image */}
+                  {event.cover_image_url && (
+                    <div className="aspect-video overflow-hidden rounded-t-lg">
+                      <img 
+                        src={event.cover_image_url} 
+                        alt={event.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div className="space-y-2">

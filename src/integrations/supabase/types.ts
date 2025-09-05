@@ -56,6 +56,7 @@ export type Database = {
       career_events: {
         Row: {
           attendees: number | null
+          cover_image_url: string | null
           created_at: string
           description: string
           download_link: string | null
@@ -78,6 +79,7 @@ export type Database = {
         }
         Insert: {
           attendees?: number | null
+          cover_image_url?: string | null
           created_at?: string
           description: string
           download_link?: string | null
@@ -100,6 +102,7 @@ export type Database = {
         }
         Update: {
           attendees?: number | null
+          cover_image_url?: string | null
           created_at?: string
           description?: string
           download_link?: string | null
@@ -168,6 +171,7 @@ export type Database = {
         Row: {
           author: string
           content: string
+          cover_image_url: string | null
           created_at: string
           download_link: string | null
           event_date: string | null
@@ -187,6 +191,7 @@ export type Database = {
         Insert: {
           author: string
           content: string
+          cover_image_url?: string | null
           created_at?: string
           download_link?: string | null
           event_date?: string | null
@@ -206,6 +211,7 @@ export type Database = {
         Update: {
           author?: string
           content?: string
+          cover_image_url?: string | null
           created_at?: string
           download_link?: string | null
           event_date?: string | null
@@ -233,6 +239,7 @@ export type Database = {
           id: string
           is_hot: boolean
           is_published: boolean
+          media_url: string | null
           summary: string
           tags: string[] | null
           title: string
@@ -246,6 +253,7 @@ export type Database = {
           id?: string
           is_hot?: boolean
           is_published?: boolean
+          media_url?: string | null
           summary: string
           tags?: string[] | null
           title: string
@@ -259,6 +267,7 @@ export type Database = {
           id?: string
           is_hot?: boolean
           is_published?: boolean
+          media_url?: string | null
           summary?: string
           tags?: string[] | null
           title?: string

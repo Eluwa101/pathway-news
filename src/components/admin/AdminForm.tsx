@@ -107,6 +107,10 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
         <Textarea id="content" name="content" rows={8} defaultValue={editingItem?.content || ''} required />
       </div>
       <div>
+        <Label htmlFor="media_url">Media URL (Image or Video)</Label>
+        <Input id="media_url" name="media_url" type="url" placeholder="https://example.com/image.jpg or video.mp4" defaultValue={editingItem?.media_url || ''} />
+      </div>
+      <div>
         <Label htmlFor="tags">Tags (comma separated)</Label>
         <Input id="tags" name="tags" placeholder="tag1, tag2, tag3" defaultValue={editingItem?.tags?.join(', ') || ''} />
       </div>
@@ -197,6 +201,10 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
           <Label htmlFor="event_time">Event Time</Label>
           <Input id="event_time" name="event_time" placeholder="e.g., 7:00 PM MT" defaultValue={editingItem?.event_time || ''} />
         </div>
+      </div>
+      <div>
+        <Label htmlFor="cover_image_url">Cover Image URL</Label>
+        <Input id="cover_image_url" name="cover_image_url" type="url" placeholder="https://example.com/cover-image.jpg" defaultValue={editingItem?.cover_image_url || ''} />
       </div>
       <div>
         <Label htmlFor="content">Content</Label>
@@ -353,6 +361,10 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
           <Label htmlFor="download_link">Download Link</Label>
           <Input id="download_link" name="download_link" type="url" defaultValue={editingItem?.download_link || ''} />
         </div>
+      </div>
+      <div>
+        <Label htmlFor="cover_image_url">Cover Image URL</Label>
+        <Input id="cover_image_url" name="cover_image_url" type="url" placeholder="https://example.com/cover-image.jpg" defaultValue={editingItem?.cover_image_url || ''} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
