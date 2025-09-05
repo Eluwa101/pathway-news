@@ -82,7 +82,7 @@ export default function FeaturedNews() {
       <section>
         <div className="flex items-center space-x-2 mb-6">
           <TrendingUp className="h-6 w-6 text-primary" />
-          <h2 className="text-3xl font-bold">Latest Highlights</h2>
+          <h2 className="text-3xl font-bold">Latest News</h2>
         </div>
         
         <Card>
@@ -107,7 +107,7 @@ export default function FeaturedNews() {
       <section>
         <div className="flex items-center space-x-2 mb-6">
           <TrendingUp className="h-6 w-6 text-primary" />
-          <h2 className="text-3xl font-bold">Latest Highlights</h2>
+          <h2 className="text-3xl font-bold">Latest News</h2>
         </div>
         
         <Card className="bg-primary text-primary-foreground hover:shadow-lg transition-shadow">
@@ -137,7 +137,7 @@ export default function FeaturedNews() {
     <section>
       <div className="flex items-center space-x-2 mb-6">
         <TrendingUp className="h-6 w-6 text-primary" />
-        <h2 className="text-3xl font-bold">Latest Highlights</h2>
+        <h2 className="text-3xl font-bold">Latest News</h2>
       </div>
       
       <Carousel
