@@ -108,21 +108,21 @@ export default function FeaturedNews() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {featuredNews.map((news) => (
-          <Card key={news.id} className="hover:shadow-lg transition-shadow">
+          <Card key={news.id} className="bg-primary text-primary-foreground hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <Badge variant={news.is_hot ? "destructive" : "secondary"}>
                   {news.is_hot ? "🔥 Hot" : news.category}
                 </Badge>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-primary-foreground/70">
                   {new Date(news.created_at).toLocaleDateString()}
                 </span>
               </div>
-              <CardTitle className="line-clamp-2">{news.title}</CardTitle>
+              <CardTitle className="line-clamp-2 text-primary-foreground">{news.title}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground line-clamp-3 mb-4">{news.summary}</p>
-              <Button asChild variant="outline" size="sm" className="w-full">
+              <p className="text-primary-foreground/80 line-clamp-3 mb-4">{news.summary}</p>
+              <Button asChild variant="secondary" size="sm" className="w-full">
                 <Link to={`/news/${news.id}`}>Read More</Link>
               </Button>
             </CardContent>
