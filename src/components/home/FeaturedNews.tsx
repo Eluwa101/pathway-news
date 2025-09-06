@@ -45,8 +45,7 @@ export default function FeaturedNews() {
         .select('id, title, summary, category, is_hot, featured_on_homepage, created_at')
         .eq('is_published', true)
         .eq('featured_on_homepage', true)
-        .order('created_at', { ascending: false })
-        .limit(3);
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setFeaturedNews(data || []);
