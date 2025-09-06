@@ -116,6 +116,71 @@ export default function CareerMapPage() {
   };
 
   const generateCareerPlan = () => {
+    // Generate timeline content based on plan type
+    const generateTimelineContent = () => {
+      let timelineContent = '\n## Career Timeline\n\n';
+      
+      if (preferences.planType === 'short' || preferences.planType === 'comprehensive') {
+        timelineContent += `### Short-term Plan (1-2 years)
+- **Months 1-3: Foundation** - Research ${preferences.industry} industry, identify key players and opportunities
+- **Months 4-8: Skill Development** - Focus on developing: ${preferences.skills.slice(0, 3).join(', ')}
+- **Months 9-12: Application** - Apply knowledge through projects, internships, or entry-level positions
+
+`;
+      }
+      
+      if (preferences.planType === 'long' || preferences.planType === 'comprehensive') {
+        timelineContent += `### Long-term Plan (3-5 years)
+- **Year 1-2: Establish Expertise** - Become proficient in core skills and build professional network
+- **Year 3-4: Leadership & Growth** - Take on leadership roles, mentor others, pursue advanced certifications
+- **Year 5+: Strategic Impact** - Drive strategic initiatives, consider entrepreneurship or executive roles
+
+`;
+      }
+      
+      return timelineContent;
+    };
+
+    // Generate visual map content
+    const generateVisualMapContent = () => {
+      let visualContent = '\n## Visual Career Map Overview\n\n';
+      
+      if (preferences.goals) {
+        visualContent += `**Central Goal:** ${preferences.goals}\n\n`;
+      }
+      
+      if (preferences.interests.length > 0) {
+        visualContent += `**Interests:** ${preferences.interests.join(', ')}\n\n`;
+      }
+      
+      if (preferences.skills.length > 0) {
+        visualContent += `**Skills:** ${preferences.skills.join(', ')}\n\n`;
+      }
+      
+      if (preferences.industry) {
+        visualContent += `**Target Industry:** ${preferences.industry}\n\n`;
+      }
+      
+      if (preferences.workStyle) {
+        visualContent += `**Work Style Preference:** ${preferences.workStyle}\n\n`;
+      }
+      
+      if (preferences.planType) {
+        const planTypeDisplay = preferences.planType === 'short' ? 'Short-term (1-2 years)' :
+                               preferences.planType === 'long' ? 'Long-term (3-5 years)' : 'Comprehensive (Both)';
+        visualContent += `**Plan Type:** ${planTypeDisplay}\n\n`;
+      }
+      
+      if (preferences.timeframe) {
+        const timeframeDisplay = preferences.timeframe === 'immediate' ? '0-6 months' :
+                               preferences.timeframe === 'short' ? '6-12 months' :
+                               preferences.timeframe === 'medium' ? '1-2 years' : '2+ years';
+        visualContent += `**Timeline:** ${timeframeDisplay}\n\n`;
+      }
+      
+      return visualContent;
+    };
+
     const plan = `# My Career Plan
 
 ## Personal Interests
@@ -131,7 +196,7 @@ ${preferences.skills.map(skill => `- ${skill}`).join('\n')}
 
 ## Career Goals
 ${preferences.goals}
-
+${generateVisualMapContent()}
 ## Recommended Next Steps
 1. Research specific roles in ${preferences.industry} that align with your interests
 2. Develop skills in: ${preferences.skills.slice(0, 3).join(', ')}
@@ -144,7 +209,7 @@ ${preferences.goals}
 - Week 3-4: Connect with 3 professionals on LinkedIn
 - Month 2: Apply for relevant internships or entry-level positions
 - Month 3: Evaluate progress and adjust plan as needed
-
+${generateTimelineContent()}
 Generated on: ${new Date().toLocaleDateString()}
 `;
     setCareerPlan(plan);
@@ -524,101 +589,91 @@ Generated on: ${new Date().toLocaleDateString()}
                     <CardTitle>Visual Career Map</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="relative min-h-[500px] bg-gradient-to-br from-background to-muted/20 rounded-lg p-8 overflow-hidden">
+                    <div className="relative min-h-[600px] bg-gradient-to-br from-background to-muted/20 rounded-lg p-12 overflow-hidden">
                       {/* Central Career Goal */}
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-8 py-4 rounded-full text-xl font-bold shadow-xl border-2 border-primary-foreground/20">
-                          {preferences.goals ? preferences.goals.slice(0, 30) + '...' : 'Career Goal'}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                        <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-6 py-3 rounded-full text-lg font-bold shadow-xl border-2 border-primary-foreground/20 max-w-xs text-center">
+                          {preferences.goals ? preferences.goals.slice(0, 40) + (preferences.goals.length > 40 ? '...' : '') : 'Career Goal'}
                         </div>
                       </div>
                       
-                      {/* Interests Branch */}
+                      {/* Interests Branch - Top Left */}
                       {preferences.interests.length > 0 && (
-                        <div className="absolute top-1/6 left-1/6">
-                          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-3 rounded-lg mb-3 shadow-lg font-semibold">
+                        <div className="absolute top-8 left-8 max-w-xs">
+                          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg mb-3 shadow-lg font-semibold text-center">
                             🎯 Interests
                           </div>
-                          <div className="space-y-2">
-                            {preferences.interests.slice(0, 6).map((interest, index) => (
+                          <div className="grid grid-cols-1 gap-2">
+                            {preferences.interests.slice(0, 4).map((interest, index) => (
                               <div key={interest} 
-                                className={`px-4 py-2 rounded-md text-sm shadow-md ml-2 font-medium transition-all hover:scale-105 ${
-                                  index % 4 === 0 ? 'bg-gradient-to-r from-blue-400 to-blue-500 text-white' :
-                                  index % 4 === 1 ? 'bg-gradient-to-r from-green-400 to-green-500 text-white' :
-                                  index % 4 === 2 ? 'bg-gradient-to-r from-purple-400 to-purple-500 text-white' :
-                                  'bg-gradient-to-r from-pink-400 to-pink-500 text-white'
-                                }`}
-                                style={{ 
-                                  transform: `rotate(${index * 8 - 16}deg)`,
-                                  marginLeft: `${index * 12}px`,
-                                  marginTop: `${index * 4}px`
-                                }}
+                                className="bg-gradient-to-r from-blue-400 to-blue-500 text-white px-3 py-1.5 rounded-md text-sm shadow-md font-medium text-center"
                               >
                                 {interest}
                               </div>
                             ))}
+                            {preferences.interests.length > 4 && (
+                              <div className="text-center text-sm text-muted-foreground">
+                                +{preferences.interests.length - 4} more
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
                       
-                      {/* Skills Branch */}
+                      {/* Skills Branch - Top Right */}
                       {preferences.skills.length > 0 && (
-                        <div className="absolute top-1/6 right-1/6">
-                          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-5 py-3 rounded-lg mb-3 shadow-lg font-semibold">
+                        <div className="absolute top-8 right-8 max-w-xs">
+                          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg mb-3 shadow-lg font-semibold text-center">
                             ⚡ Skills
                           </div>
-                          <div className="space-y-2">
-                            {preferences.skills.slice(0, 6).map((skill, index) => (
+                          <div className="grid grid-cols-1 gap-2">
+                            {preferences.skills.slice(0, 4).map((skill, index) => (
                               <div key={skill} 
-                                className={`px-4 py-2 rounded-md text-sm shadow-md mr-2 font-medium transition-all hover:scale-105 ${
-                                  index % 4 === 0 ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white' :
-                                  index % 4 === 1 ? 'bg-gradient-to-r from-red-400 to-red-500 text-white' :
-                                  index % 4 === 2 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white' :
-                                  'bg-gradient-to-r from-indigo-400 to-indigo-500 text-white'
-                                }`}
-                                style={{ 
-                                  transform: `rotate(${index * -8 + 16}deg)`,
-                                  marginRight: `${index * 12}px`,
-                                  marginTop: `${index * 4}px`
-                                }}
+                                className="bg-gradient-to-r from-orange-400 to-orange-500 text-white px-3 py-1.5 rounded-md text-sm shadow-md font-medium text-center"
                               >
                                 {skill}
                               </div>
                             ))}
+                            {preferences.skills.length > 4 && (
+                              <div className="text-center text-sm text-muted-foreground">
+                                +{preferences.skills.length - 4} more
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
                       
-                      {/* Industry Branch */}
+                      {/* Industry Branch - Bottom Left */}
                       {preferences.industry && (
-                        <div className="absolute bottom-1/4 left-1/4">
-                          <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-5 py-3 rounded-lg shadow-lg font-semibold">
+                        <div className="absolute bottom-16 left-8">
+                          <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-4 py-2 rounded-lg shadow-lg font-semibold text-center mb-2">
                             🏢 Industry
                           </div>
-                          <div className="bg-gradient-to-r from-teal-400 to-teal-500 text-white px-4 py-2 rounded-md shadow-md mt-2 font-medium">
+                          <div className="bg-gradient-to-r from-teal-400 to-teal-500 text-white px-3 py-1.5 rounded-md shadow-md font-medium text-center">
                             {preferences.industry}
                           </div>
                         </div>
                       )}
                       
-                      {/* Work Style Branch */}
+                      {/* Work Style Branch - Bottom Right */}
                       {preferences.workStyle && (
-                        <div className="absolute bottom-1/4 right-1/4">
-                          <div className="bg-gradient-to-r from-violet-500 to-violet-600 text-white px-5 py-3 rounded-lg shadow-lg font-semibold">
+                        <div className="absolute bottom-16 right-8">
+                          <div className="bg-gradient-to-r from-violet-500 to-violet-600 text-white px-4 py-2 rounded-lg shadow-lg font-semibold text-center mb-2">
                             💼 Work Style
                           </div>
-                          <div className="bg-gradient-to-r from-violet-400 to-violet-500 text-white px-4 py-2 rounded-md shadow-md mt-2 font-medium">
+                          <div className="bg-gradient-to-r from-violet-400 to-violet-500 text-white px-3 py-1.5 rounded-md shadow-md font-medium text-center">
                             {preferences.workStyle}
                           </div>
                         </div>
                       )}
                       
-                      {/* Timeline Branch */}
+                      {/* Timeline Branch - Bottom Center */}
                       {preferences.timeframe && (
-                        <div className="absolute top-3/4 left-1/2 transform -translate-x-1/2">
-                          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-5 py-3 rounded-lg shadow-lg font-semibold">
+                        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+                          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-lg shadow-lg font-semibold text-center mb-2">
                             ⏰ Timeline
                           </div>
-                          <div className="bg-gradient-to-r from-emerald-400 to-emerald-500 text-white px-4 py-2 rounded-md shadow-md mt-2 font-medium text-center">
+                          <div className="bg-gradient-to-r from-emerald-400 to-emerald-500 text-white px-3 py-1.5 rounded-md shadow-md font-medium text-center">
                             {preferences.timeframe === 'immediate' ? '0-6 months' :
                              preferences.timeframe === 'short' ? '6-12 months' :
                              preferences.timeframe === 'medium' ? '1-2 years' : '2+ years'}
@@ -626,13 +681,13 @@ Generated on: ${new Date().toLocaleDateString()}
                         </div>
                       )}
                       
-                      {/* Plan Type Branch */}
+                      {/* Plan Type Branch - Top Center */}
                       {preferences.planType && (
-                        <div className="absolute top-1/8 left-1/2 transform -translate-x-1/2">
-                          <div className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-5 py-3 rounded-lg shadow-lg font-semibold">
+                        <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
+                          <div className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-4 py-2 rounded-lg shadow-lg font-semibold text-center mb-2">
                             📋 Plan Type
                           </div>
-                          <div className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-white px-4 py-2 rounded-md shadow-md mt-2 font-medium text-center">
+                          <div className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-white px-3 py-1.5 rounded-md shadow-md font-medium text-center">
                             {preferences.planType === 'short' ? 'Short-term' :
                              preferences.planType === 'long' ? 'Long-term' : 'Comprehensive'}
                           </div>
