@@ -148,6 +148,7 @@ export default function FeaturedNews() {
         plugins={[
           Autoplay({
             delay: 5000,
+            stopOnInteraction: true,
           }),
         ]}
         className="w-full"

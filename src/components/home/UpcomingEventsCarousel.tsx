@@ -152,81 +152,79 @@ export default function UpcomingEventsCarousel() {
         <Carousel 
           className="w-full" 
           opts={{ align: "start", loop: true }}
-          plugins={[Autoplay({ delay: 4000 })]}
+          plugins={[Autoplay({ delay: 4000, stopOnInteraction: true })]}
         >
           <CarouselContent className="-ml-2 md:-ml-4">
             {allEvents.map((event) => (
-              <CarouselItem key={event.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                <Card className="hover:shadow-lg transition-shadow h-full">
-                  {/* Cover Image */}
-                  {event.cover_image_url && (
-                    <div className="aspect-video overflow-hidden rounded-t-lg">
-                      <img 
-                        src={event.cover_image_url} 
-                        alt={event.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
+              <CarouselItem key={event.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2 xl:basis-1/3">
+                <Card className="hover:shadow-lg transition-shadow h-full max-w-sm">
                   <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
-                        <Badge variant="outline" className="text-xs">
-                          {event.type === 'devotional' ? 'Devotional' : 'Career Chat'}
-                        </Badge>
-                        <CardTitle className="line-clamp-2 text-lg">{event.title}</CardTitle>
+                    <div className="flex items-start gap-3">
+                      {/* Small round cover image */}
+                      {event.cover_image_url && (
+                        <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
+                          <img 
+                            src={event.cover_image_url} 
+                            alt={event.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-start justify-between">
+                          <Badge variant="outline" className="text-xs">
+                            {event.type === 'devotional' ? 'Devotional' : 'Career Chat'}
+                          </Badge>
+                          {event.featured_on_homepage && (
+                            <Badge variant="secondary" className="text-xs">
+                              Featured
+                            </Badge>
+                          )}
+                        </div>
+                        <CardTitle className="line-clamp-2 text-base leading-tight">{event.title}</CardTitle>
                         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                          <User className="h-4 w-4" />
-                          <span>{event.speaker}</span>
-                          {'position' in event && event.position && <span>• {event.position}</span>}
+                          <User className="h-3 w-3" />
+                          <span className="text-xs">{event.speaker}</span>
+                          {'position' in event && event.position && <span className="text-xs">• {event.position}</span>}
                         </div>
                       </div>
-                      {event.featured_on_homepage && (
-                        <Badge variant="secondary" className="text-xs">
-                          Featured
-                        </Badge>
-                      )}
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-3 pt-0">
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
+                  <CardContent className="space-y-2 pt-0">
+                    <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                      <Calendar className="h-3 w-3" />
                       <span>{formatDate(event.event_date)}</span>
                     </div>
 
-                    {'industry' in event && event.industry && (
-                      <Badge 
-                        variant="outline" 
-                        className={`text-xs ${getIndustryColor(event.industry)}`}
-                      >
-                        {event.industry}
-                      </Badge>
-                    )}
-
-                    {event.topics && event.topics.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {event.topics.slice(0, 2).map((topic, index) => (
+                    <div className="flex flex-wrap gap-1">
+                      {'industry' in event && event.industry && (
+                        <Badge variant="outline" className="text-xs">
+                          {event.industry}
+                        </Badge>
+                      )}
+                      {event.topics && event.topics.length > 0 && (
+                        event.topics.slice(0, 1).map((topic, index) => (
                           <Badge key={index} variant="outline" className="text-xs">
                             {topic}
                           </Badge>
-                        ))}
-                      </div>
-                    )}
+                        ))
+                      )}
+                    </div>
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1">
                       {event.live_link && event.status === 'live' && (
-                        <Button asChild size="sm" variant="default" className="flex-1">
+                        <Button asChild size="sm" variant="default" className="text-xs h-7">
                           <a href={event.live_link} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            Join Now
+                            <ExternalLink className="h-3 w-3 mr-1" />
+                            Join
                           </a>
                         </Button>
                       )}
                       
                       {'registration_required' in event && event.registration_required && event.registration_url && event.status === 'upcoming' && (
-                        <Button asChild size="sm" variant="outline" className="flex-1">
+                        <Button asChild size="sm" variant="outline" className="text-xs h-7">
                           <a href={event.registration_url} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4 mr-2" />
+                            <ExternalLink className="h-3 w-3 mr-1" />
                             Register
                           </a>
                         </Button>
@@ -236,10 +234,10 @@ export default function UpcomingEventsCarousel() {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          className="flex-1"
+                          className="text-xs h-7"
                           onClick={() => setSelectedEvent(event)}
                         >
-                          <VideoIcon className="h-4 w-4 mr-2" />
+                          <VideoIcon className="h-3 w-3 mr-1" />
                           Watch
                         </Button>
                       )}
