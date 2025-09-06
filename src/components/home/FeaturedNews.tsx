@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,15 @@ export default function FeaturedNews() {
   const [featuredNews, setFeaturedNews] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  const autoplayPlugin = useRef<any>(
+    Autoplay({
+      delay: 5000,
+      stopOnInteraction: true,
+      stopOnMouseEnter: true,
+      playOnInit: true,
+    })
+  );
 
   useEffect(() => {
     fetchFeaturedNews();
@@ -145,12 +154,7 @@ export default function FeaturedNews() {
           align: "start",
           loop: true,
         }}
-        plugins={[
-          Autoplay({
-            delay: 5000,
-            stopOnInteraction: true,
-          }),
-        ]}
+        plugins={[autoplayPlugin.current]}
         className="w-full"
       >
         <CarouselContent>
