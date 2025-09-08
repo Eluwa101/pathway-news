@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { WatchModal } from '@/components/ui/watch-modal';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
+import { useRef } from 'react';
 
 interface BaseEvent {
   id: string;
@@ -42,6 +43,16 @@ export default function UpcomingEventsCarousel() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<CombinedEvent | null>(null);
   const { toast } = useToast();
+
+  const autoplayPlugin = useRef(
+    Autoplay({
+      delay: 4000,
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+      playOnInit: true,
+      stopOnFocusIn: false
+    })
+  );
 
   useEffect(() => {
     fetchUpcomingEvents();
@@ -152,7 +163,9 @@ export default function UpcomingEventsCarousel() {
         <Carousel 
           className="w-full" 
           opts={{ align: "start", loop: true }}
-          plugins={[Autoplay({ delay: 4000, stopOnInteraction: true })]}
+          plugins={[autoplayPlugin.current]}
+          onMouseEnter={() => autoplayPlugin.current.stop()}
+          onMouseLeave={() => autoplayPlugin.current.play()}
         >
           <CarouselContent className="-ml-2 md:-ml-4">
             {allEvents.map((event) => (

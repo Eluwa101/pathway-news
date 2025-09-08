@@ -75,12 +75,16 @@ export default function MediaRenderer({
           <video 
             src={src}
             className={baseClasses}
-            controls={isInModal}
+            controls={true}
             onError={handleError}
-            poster={src.replace(/\.[^/.]+$/, '.jpg')} // Try to find poster image
+            preload="metadata"
+            playsInline
           />
           {!isInModal && (
-            <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div 
+              className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              onClick={handleClick}
+            >
               <Button size="icon" variant="ghost" className="bg-white/80 hover:bg-white">
                 <Play className="h-6 w-6" />
               </Button>
