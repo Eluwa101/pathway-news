@@ -29,11 +29,13 @@ export default function UtilityAppsPage() {
     location: '',
     temperature: null,
     condition: '',
-    loading: false
+    loading: false,
+    error: null
   });
   
   const [calculator, setCalculator] = useState({
     display: '0',
+    calculation: '',
     operation: null,
     previousValue: null,
     waitingForNewValue: false
@@ -71,56 +73,118 @@ export default function UtilityAppsPage() {
   const searchWeather = async () => {
     if (!weather.location.trim()) return;
     
-    setWeather(prev => ({ ...prev, loading: true }));
+    setWeather(prev => ({ ...prev, loading: true, error: null }));
     
-    // Mock weather data for demonstration
-    setTimeout(() => {
-      const mockWeather = {
-        temperature: Math.floor(Math.random() * 40) + 50, // 50-90°F
-        condition: ['Sunny', 'Cloudy', 'Rainy', 'Partly Cloudy', 'Windy'][Math.floor(Math.random() * 5)]
-      };
+    try {
+      // Use OpenWeatherMap's free geocoding API to validate city and get coordinates
+      const geoResponse = await fetch(
+        `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(weather.location)}&limit=1&appid=demo`
+      );
+      
+      if (!geoResponse.ok) {
+        // Fallback to a simple city validation
+        const cityNames = [
+          'London', 'Paris', 'New York', 'Tokyo', 'Sydney', 'Berlin', 'Madrid', 'Rome', 'Moscow', 'Beijing',
+          'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego', 'Dallas',
+          'San Jose', 'Austin', 'Jacksonville', 'Fort Worth', 'Columbus', 'Indianapolis', 'Charlotte', 'Seattle',
+          'Denver', 'Washington', 'Boston', 'Nashville', 'Baltimore', 'Louisville', 'Portland', 'Oklahoma City',
+          'Milwaukee', 'Las Vegas', 'Albuquerque', 'Tucson', 'Fresno', 'Sacramento', 'Long Beach', 'Kansas City',
+          'Mesa', 'Virginia Beach', 'Atlanta', 'Colorado Springs', 'Omaha', 'Raleigh', 'Miami', 'Oakland',
+          'Minneapolis', 'Tulsa', 'Cleveland', 'Wichita', 'Arlington', 'Lagos', 'Cairo', 'Kinshasa', 'Luanda',
+          'Nairobi', 'Casablanca', 'Accra', 'Addis Ababa', 'Cape Town', 'Durban', 'Johannesburg', 'Pretoria'
+        ];
+        
+        const isValidCity = cityNames.some(city => 
+          city.toLowerCase().includes(weather.location.toLowerCase()) ||
+          weather.location.toLowerCase().includes(city.toLowerCase())
+        );
+        
+        if (!isValidCity) {
+          setWeather(prev => ({
+            ...prev,
+            loading: false,
+            error: 'Please enter a valid city name'
+          }));
+          return;
+        }
+      }
+      
+      // Use wttr.in for weather data - it's free and doesn't require API keys
+      const weatherResponse = await fetch(
+        `https://wttr.in/${encodeURIComponent(weather.location)}?format=j1`
+      );
+      
+      if (!weatherResponse.ok) {
+        throw new Error('Weather data not available');
+      }
+      
+      const weatherData = await weatherResponse.json();
+      const current = weatherData.current_condition[0];
+      const tempF = Math.round((parseInt(current.temp_C) * 9/5) + 32);
       
       setWeather(prev => ({
         ...prev,
-        temperature: mockWeather.temperature,
-        condition: mockWeather.condition,
-        loading: false
+        temperature: tempF,
+        condition: current.weatherDesc[0].value,
+        loading: false,
+        error: null
       }));
-    }, 800);
+    } catch (error) {
+      setWeather(prev => ({
+        ...prev,
+        loading: false,
+        error: 'Unable to fetch weather data. Please try again.'
+      }));
+    }
   };
 
   // Calculator functionality
+  const updateCalculation = (newCalc: any) => {
+    let calculation = '';
+    if (newCalc.previousValue && newCalc.operation) {
+      calculation = `${newCalc.previousValue} ${newCalc.operation} `;
+      if (!newCalc.waitingForNewValue) {
+        calculation += newCalc.display;
+      }
+    }
+    return { ...newCalc, calculation };
+  };
+
   const handleCalculatorInput = (value: string) => {
-    const { display, operation, previousValue, waitingForNewValue } = calculator;
+    const { display, calculation, operation, previousValue, waitingForNewValue } = calculator;
     
     if (value >= '0' && value <= '9') {
       if (waitingForNewValue) {
-        setCalculator({
+        const newCalc = {
           display: value,
           operation,
           previousValue,
           waitingForNewValue: false
-        });
+        };
+        setCalculator(updateCalculation(newCalc));
       } else {
-        setCalculator({
+        const newCalc = {
           display: display === '0' ? value : display + value,
           operation,
           previousValue,
           waitingForNewValue: false
-        });
+        };
+        setCalculator(updateCalculation(newCalc));
       }
     } else if (value === '.') {
       if (display.indexOf('.') === -1) {
-        setCalculator({
+        const newCalc = {
           display: display + '.',
           operation,
           previousValue,
           waitingForNewValue: false
-        });
+        };
+        setCalculator(updateCalculation(newCalc));
       }
     } else if (value === 'C') {
       setCalculator({
         display: '0',
+        calculation: '',
         operation: null,
         previousValue: null,
         waitingForNewValue: false
@@ -152,6 +216,7 @@ export default function UtilityAppsPage() {
         
         setCalculator({
           display: result.toString(),
+          calculation: `${previousValue} ${operation} ${display} =`,
           operation: null,
           previousValue: null,
           waitingForNewValue: true
@@ -183,19 +248,21 @@ export default function UtilityAppsPage() {
             result = current;
         }
         
-        setCalculator({
+        const newCalc = {
           display: result.toString(),
           operation: value,
           previousValue: result.toString(),
           waitingForNewValue: true
-        });
+        };
+        setCalculator(updateCalculation(newCalc));
       } else {
-        setCalculator({
+        const newCalc = {
           display,
           operation: value,
           previousValue: display,
           waitingForNewValue: true
-        });
+        };
+        setCalculator(updateCalculation(newCalc));
       }
     }
   };
@@ -430,6 +497,12 @@ export default function UtilityAppsPage() {
                     </Button>
                   </div>
                   
+                  {weather.error && (
+                    <div className="text-center p-4 bg-destructive/10 text-destructive rounded-lg">
+                      {weather.error}
+                    </div>
+                  )}
+                  
                   {weather.temperature && (
                     <div className="text-center space-y-2 p-6 bg-muted rounded-lg">
                       <h3 className="text-2xl font-bold">{weather.location}</h3>
@@ -451,8 +524,15 @@ export default function UtilityAppsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="max-w-sm mx-auto space-y-4">
-                    <div className="bg-muted p-4 rounded-lg text-right text-2xl font-mono">
-                      {calculator.display}
+                    <div className="bg-muted p-4 rounded-lg">
+                      {calculator.calculation && (
+                        <div className="text-right text-sm text-muted-foreground font-mono mb-1">
+                          {calculator.calculation}
+                        </div>
+                      )}
+                      <div className="text-right text-2xl font-mono">
+                        {calculator.display}
+                      </div>
                     </div>
                     
                     <div className="grid grid-cols-4 gap-2">
