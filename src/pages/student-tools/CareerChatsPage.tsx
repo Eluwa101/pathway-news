@@ -100,7 +100,7 @@ export default function CareerChatsPage() {
   };
 
   const CareerChatCard = ({ chat, isPast = false }: { chat: CareerEvent, isPast?: boolean }) => (
-    <Card className="mb-6 hover:shadow-lg transition-shadow">
+    <Card className="hover:shadow-lg transition-shadow h-full">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-2">
@@ -237,7 +237,7 @@ export default function CareerChatsPage() {
               <span>Upcoming Career Chats</span>
             </h2>
             {upcomingChats.length > 0 ? (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {upcomingChats.map(chat => (
                   <CareerChatCard key={chat.id} chat={chat} />
                 ))}
@@ -255,7 +255,7 @@ export default function CareerChatsPage() {
           {/* Past Career Chats */}
           <section>
             <h2 className="text-2xl font-bold mb-4">Past Career Chats</h2>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {pastChats.map(chat => (
                 <CareerChatCard key={chat.id} chat={chat} isPast={true} />
               ))}

@@ -86,7 +86,7 @@ export default function DevotionalsPage() {
   };
 
   const DevotionalCard = ({ devotional, isPast = false }: { devotional: Devotional, isPast?: boolean }) => (
-    <Card className="mb-6 hover:shadow-lg transition-shadow">
+    <Card className="hover:shadow-lg transition-shadow h-full">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-2">
@@ -198,7 +198,7 @@ export default function DevotionalsPage() {
               <span>Upcoming Devotionals</span>
             </h2>
             {upcomingDevotionals.length > 0 ? (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {upcomingDevotionals.map(devotional => (
                   <DevotionalCard key={devotional.id} devotional={devotional} />
                 ))}
@@ -216,7 +216,7 @@ export default function DevotionalsPage() {
           {/* Past Devotionals */}
           <section>
             <h2 className="text-2xl font-bold mb-4">Past Devotionals</h2>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {pastDevotionals.map(devotional => (
                 <DevotionalCard key={devotional.id} devotional={devotional} isPast={true} />
               ))}

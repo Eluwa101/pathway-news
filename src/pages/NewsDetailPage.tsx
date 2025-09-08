@@ -208,8 +208,9 @@ const NewsDetailPage = () => {
             <MediaRenderer 
               src={article.media_url}
               alt={`Media for ${article.title}`}
-              type={article.media_type}
+              type={article.media_type || 'auto'}
               className="w-full h-64 md:h-96 rounded-lg"
+              showModal={true}
             />
           </div>
         )}

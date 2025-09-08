@@ -27,9 +27,10 @@ export default function FeaturedNews() {
   const autoplayPlugin = useRef<any>(
     Autoplay({
       delay: 5000,
-      stopOnInteraction: true,
+      stopOnInteraction: false,
       stopOnMouseEnter: true,
       playOnInit: true,
+      stopOnFocusIn: false
     })
   );
 
@@ -155,6 +156,8 @@ export default function FeaturedNews() {
         }}
         plugins={[autoplayPlugin.current]}
         className="w-full"
+        onMouseEnter={() => autoplayPlugin.current.stop()}
+        onMouseLeave={() => autoplayPlugin.current.play()}
       >
         <CarouselContent>
           {featuredNews.map((news) => (
