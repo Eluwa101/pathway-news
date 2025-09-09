@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, BookOpen, Users, Map, Wrench, Home, Zap, Newspaper, Settings } from 'lucide-react';
+import { Menu, X, BookOpen, Users, Map, Wrench, Home, Zap, Newspaper, Settings, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   NavigationMenu,
@@ -90,6 +90,12 @@ export default function Header() {
                         </Link>
                       </NavigationMenuLink>
                       <NavigationMenuLink asChild>
+                        <Link to="/resources/jobs" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent">
+                          <div className="text-sm font-medium leading-none">Career Opportunities</div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            Job listings and career opportunities
+                          </p>
+                        </Link>
                       </NavigationMenuLink>
                     </div>
                   </NavigationMenuContent>
@@ -157,6 +163,9 @@ export default function Header() {
             </Link>
             <Link to="/resources/books" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
               Digital Books
+            </Link>
+            <Link to="/resources/jobs" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
+              Career Opportunities
             </Link>
             <Link to="/utility-apps" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
               Utility Apps

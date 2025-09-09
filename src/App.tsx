@@ -12,6 +12,7 @@ import DevotionalsPage from "./pages/student-tools/DevotionalsPage";
 import CareerChatsPage from "./pages/student-tools/CareerChatsPage";
 import CareerMapPage from "./pages/CareerMapPage";
 import BooksPage from "./pages/resources/BooksPage";
+import JobsPage from "./pages/resources/JobsPage";
 
 import CommunityPage from "./pages/CommunityPage";
 import UtilityAppsPage from "./pages/UtilityAppsPage";
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/student-tools/career-chats" element={<CareerChatsPage />} />
               <Route path="/career-map" element={<CareerMapPage />} />
               <Route path="/resources/books" element={<BooksPage />} />
+              <Route path="/resources/jobs" element={<JobsPage />} />
               
               <Route path="/utility-apps" element={<UtilityAppsPage />} />
               <Route path="/community" element={<CommunityPage />} />

@@ -230,6 +230,72 @@ export type Database = {
         }
         Relationships: []
       }
+      jobs: {
+        Row: {
+          application_url: string
+          benefits: string[] | null
+          category: string
+          company: string
+          contact_email: string | null
+          created_at: string
+          deadline: string | null
+          description: string
+          experience_level: string
+          id: string
+          is_featured: boolean
+          is_published: boolean
+          job_type: string
+          location: string
+          requirements: string[]
+          salary_range: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          application_url: string
+          benefits?: string[] | null
+          category: string
+          company: string
+          contact_email?: string | null
+          created_at?: string
+          deadline?: string | null
+          description: string
+          experience_level?: string
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          job_type?: string
+          location: string
+          requirements?: string[]
+          salary_range?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          application_url?: string
+          benefits?: string[] | null
+          category?: string
+          company?: string
+          contact_email?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          experience_level?: string
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          job_type?: string
+          location?: string
+          requirements?: string[]
+          salary_range?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       news: {
         Row: {
           category: string

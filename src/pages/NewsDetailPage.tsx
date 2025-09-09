@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Calendar, Tag, Flame, Share2 } from "lucide-react";
+import { ArrowLeft, Calendar, Tag, Flame, Share2, Image as ImageIcon } from "lucide-react";
 import MediaRenderer from "@/components/ui/media-renderer";
 
 interface NewsArticle {
@@ -20,6 +20,7 @@ interface NewsArticle {
   created_at: string;
   updated_at: string;
   media_url?: string;
+  additional_images?: string[];
   media_type?: 'image' | 'video';
 }
 
@@ -112,6 +113,19 @@ const NewsDetailPage = () => {
     }
   };
 
+  const convertYouTubeUrl = (url: string) => {
+    // Convert YouTube watch URLs to embed URLs
+    if (url.includes('youtube.com/watch?v=')) {
+      const videoId = url.split('v=')[1]?.split('&')[0];
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+    if (url.includes('youtu.be/')) {
+      const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+    return url;
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-6 py-8 max-w-7xl">
@@ -140,7 +154,7 @@ const NewsDetailPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-6 py-8 max-w-4xl">
+    <div className="container mx-auto px-6 py-8 max-w-7xl">
       {/* Header */}
       <div className="mb-6">
         <Link to="/news">
@@ -151,109 +165,195 @@ const NewsDetailPage = () => {
         </Link>
       </div>
 
-      {/* Article Content */}
-      <article className="space-y-6">
-        {/* Article Header */}
-        <header className="space-y-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <Badge className={getCategoryColor(article.category)}>
-              {article.category.replace('-', ' ').toUpperCase()}
-            </Badge>
-            {article.is_hot && (
-              <Badge variant="destructive" className="flex items-center gap-1">
-                <Flame className="h-3 w-3" />
-                HOT
-              </Badge>
-            )}
-          </div>
-
-          <h1 className="text-4xl font-bold text-foreground leading-tight">
-            {article.title}
-          </h1>
-
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="h-4 w-4" />
-              <span>Published {formatDate(article.created_at)}</span>
-            </div>
-            
-            <Button variant="outline" size="sm" onClick={handleShare}>
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
-            </Button>
-          </div>
-
-          {article.tags && article.tags.length > 0 && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <Tag className="h-4 w-4 text-muted-foreground" />
-              {article.tags.map((tag) => (
-                <Badge key={tag} variant="outline">
-                  {tag}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Main Content */}
+        <div className="lg:col-span-3">
+          <article className="space-y-6">
+            {/* Article Header */}
+            <header className="space-y-4">
+              <div className="flex items-center gap-3 flex-wrap">
+                <Badge className={getCategoryColor(article.category)}>
+                  {article.category.replace('-', ' ').toUpperCase()}
                 </Badge>
-              ))}
-            </div>
-          )}
-        </header>
-
-        {/* Article Summary */}
-        <div className="bg-muted/50 rounded-lg p-6">
-          <p className="text-lg text-muted-foreground italic">
-            {article.summary}
-          </p>
-        </div>
-
-        {/* Featured Media */}
-        {article.media_url && (
-          <div className="my-8">
-            <MediaRenderer 
-              src={article.media_url}
-              alt={`Media for ${article.title}`}
-              type={article.media_type || 'auto'}
-              className="w-full h-64 md:h-96 rounded-lg"
-              showModal={true}
-            />
-          </div>
-        )}
-
-        {/* Article Content */}
-        <div className="prose prose-lg max-w-none">
-          <div className="text-foreground leading-relaxed whitespace-pre-wrap">
-            {article.content}
-          </div>
-        </div>
-      </article>
-
-      {/* Related Articles */}
-      {relatedArticles.length > 0 && (
-        <section className="mt-12 pt-8 border-t">
-          <h2 className="text-2xl font-bold mb-6">Related Articles</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {relatedArticles.map((relatedArticle) => (
-              <Card key={relatedArticle.id} className="hover:shadow-lg transition-shadow duration-200">
-                <CardContent className="p-4 space-y-3">
-                  <Badge className={getCategoryColor(relatedArticle.category)}>
-                    {relatedArticle.category.replace('-', ' ').toUpperCase()}
+                {article.is_hot && (
+                  <Badge variant="destructive" className="flex items-center gap-1">
+                    <Flame className="h-3 w-3" />
+                    HOT
                   </Badge>
-                  
-                  <h3 className="font-semibold line-clamp-2 hover:text-primary transition-colors">
-                    <Link to={`/news/${relatedArticle.id}`}>
-                      {relatedArticle.title}
-                    </Link>
-                  </h3>
-                  
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {relatedArticle.summary}
-                  </p>
-                  
-                  <div className="text-xs text-muted-foreground">
-                    {formatDate(relatedArticle.created_at)}
+                )}
+              </div>
+
+              <h1 className="text-4xl font-bold text-foreground leading-tight">
+                {article.title}
+              </h1>
+
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>Published {formatDate(article.created_at)}</span>
+                </div>
+                
+                <Button variant="outline" size="sm" onClick={handleShare}>
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+              </div>
+
+              {article.tags && article.tags.length > 0 && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Tag className="h-4 w-4 text-muted-foreground" />
+                  {article.tags.map((tag) => (
+                    <Badge key={tag} variant="outline">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </header>
+
+            {/* Article Summary */}
+            <div className="bg-muted/50 rounded-lg p-6">
+              <p className="text-lg text-muted-foreground italic">
+                {article.summary}
+              </p>
+            </div>
+
+            {/* Featured Video (Top Media Space - Videos Only) */}
+            {article.media_url && article.media_type === 'video' && (
+              <div className="my-8">
+                <h3 className="text-lg font-semibold mb-4">Featured Video</h3>
+                {article.media_url.includes('youtube.com') || article.media_url.includes('youtu.be') ? (
+                  <div className="aspect-video w-full rounded-lg overflow-hidden">
+                    <iframe
+                      src={convertYouTubeUrl(article.media_url)}
+                      title={`Video for ${article.title}`}
+                      className="w-full h-full"
+                      allowFullScreen
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    />
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-      )}
+                ) : (
+                  <MediaRenderer 
+                    src={article.media_url}
+                    alt={`Video for ${article.title}`}
+                    type="video"
+                    className="w-full h-64 md:h-96 rounded-lg"
+                    showModal={true}
+                  />
+                )}
+              </div>
+            )}
+
+            {/* Featured Image (Only if no video) */}
+            {article.media_url && article.media_type === 'image' && (
+              <div className="my-8">
+                <h3 className="text-lg font-semibold mb-4">Featured Image</h3>
+                <MediaRenderer 
+                  src={article.media_url}
+                  alt={`Featured image for ${article.title}`}
+                  type="image"
+                  className="w-full h-64 md:h-96 rounded-lg"
+                  showModal={true}
+                />
+              </div>
+            )}
+
+            {/* Article Content */}
+            <div className="prose prose-lg max-w-none">
+              <div className="text-foreground leading-relaxed whitespace-pre-wrap">
+                {article.content}
+              </div>
+            </div>
+          </article>
+        </div>
+
+        {/* Sidebar */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Additional Images Gallery */}
+          {article.additional_images && article.additional_images.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5" />
+                  Image Gallery
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {article.additional_images.map((imageUrl, index) => (
+                  <div key={index} className="relative">
+                    <MediaRenderer 
+                      src={imageUrl}
+                      alt={`Gallery image ${index + 1} for ${article.title}`}
+                      type="image"
+                      className="w-full h-32 rounded-lg object-cover"
+                      showModal={true}
+                    />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Mock Additional Images for demonstration */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="h-5 w-5" />
+                Related Images
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 gap-3">
+                <div className="bg-muted rounded-lg h-24 flex items-center justify-center">
+                  <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <div className="bg-muted rounded-lg h-24 flex items-center justify-center">
+                  <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <div className="bg-muted rounded-lg h-24 flex items-center justify-center">
+                  <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                Additional images will appear here when uploaded
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Related Articles in Sidebar */}
+          {relatedArticles.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Related Articles</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {relatedArticles.slice(0, 3).map((relatedArticle) => (
+                  <div key={relatedArticle.id} className="space-y-2 pb-4 border-b last:border-b-0">
+                    <Badge className={getCategoryColor(relatedArticle.category)} variant="outline">
+                      {relatedArticle.category.replace('-', ' ').toUpperCase()}
+                    </Badge>
+                    
+                    <h4 className="font-medium text-sm line-clamp-2 hover:text-primary transition-colors">
+                      <Link to={`/news/${relatedArticle.id}`}>
+                        {relatedArticle.title}
+                      </Link>
+                    </h4>
+                    
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {relatedArticle.summary}
+                    </p>
+                    
+                    <div className="text-xs text-muted-foreground">
+                      {formatDate(relatedArticle.created_at)}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
