@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,8 +6,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Map, Target, BookOpen, TrendingUp, Plus, X, Download, FileText, Network, Edit, Calendar, Clock } from 'lucide-react';
+import { Map, Target, BookOpen, TrendingUp, Plus, X, Download, FileText, Network, Edit, Calendar, Clock, Camera, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface CareerPreference {
   interests: string[];
@@ -57,6 +59,8 @@ export default function CareerMapPage() {
   const [customSkillInput, setCustomSkillInput] = useState('');
   const [showCustomInterest, setShowCustomInterest] = useState(false);
   const [showCustomSkill, setShowCustomSkill] = useState(false);
+  const mindMapRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
 
   const handleAddInterest = (interest: string) => {
     if (!preferences.interests.includes(interest)) {
@@ -234,6 +238,167 @@ Generated on: ${new Date().toLocaleDateString()}
     toast({
       title: "Download Started",
       description: "Your career plan has been downloaded as a Markdown file."
+    });
+  };
+
+  const exportMindMapImage = async () => {
+    if (!mindMapRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(mindMapRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true
+      });
+      
+      const link = document.createElement('a');
+      link.download = 'career-mindmap.png';
+      link.href = canvas.toDataURL();
+      link.click();
+      
+      toast({
+        title: "Mind Map Exported",
+        description: "Your visual career map has been saved as an image."
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Could not export the mind map image.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const exportComprehensivePDF = async () => {
+    try {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      let yPosition = 20;
+
+      // Title
+      pdf.setFontSize(20);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Comprehensive Career Plan', pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 15;
+
+      // Career Plan Text
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'normal');
+      const splitText = pdf.splitTextToSize(careerPlan, pageWidth - 40);
+      
+      for (let i = 0; i < splitText.length; i++) {
+        if (yPosition > pageHeight - 20) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+        pdf.text(splitText[i], 20, yPosition);
+        yPosition += 6;
+      }
+
+      // Add Mind Map
+      if (mindMapRef.current) {
+        const canvas = await html2canvas(mindMapRef.current, {
+          backgroundColor: '#ffffff',
+          scale: 1,
+          useCORS: true,
+          allowTaint: true
+        });
+        
+        pdf.addPage();
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Visual Career Map', pageWidth / 2, 20, { align: 'center' });
+        
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = pageWidth - 40;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        if (imgHeight <= pageHeight - 40) {
+          pdf.addImage(imgData, 'PNG', 20, 30, imgWidth, imgHeight);
+        } else {
+          const scaledHeight = pageHeight - 40;
+          const scaledWidth = (canvas.width * scaledHeight) / canvas.height;
+          pdf.addImage(imgData, 'PNG', (pageWidth - scaledWidth) / 2, 30, scaledWidth, scaledHeight);
+        }
+      }
+
+      // Add Timeline
+      if (timelineRef.current) {
+        const timelineCanvas = await html2canvas(timelineRef.current, {
+          backgroundColor: '#ffffff',
+          scale: 1,
+          useCORS: true,
+          allowTaint: true
+        });
+        
+        pdf.addPage();
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Career Timeline', pageWidth / 2, 20, { align: 'center' });
+        
+        const timelineImgData = timelineCanvas.toDataURL('image/png');
+        const timelineImgWidth = pageWidth - 40;
+        const timelineImgHeight = (timelineCanvas.height * timelineImgWidth) / timelineCanvas.width;
+        
+        if (timelineImgHeight <= pageHeight - 40) {
+          pdf.addImage(timelineImgData, 'PNG', 20, 30, timelineImgWidth, timelineImgHeight);
+        } else {
+          const scaledHeight = pageHeight - 40;
+          const scaledWidth = (timelineCanvas.width * scaledHeight) / timelineCanvas.height;
+          pdf.addImage(timelineImgData, 'PNG', (pageWidth - scaledWidth) / 2, 30, scaledWidth, scaledHeight);
+        }
+      }
+
+      pdf.save('comprehensive-career-plan.pdf');
+      
+      toast({
+        title: "PDF Exported",
+        description: "Your comprehensive career plan has been saved as PDF."
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Could not export the comprehensive PDF.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const downloadComprehensiveMarkdown = () => {
+    let comprehensiveMarkdown = careerPlan;
+    
+    // Add Mind Map section
+    comprehensiveMarkdown += '\n\n## Mind Map Overview\n\n';
+    comprehensiveMarkdown += 'The visual mind map shows the interconnections between:\n';
+    comprehensiveMarkdown += `- **Central Goal**: ${preferences.goals || 'Career Development'}\n`;
+    comprehensiveMarkdown += `- **Interests**: ${preferences.interests.join(', ')}\n`;
+    comprehensiveMarkdown += `- **Skills**: ${preferences.skills.join(', ')}\n`;
+    comprehensiveMarkdown += `- **Industry**: ${preferences.industry}\n`;
+    comprehensiveMarkdown += `- **Work Style**: ${preferences.workStyle}\n`;
+    comprehensiveMarkdown += `- **Timeline**: ${preferences.timeframe}\n`;
+    comprehensiveMarkdown += `- **Plan Type**: ${preferences.planType}\n\n`;
+    
+    comprehensiveMarkdown += '## Visual Career Map\n\n';
+    comprehensiveMarkdown += 'The visual career map displays all your preferences in an interconnected diagram, showing how your interests, skills, and goals align with your chosen industry and work style.\n\n';
+    
+    comprehensiveMarkdown += '## Interactive Timeline\n\n';
+    comprehensiveMarkdown += 'The timeline view breaks down your career development into actionable phases with specific milestones and deliverables.\n\n';
+    
+    const blob = new Blob([comprehensiveMarkdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'comprehensive-career-plan.md';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Comprehensive Plan Downloaded",
+      description: "Your complete career plan with all views has been downloaded."
     });
   };
 
@@ -586,10 +751,16 @@ Generated on: ${new Date().toLocaleDateString()}
               {preferences.interests.length > 0 || preferences.skills.length > 0 ? (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Visual Career Map</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Visual Career Map</CardTitle>
+                      <Button onClick={exportMindMapImage} variant="outline" size="sm">
+                        <Camera className="h-4 w-4 mr-2" />
+                        Export Image
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="relative min-h-[600px] bg-gradient-to-br from-background to-muted/20 rounded-lg p-12 overflow-hidden">
+                    <div ref={mindMapRef} className="relative min-h-[600px] bg-gradient-to-br from-background to-muted/20 rounded-lg p-12 overflow-hidden">
                       {/* Central Career Goal */}
                       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
                         <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-6 py-3 rounded-full text-lg font-bold shadow-xl border-2 border-primary-foreground/20 max-w-xs text-center">
@@ -751,10 +922,16 @@ Generated on: ${new Date().toLocaleDateString()}
               {careerPlan ? (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Career Timeline View</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Career Timeline View</CardTitle>
+                      <Button onClick={exportMindMapImage} variant="outline" size="sm">
+                        <ImageIcon className="h-4 w-4 mr-2" />
+                        Export Timeline
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-6">
+                    <div ref={timelineRef} className="space-y-6">
                       {preferences.planType === 'short' || preferences.planType === 'comprehensive' ? (
                         <div className="bg-muted/50 p-6 rounded-lg">
                           <h3 className="text-lg font-semibold mb-4 flex items-center">
@@ -842,25 +1019,91 @@ Generated on: ${new Date().toLocaleDateString()}
                 <CardHeader>
                   <CardTitle>Export Your Career Plan</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
                   {careerPlan ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Button onClick={downloadPlan} className="h-20 flex-col space-y-2">
-                        <Download className="h-6 w-6" />
-                        <div className="text-center">
-                          <div className="font-medium">Download as Markdown</div>
-                          <div className="text-xs text-muted-foreground">For editing in any text editor</div>
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Button onClick={downloadPlan} className="h-20 flex-col space-y-2">
+                          <Download className="h-6 w-6" />
+                          <div className="text-center">
+                            <div className="font-medium">Basic Markdown</div>
+                            <div className="text-xs text-muted-foreground">Career plan text only</div>
+                          </div>
+                        </Button>
+                        
+                        <Button onClick={printPlan} variant="outline" className="h-20 flex-col space-y-2">
+                          <FileText className="h-6 w-6" />
+                          <div className="text-center">
+                            <div className="font-medium">Print Plan</div>
+                            <div className="text-xs text-muted-foreground">Physical copy for reference</div>
+                          </div>
+                        </Button>
+                      </div>
+
+                      <div className="border-t pt-6">
+                        <h3 className="text-lg font-semibold mb-4">Comprehensive Export Options</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Button onClick={downloadComprehensiveMarkdown} variant="secondary" className="h-20 flex-col space-y-2">
+                            <Download className="h-6 w-6" />
+                            <div className="text-center">
+                              <div className="font-medium">Complete Markdown</div>
+                              <div className="text-xs text-muted-foreground">All views included</div>
+                            </div>
+                          </Button>
+                          
+                          <Button onClick={exportComprehensivePDF} variant="secondary" className="h-20 flex-col space-y-2">
+                            <FileText className="h-6 w-6" />
+                            <div className="text-center">
+                              <div className="font-medium">Comprehensive PDF</div>
+                              <div className="text-xs text-muted-foreground">Plan + Mind Map + Timeline</div>
+                            </div>
+                          </Button>
                         </div>
-                      </Button>
-                      
-                      <Button onClick={printPlan} variant="outline" className="h-20 flex-col space-y-2">
-                        <FileText className="h-6 w-6" />
-                        <div className="text-center">
-                          <div className="font-medium">Print or Save as PDF</div>
-                          <div className="text-xs text-muted-foreground">Physical copy for reference</div>
+                      </div>
+
+                      <div className="border-t pt-6">
+                        <h3 className="text-lg font-semibold mb-4">Individual Components</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Button onClick={exportMindMapImage} variant="outline" className="h-16 flex-col space-y-1">
+                            <Camera className="h-5 w-5" />
+                            <div className="text-sm font-medium">Export Mind Map</div>
+                          </Button>
+                          
+                          <Button 
+                            onClick={() => {
+                              if (timelineRef.current) {
+                                html2canvas(timelineRef.current, {
+                                  backgroundColor: '#ffffff',
+                                  scale: 2,
+                                  useCORS: true,
+                                  allowTaint: true
+                                }).then(canvas => {
+                                  const link = document.createElement('a');
+                                  link.download = 'career-timeline.png';
+                                  link.href = canvas.toDataURL();
+                                  link.click();
+                                  toast({
+                                    title: "Timeline Exported",
+                                    description: "Your career timeline has been saved as an image."
+                                  });
+                                }).catch(() => {
+                                  toast({
+                                    title: "Export Failed",
+                                    description: "Could not export the timeline image.",
+                                    variant: "destructive"
+                                  });
+                                });
+                              }
+                            }}
+                            variant="outline" 
+                            className="h-16 flex-col space-y-1"
+                          >
+                            <ImageIcon className="h-5 w-5" />
+                            <div className="text-sm font-medium">Export Timeline</div>
+                          </Button>
                         </div>
-                      </Button>
-                    </div>
+                      </div>
+                    </>
                   ) : (
                     <div className="text-center py-8">
                       <p className="text-muted-foreground mb-4">
