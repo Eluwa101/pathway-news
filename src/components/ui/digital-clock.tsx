@@ -4,15 +4,19 @@ import { Clock } from 'lucide-react';
 
 export default function DigitalClock() {
   const [time, setTime] = useState(new Date());
-  const [timezone, setTimezone] = useState('');
+  const [timezoneAbbr, setTimezoneAbbr] = useState('');
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTime(new Date());
     }, 1000);
 
-    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-
+    // Get short timezone abbreviation
+    const tz = new Date().toLocaleTimeString('en-US', {
+      timeZoneName: 'short'
+    });
+    // Extract just the abbreviation (last part after the time)
+    setTimezoneAbbr(tz.split(' ').pop() || '');
 
     return () => clearInterval(timer);
   }, []);
@@ -52,7 +56,7 @@ export default function DigitalClock() {
             {formatDate(time)}
           </div>
           <div className="text-sm text-muted-foreground">
-            Local Time ({timezone})
+            Local Time ({timezoneAbbr})
           </div>
         </div>
       </CardContent>
