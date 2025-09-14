@@ -4,11 +4,14 @@ import { Clock } from 'lucide-react';
 
 export default function DigitalClock() {
   const [time, setTime] = useState(new Date());
+  const [time, setTimezone] = usestate('');
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTime(new Date());
     }, 1000);
+
+    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone)
 
     return () => clearInterval(timer);
   }, []);
@@ -48,7 +51,7 @@ export default function DigitalClock() {
             {formatDate(time)}
           </div>
           <div className="text-sm text-muted-foreground">
-            Mountain Time (MT)
+            Local Time ({timeZone})
           </div>
         </div>
       </CardContent>
