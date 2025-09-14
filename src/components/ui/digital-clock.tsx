@@ -11,7 +11,7 @@ export default function DigitalClock() {
       setTime(new Date());
     }, 1000);
 
-    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone)
+    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
 
     return () => clearInterval(timer);
   }, []);
