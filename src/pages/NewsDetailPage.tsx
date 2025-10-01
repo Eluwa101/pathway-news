@@ -19,9 +19,8 @@ interface NewsArticle {
   is_published: boolean;
   created_at: string;
   updated_at: string;
-  media_url?: string;
-  additional_images?: string[];
-  media_type?: 'image' | 'video';
+  video_url?: string;
+  image_urls?: string[];
 }
 
 const NewsDetailPage = () => {
@@ -219,13 +218,13 @@ const NewsDetailPage = () => {
             </div>
 
             {/* Featured Video (Top Media Space - Videos Only) */}
-            {article.media_url && article.media_type === 'video' && (
+            {article.video_url && (
               <div className="my-8">
                 <h3 className="text-lg font-semibold mb-4">Featured Video</h3>
-                {article.media_url.includes('youtube.com') || article.media_url.includes('youtu.be') ? (
+                {article.video_url.includes('youtube.com') || article.video_url.includes('youtu.be') ? (
                   <div className="aspect-video w-full rounded-lg overflow-hidden">
                     <iframe
-                      src={convertYouTubeUrl(article.media_url)}
+                      src={convertYouTubeUrl(article.video_url)}
                       title={`Video for ${article.title}`}
                       className="w-full h-full"
                       allowFullScreen
@@ -235,7 +234,7 @@ const NewsDetailPage = () => {
                   </div>
                 ) : (
                   <MediaRenderer 
-                    src={article.media_url}
+                    src={article.video_url}
                     alt={`Video for ${article.title}`}
                     type="video"
                     className="w-full h-64 md:h-96 rounded-lg"
@@ -245,17 +244,22 @@ const NewsDetailPage = () => {
               </div>
             )}
 
-            {/* Featured Image (Only if no video) */}
-            {article.media_url && article.media_type === 'image' && (
+            {/* Image Gallery - Below video */}
+            {article.image_urls && article.image_urls.length > 0 && (
               <div className="my-8">
-                <h3 className="text-lg font-semibold mb-4">Featured Image</h3>
-                <MediaRenderer 
-                  src={article.media_url}
-                  alt={`Featured image for ${article.title}`}
-                  type="image"
-                  className="w-full h-64 md:h-96 rounded-lg"
-                  showModal={true}
-                />
+                <h3 className="text-lg font-semibold mb-4">Image Gallery</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {article.image_urls.map((imageUrl, index) => (
+                    <MediaRenderer 
+                      key={index}
+                      src={imageUrl}
+                      alt={`Gallery image ${index + 1} for ${article.title}`}
+                      type="image"
+                      className="w-full h-64 rounded-lg object-cover"
+                      showModal={true}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 

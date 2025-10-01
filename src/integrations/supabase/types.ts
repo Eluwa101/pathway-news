@@ -303,6 +303,7 @@ export type Database = {
           created_at: string
           featured_on_homepage: boolean | null
           id: string
+          image_urls: string[] | null
           is_hot: boolean
           is_published: boolean
           media_url: string | null
@@ -310,6 +311,7 @@ export type Database = {
           tags: string[] | null
           title: string
           updated_at: string
+          video_url: string | null
         }
         Insert: {
           category: string
@@ -317,6 +319,7 @@ export type Database = {
           created_at?: string
           featured_on_homepage?: boolean | null
           id?: string
+          image_urls?: string[] | null
           is_hot?: boolean
           is_published?: boolean
           media_url?: string | null
@@ -324,6 +327,7 @@ export type Database = {
           tags?: string[] | null
           title: string
           updated_at?: string
+          video_url?: string | null
         }
         Update: {
           category?: string
@@ -331,6 +335,7 @@ export type Database = {
           created_at?: string
           featured_on_homepage?: boolean | null
           id?: string
+          image_urls?: string[] | null
           is_hot?: boolean
           is_published?: boolean
           media_url?: string | null
@@ -338,6 +343,7 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }
