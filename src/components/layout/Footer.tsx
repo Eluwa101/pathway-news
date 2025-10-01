@@ -117,6 +117,9 @@ export default function Footer() {
             © {currentYear} Eluwa Victor Monday. All rights reserved.
           </div>
           <div className="flex flex-wrap gap-4 text-sm">
+            <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
+              About Us
+            </Link>
             <a href="https://help.byupathway.edu/" className="text-muted-foreground hover:text-primary transition-colors">
               Contact Support
             </a>

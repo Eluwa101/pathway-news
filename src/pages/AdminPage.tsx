@@ -38,6 +38,7 @@ const AdminPage = () => {
   const [devotionals, setDevotionals] = useState<AdminContent[]>([]);
   const [careerEvents, setCareerEvents] = useState<AdminContent[]>([]);
   const [whatsappGroups, setWhatsappGroups] = useState<AdminContent[]>([]);
+  const [jobs, setJobs] = useState<AdminContent[]>([]);
   
   // Form state
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -49,12 +50,13 @@ const AdminPage = () => {
 
   const fetchContent = async () => {
     try {
-      const [newsRes, booksRes, devotionalsRes, eventsRes, groupsRes] = await Promise.all([
+      const [newsRes, booksRes, devotionalsRes, eventsRes, groupsRes, jobsRes] = await Promise.all([
         supabase.from('news').select('*').order('created_at', { ascending: false }),
         supabase.from('books').select('*').order('created_at', { ascending: false }),
         supabase.from('devotionals').select('*').order('created_at', { ascending: false }),
         supabase.from('career_events').select('*').order('created_at', { ascending: false }),
-        supabase.from('whatsapp_groups').select('*').order('created_at', { ascending: false })
+        supabase.from('whatsapp_groups').select('*').order('created_at', { ascending: false }),
+        supabase.from('jobs').select('*').order('created_at', { ascending: false })
       ]);
 
       if (newsRes.data) setNews(newsRes.data);
@@ -62,6 +64,7 @@ const AdminPage = () => {
       if (devotionalsRes.data) setDevotionals(devotionalsRes.data);
       if (eventsRes.data) setCareerEvents(eventsRes.data);
       if (groupsRes.data) setWhatsappGroups(groupsRes.data);
+      if (jobsRes.data) setJobs(jobsRes.data);
     } catch (error) {
       console.error('Fetch error:', error);
       toast({
@@ -101,16 +104,24 @@ const AdminPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="homepage">
-            <Star className="h-4 w-4 mr-2" />
-            Homepage
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1">
+          <TabsTrigger value="homepage" className="text-xs sm:text-sm">
+            <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Homepage</span>
+            <span className="sm:hidden">Home</span>
           </TabsTrigger>
-          <TabsTrigger value="news">News</TabsTrigger>
-          <TabsTrigger value="books">Books</TabsTrigger>
-          <TabsTrigger value="devotionals">Devotionals</TabsTrigger>
-          <TabsTrigger value="career_events">Career Events</TabsTrigger>
-          <TabsTrigger value="whatsapp_groups">WhatsApp Groups</TabsTrigger>
+          <TabsTrigger value="news" className="text-xs sm:text-sm">News</TabsTrigger>
+          <TabsTrigger value="books" className="text-xs sm:text-sm">Books</TabsTrigger>
+          <TabsTrigger value="devotionals" className="text-xs sm:text-sm">Devotionals</TabsTrigger>
+          <TabsTrigger value="career_events" className="text-xs sm:text-sm">
+            <span className="hidden sm:inline">Career Events</span>
+            <span className="sm:hidden">Career</span>
+          </TabsTrigger>
+          <TabsTrigger value="whatsapp_groups" className="text-xs sm:text-sm">
+            <span className="hidden sm:inline">WhatsApp</span>
+            <span className="sm:hidden">WA</span>
+          </TabsTrigger>
+          <TabsTrigger value="jobs" className="text-xs sm:text-sm">Jobs</TabsTrigger>
         </TabsList>
 
         <TabsContent value="homepage">
@@ -211,6 +222,26 @@ const AdminPage = () => {
             items={whatsappGroups}
             type="WhatsApp Groups"
             tableName="whatsapp_groups"
+            onEdit={handleEdit}
+            onAdd={handleAdd}
+            onRefresh={fetchContent}
+          />
+        </TabsContent>
+
+        <TabsContent value="jobs">
+          {showForm && (
+            <AdminForm
+              type="jobs"
+              tableName="jobs"
+              editingItem={editingItem}
+              onSuccess={handleFormSuccess}
+              onCancel={handleFormCancel}
+            />
+          )}
+          <AdminList
+            items={jobs}
+            type="Jobs"
+            tableName="jobs"
             onEdit={handleEdit}
             onAdd={handleAdd}
             onRefresh={fetchContent}

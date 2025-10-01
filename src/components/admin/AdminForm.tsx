@@ -8,10 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Calendar, Image, Video } from "lucide-react";
+import { JobsFields } from "./JobsFields";
 
 interface AdminFormProps {
   type: string;
-  tableName: 'news' | 'books' | 'devotionals' | 'career_events' | 'whatsapp_groups';
+  tableName: 'news' | 'books' | 'devotionals' | 'career_events' | 'whatsapp_groups' | 'jobs';
   editingItem: any;
   onSuccess: () => void;
   onCancel: () => void;
@@ -34,7 +35,7 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
       // Build data object based on form fields
       const formEntries = Array.from(formData.entries());
       formEntries.forEach(([key, value]) => {
-        if (key === 'tags' || key === 'topics') {
+        if (key === 'tags' || key === 'topics' || key === 'requirements' || key === 'benefits') {
           data[key] = (value as string)?.split(',').map(item => item.trim()).filter(Boolean) || [];
         } else if (key === 'steps' || key === 'skills') {
           if (key === 'steps') {
@@ -44,8 +45,14 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
           }
         } else if (key === 'members' || key === 'attendees' || key === 'duration_minutes') {
           data[key] = parseInt(value as string) || 0;
-        } else if (key === 'is_published' || key === 'is_hot' || key === 'is_active' || key === 'registration_required' || key === 'featured_on_homepage') {
+        } else if (key === 'is_published' || key === 'is_hot' || key === 'is_active' || key === 'registration_required' || key === 'featured_on_homepage' || key === 'is_featured') {
           data[key] = value === 'on';
+        } else if (key.startsWith('image_url_')) {
+          // Collect image URLs into array
+          if (!data.image_urls) data.image_urls = [];
+          if (value && (value as string).trim()) {
+            data.image_urls.push((value as string).trim());
+          }
         } else {
           data[key] = value as string;
         }
@@ -107,8 +114,32 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
         <Textarea id="content" name="content" rows={8} defaultValue={editingItem?.content || ''} required />
       </div>
       <div>
-        <Label htmlFor="media_url">Media URL (Image or Video)</Label>
-        <Input id="media_url" name="media_url" type="url" placeholder="https://example.com/image.jpg or video.mp4" defaultValue={editingItem?.media_url || ''} />
+        <Label htmlFor="video_url">
+          <Video className="h-4 w-4 inline mr-2" />
+          Video URL (YouTube, etc.)
+        </Label>
+        <Input id="video_url" name="video_url" type="url" placeholder="https://www.youtube.com/watch?v=..." defaultValue={editingItem?.video_url || ''} />
+      </div>
+      <div>
+        <Label htmlFor="image_url_1">
+          <Image className="h-4 w-4 inline mr-2" />
+          Image URL 1
+        </Label>
+        <Input id="image_url_1" name="image_url_1" type="url" placeholder="https://example.com/image1.jpg" defaultValue={editingItem?.image_urls?.[0] || ''} />
+      </div>
+      <div>
+        <Label htmlFor="image_url_2">
+          <Image className="h-4 w-4 inline mr-2" />
+          Image URL 2
+        </Label>
+        <Input id="image_url_2" name="image_url_2" type="url" placeholder="https://example.com/image2.jpg" defaultValue={editingItem?.image_urls?.[1] || ''} />
+      </div>
+      <div>
+        <Label htmlFor="image_url_3">
+          <Image className="h-4 w-4 inline mr-2" />
+          Image URL 3
+        </Label>
+        <Input id="image_url_3" name="image_url_3" type="url" placeholder="https://example.com/image3.jpg" defaultValue={editingItem?.image_urls?.[2] || ''} />
       </div>
       <div>
         <Label htmlFor="tags">Tags (comma separated)</Label>
@@ -492,6 +523,7 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
       case 'devotionals': return renderDevotionalFields();
       case 'career_events': return renderCareerEventFields();
       case 'whatsapp_groups': return renderWhatsAppGroupFields();
+      case 'jobs': return <JobsFields editingItem={editingItem} />;
       default: return null;
     }
   };

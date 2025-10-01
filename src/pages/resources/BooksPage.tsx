@@ -65,14 +65,14 @@ export default function BooksPage() {
   });
 
   const BookCard = ({ book }: { book: Book }) => (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="flex h-40">
-        <div className="w-28 h-full bg-muted flex items-center justify-center flex-shrink-0">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
+      <div className="flex flex-col sm:flex-row h-auto sm:h-52">
+        <div className="w-full sm:w-32 h-48 sm:h-full bg-muted flex items-center justify-center flex-shrink-0">
           {book.cover_image_url ? (
             <img 
               src={book.cover_image_url} 
               alt={book.title}
-              className="w-full h-full object-cover rounded-l-lg"
+              className="w-full h-full object-cover sm:rounded-l-lg rounded-t-lg sm:rounded-t-none"
             />
           ) : (
             <BookOpen className="h-8 w-8 text-muted-foreground" />
@@ -82,14 +82,14 @@ export default function BooksPage() {
         <div className="flex-1 flex flex-col">
           <CardHeader className="pb-3 pt-4 px-4">
             <div className="space-y-2">
-              <CardTitle className="text-base line-clamp-2 leading-tight">{book.title}</CardTitle>
+              <CardTitle className="text-base sm:text-lg line-clamp-2 leading-tight">{book.title}</CardTitle>
               <p className="text-sm text-muted-foreground font-medium">{book.author}</p>
               <Badge variant="outline" className="text-xs w-fit">{book.category}</Badge>
             </div>
           </CardHeader>
           
           <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
-            <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
+            <p className="text-sm text-muted-foreground line-clamp-2 sm:line-clamp-3 mb-3">
               {book.description}
             </p>
             
@@ -123,11 +123,11 @@ export default function BooksPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 sm:px-6 py-8 max-w-7xl">
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Digital Books</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Digital Books</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Access your course textbooks and study materials
             </p>
           </div>
@@ -135,8 +135,8 @@ export default function BooksPage() {
           {/* Search and Filters */}
           <Card>
             <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2">
                   <div className="relative">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -173,7 +173,7 @@ export default function BooksPage() {
           </div>
 
           {/* Books Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredBooks.length > 0 ? (
               filteredBooks.map(book => (
                 <BookCard key={book.id} book={book} />

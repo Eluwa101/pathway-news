@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, MessageCircle, GraduationCap, Briefcase, BookOpen, Code } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Users, MessageCircle, GraduationCap, Briefcase, BookOpen, Code, Search, Filter } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -41,6 +43,8 @@ const communityGuidelines = [
 export default function CommunityPage() {
   const [whatsappGroups, setWhatsappGroups] = useState<WhatsAppGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -68,9 +72,17 @@ export default function CommunityPage() {
     }
   };
 
-  const majorGroups = whatsappGroups.filter(group => group.category === "Major");
-  const courseGroups = whatsappGroups.filter(group => group.category === "Course");
-  const generalGroups = whatsappGroups.filter(group => group.category === "General");
+  // Filter groups based on search and category
+  const filteredGroups = whatsappGroups.filter(group => {
+    const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         group.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === "all" || group.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const majorGroups = filteredGroups.filter(group => group.category === "Major");
+  const courseGroups = filteredGroups.filter(group => group.category === "Course");
+  const generalGroups = filteredGroups.filter(group => group.category === "General");
 
   const GroupCard = ({ group }: { group: WhatsAppGroup }) => {
     const IconComponent = iconMap[group.icon as keyof typeof iconMap] || MessageCircle;
@@ -79,15 +91,15 @@ export default function CommunityPage() {
       <Card className="hover:shadow-lg transition-shadow">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <div className={`p-2 rounded-lg ${group.color}`}>
-                <IconComponent className="h-5 w-5" />
+                <IconComponent className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
               <div>
-                <CardTitle className="text-lg">{group.name}</CardTitle>
-                <div className="flex items-center space-x-2 mt-1">
-                  <Badge variant="outline">{group.category}</Badge>
-                  <span className="text-sm text-muted-foreground">
+                <CardTitle className="text-base sm:text-lg">{group.name}</CardTitle>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
+                  <Badge variant="outline" className="text-xs w-fit">{group.category}</Badge>
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     {group.members} members
                   </span>
                 </div>
@@ -125,19 +137,19 @@ export default function CommunityPage() {
 
   const GroupSection = ({ title, groups, icon: Icon }: { title: string, groups: WhatsAppGroup[], icon: any }) => (
     <section className="space-y-4">
-      <h2 className="text-2xl font-bold flex items-center space-x-2">
-        <Icon className="h-6 w-6" />
+      <h2 className="text-xl sm:text-2xl font-bold flex items-center space-x-2">
+        <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
         <span>{title}</span>
       </h2>
       {groups.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {groups.map(group => (
             <GroupCard key={group.id} group={group} />
           ))}
         </div>
       ) : (
         <div className="text-center py-8">
-          <p className="text-muted-foreground">No groups available in this category yet.</p>
+          <p className="text-muted-foreground">No groups found matching your search.</p>
         </div>
       )}
     </section>
@@ -156,19 +168,49 @@ export default function CommunityPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="space-y-8">
+      <div className="container mx-auto px-4 sm:px-6 py-8 max-w-7xl">
+        <div className="space-y-6 sm:space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-3xl font-bold">Student Community</h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <h1 className="text-2xl sm:text-3xl font-bold">Student Community</h1>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-4">
               Connect with fellow BYU-Pathway students through WhatsApp study groups. 
               Get help with coursework, share resources, and build lasting friendships.
             </p>
           </div>
 
+          {/* Search and Filter */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search groups..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger>
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="Major">Major Groups</SelectItem>
+                    <SelectItem value="Course">Course Groups</SelectItem>
+                    <SelectItem value="General">General Community</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             <Card className="text-center">
               <CardContent className="pt-6">
                 <Users className="h-12 w-12 text-primary mx-auto mb-4" />
@@ -230,7 +272,7 @@ export default function CommunityPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {communityGuidelines.map((guideline, index) => (
                   <div key={index} className="flex items-start space-x-2">
                     <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full text-sm flex items-center justify-center">

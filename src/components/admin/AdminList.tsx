@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 interface AdminListProps {
   items: any[];
   type: string;
-  tableName: 'news' | 'books' | 'devotionals' | 'career_events' | 'whatsapp_groups';
+  tableName: 'news' | 'books' | 'devotionals' | 'career_events' | 'whatsapp_groups' | 'jobs';
   onEdit: (item: any) => void;
   onAdd: () => void;
   onRefresh: () => void;

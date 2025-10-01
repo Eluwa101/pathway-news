@@ -19,6 +19,7 @@ import UtilityAppsPage from "./pages/UtilityAppsPage";
 import AdminPage from "./pages/AdminPage";
 import NewsPage from "./pages/NewsPage";
 import NewsDetailPage from "./pages/NewsDetailPage";
+import AboutPage from "./pages/AboutPage";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/utility-apps" element={<UtilityAppsPage />} />
               <Route path="/community" element={<CommunityPage />} />
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/about" element={<AboutPage />} />
               <Route path="/news" element={<NewsPage />} />
               <Route path="/news/:id" element={<NewsDetailPage />} />
               <Route path="*" element={<NotFound />} />

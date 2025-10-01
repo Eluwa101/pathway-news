@@ -121,13 +121,6 @@ export default function Header() {
                     <span>News</span>
                   </Link>
                 </NavigationMenuItem>
-                
-                <NavigationMenuItem>
-                  <Link to="/admin" className="flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-accent">
-                    <Settings className="h-4 w-4" />
-                    <span>Admin</span>
-                  </Link>
-                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
           </div>
@@ -175,9 +168,6 @@ export default function Header() {
             </Link>
             <Link to="/news" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
               News
-            </Link>
-            <Link to="/admin" className="block px-3 py-2 rounded-md hover:bg-accent" onClick={() => setMobileMenuOpen(false)}>
-              Admin
             </Link>
           </div>
         )}
