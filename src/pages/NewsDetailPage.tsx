@@ -164,9 +164,9 @@ const NewsDetailPage = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Main Content */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-8 lg:col-start-3">
           <article className="space-y-6">
             {/* Article Header */}
             <header className="space-y-4">
@@ -248,14 +248,14 @@ const NewsDetailPage = () => {
             {article.image_urls && article.image_urls.length > 0 && (
               <div className="my-8">
                 <h3 className="text-lg font-semibold mb-4">Image Gallery</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                   {article.image_urls.map((imageUrl, index) => (
                     <MediaRenderer 
                       key={index}
                       src={imageUrl}
                       alt={`Gallery image ${index + 1} for ${article.title}`}
                       type="image"
-                      className="w-full h-64 rounded-lg object-cover"
+                      className="w-full h-32 rounded-lg object-cover"
                       showModal={true}
                     />
                   ))}
@@ -272,91 +272,41 @@ const NewsDetailPage = () => {
           </article>
         </div>
 
-        {/* Sidebar */}
-        <div className="lg:col-span-1 space-y-6">
-          {/* Additional Images Gallery */}
-          {article.image_urls && article.image_urls.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ImageIcon className="h-5 w-5" />
-                  Image Gallery
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {article.image_urls.map((imageUrl, index) => (
-                  <div key={index} className="relative">
-                    <MediaRenderer 
-                      src={imageUrl}
-                      alt={`Gallery image ${index + 1} for ${article.title}`}
-                      type="image"
-                      className="w-full h-32 rounded-lg object-cover"
-                      showModal={true}
-                    />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Mock Additional Images for demonstration */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ImageIcon className="h-5 w-5" />
-                Related Images
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 gap-3">
-                <div className="bg-muted rounded-lg h-24 flex items-center justify-center">
-                  <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                </div>
-                <div className="bg-muted rounded-lg h-24 flex items-center justify-center">
-                  <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                </div>
-                <div className="bg-muted rounded-lg h-24 flex items-center justify-center">
-                  <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground text-center">
-                Additional images will appear here when uploaded
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Related Articles in Sidebar */}
-          {relatedArticles.length > 0 && (
+        {/* Related Articles - Below Main Content */}
+        {relatedArticles.length > 0 && (
+          <div className="lg:col-span-8 lg:col-start-3 mt-12">
             <Card>
               <CardHeader>
                 <CardTitle>Related Articles</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {relatedArticles.slice(0, 3).map((relatedArticle) => (
-                  <div key={relatedArticle.id} className="space-y-2 pb-4 border-b last:border-b-0">
-                    <Badge className={getCategoryColor(relatedArticle.category)} variant="outline">
-                      {relatedArticle.category.replace('-', ' ').toUpperCase()}
-                    </Badge>
-                    
-                    <h4 className="font-medium text-sm line-clamp-2 hover:text-primary transition-colors">
-                      <Link to={`/news/${relatedArticle.id}`}>
-                        {relatedArticle.title}
-                      </Link>
-                    </h4>
-                    
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {relatedArticle.summary}
-                    </p>
-                    
-                    <div className="text-xs text-muted-foreground">
-                      {formatDate(relatedArticle.created_at)}
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {relatedArticles.slice(0, 3).map((relatedArticle) => (
+                    <div key={relatedArticle.id} className="space-y-2 pb-4 border-b md:border-b-0 last:border-b-0">
+                      <Badge className={getCategoryColor(relatedArticle.category)} variant="outline">
+                        {relatedArticle.category.replace('-', ' ').toUpperCase()}
+                      </Badge>
+                      
+                      <h4 className="font-medium text-sm line-clamp-2 hover:text-primary transition-colors">
+                        <Link to={`/news/${relatedArticle.id}`}>
+                          {relatedArticle.title}
+                        </Link>
+                      </h4>
+                      
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {relatedArticle.summary}
+                      </p>
+                      
+                      <div className="text-xs text-muted-foreground">
+                        {formatDate(relatedArticle.created_at)}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </CardContent>
             </Card>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

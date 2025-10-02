@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,8 +6,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Map, Target, BookOpen, TrendingUp, Plus, X, Download, FileText, Network, Edit, Calendar, Clock, Camera, Image as ImageIcon } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Map, Target, BookOpen, TrendingUp, Plus, X, Download, FileText, Network, Edit, Calendar, Clock, Camera, Image as ImageIcon, Send, Sparkles, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useCareerAdvisor } from '@/hooks/useCareerAdvisor';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -54,13 +56,37 @@ export default function CareerMapPage() {
   const { toast } = useToast();
   const [preferences, setPreferences] = useState<CareerPreference>(defaultPreferences);
   const [careerPlan, setCareerPlan] = useState<string>('');
-  const [viewMode, setViewMode] = useState("preferences");
+  const [viewMode, setViewMode] = useState("ai-chat");
   const [customInterestInput, setCustomInterestInput] = useState('');
   const [customSkillInput, setCustomSkillInput] = useState('');
   const [showCustomInterest, setShowCustomInterest] = useState(false);
   const [showCustomSkill, setShowCustomSkill] = useState(false);
+  const [userInput, setUserInput] = useState("");
+  const { messages, isLoading, sendMessage, clearConversation } = useCareerAdvisor();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const mindMapRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSendMessage = async () => {
+    if (!userInput.trim() || isLoading) return;
+    await sendMessage(userInput);
+    setUserInput("");
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
   const handleAddInterest = (interest: string) => {
     if (!preferences.interests.includes(interest)) {
@@ -120,7 +146,6 @@ export default function CareerMapPage() {
   };
 
   const generateCareerPlan = () => {
-    // Generate timeline content based on plan type
     const generateTimelineContent = () => {
       let timelineContent = '\n## Career Timeline\n\n';
       
@@ -145,7 +170,6 @@ export default function CareerMapPage() {
       return timelineContent;
     };
 
-    // Generate visual map content
     const generateVisualMapContent = () => {
       let visualContent = '\n## Visual Career Map Overview\n\n';
       
@@ -277,13 +301,11 @@ Generated on: ${new Date().toLocaleDateString()}
       const pageHeight = pdf.internal.pageSize.getHeight();
       let yPosition = 20;
 
-      // Title
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
       pdf.text('Comprehensive Career Plan', pageWidth / 2, yPosition, { align: 'center' });
       yPosition += 15;
 
-      // Career Plan Text
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'normal');
       const splitText = pdf.splitTextToSize(careerPlan, pageWidth - 40);
@@ -297,7 +319,6 @@ Generated on: ${new Date().toLocaleDateString()}
         yPosition += 6;
       }
 
-      // Add Mind Map
       if (mindMapRef.current) {
         const canvas = await html2canvas(mindMapRef.current, {
           backgroundColor: '#ffffff',
@@ -324,7 +345,6 @@ Generated on: ${new Date().toLocaleDateString()}
         }
       }
 
-      // Add Timeline
       if (timelineRef.current) {
         const timelineCanvas = await html2canvas(timelineRef.current, {
           backgroundColor: '#ffffff',
@@ -369,7 +389,6 @@ Generated on: ${new Date().toLocaleDateString()}
   const downloadComprehensiveMarkdown = () => {
     let comprehensiveMarkdown = careerPlan;
     
-    // Add Mind Map section
     comprehensiveMarkdown += '\n\n## Mind Map Overview\n\n';
     comprehensiveMarkdown += 'The visual mind map shows the interconnections between:\n';
     comprehensiveMarkdown += `- **Central Goal**: ${preferences.goals || 'Career Development'}\n`;
@@ -432,14 +451,19 @@ Generated on: ${new Date().toLocaleDateString()}
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-7xl">
         <div className="space-y-4 sm:space-y-6">
           <div className="px-2">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Career Map</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">AI Career Advisor</h1>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Build your personalized career plan based on your interests and goals
+              Get personalized career guidance powered by AI
             </p>
           </div>
 
           <Tabs value={viewMode} onValueChange={setViewMode}>
-            <TabsList className="grid w-full grid-cols-5 h-auto">
+            <TabsList className="grid w-full grid-cols-6 h-auto">
+              <TabsTrigger value="ai-chat" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
+                <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">AI Chat</span>
+                <span className="sm:hidden">AI</span>
+              </TabsTrigger>
               <TabsTrigger value="preferences" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
                 <Target className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Preferences</span>
@@ -466,6 +490,119 @@ Generated on: ${new Date().toLocaleDateString()}
                 <span className="sm:hidden">Export</span>
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="ai-chat" className="space-y-6">
+              <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageCircle className="h-5 w-5" />
+                    AI Career Advisor
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[500px] w-full pr-4 mb-4">
+                    {messages.length === 0 ? (
+                      <div className="text-center text-muted-foreground py-8">
+                        <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p className="text-sm mb-4">Start a conversation to get personalized career guidance!</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-2xl mx-auto">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setUserInput("What career path is best for someone interested in theology and counseling?")}
+                            className="text-xs"
+                          >
+                            Theology + Counseling
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setUserInput("How can I discern God's calling for my career?")}
+                            className="text-xs"
+                          >
+                            Discerning God's Calling
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setUserInput("What skills do I need for ministry work?")}
+                            className="text-xs"
+                          >
+                            Ministry Skills
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setUserInput("How do I prepare for missions work?")}
+                            className="text-xs"
+                          >
+                            Missions Preparation
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {messages.map((message, index) => (
+                          <div
+                            key={index}
+                            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                          >
+                            <div
+                              className={`max-w-[85%] rounded-lg p-4 ${
+                                message.role === "user"
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-muted"
+                              }`}
+                            >
+                              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                            </div>
+                          </div>
+                        ))}
+                        {isLoading && (
+                          <div className="flex justify-start">
+                            <div className="bg-muted rounded-lg p-4">
+                              <div className="flex items-center gap-2">
+                                <div className="animate-pulse">Thinking...</div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        <div ref={messagesEndRef} />
+                      </div>
+                    )}
+                  </ScrollArea>
+                  
+                  <div className="flex gap-2">
+                    <Input
+                      value={userInput}
+                      onChange={(e) => setUserInput(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Ask about career paths, spiritual gifts, or guidance..."
+                      disabled={isLoading}
+                      className="flex-1"
+                    />
+                    <Button 
+                      onClick={handleSendMessage} 
+                      disabled={isLoading || !userInput.trim()}
+                      size="icon"
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  {messages.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearConversation}
+                      className="mt-2 w-full"
+                    >
+                      Clear Conversation
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             <TabsContent value="preferences" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
