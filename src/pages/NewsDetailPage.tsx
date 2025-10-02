@@ -275,7 +275,7 @@ const NewsDetailPage = () => {
         {/* Sidebar */}
         <div className="lg:col-span-1 space-y-6">
           {/* Additional Images Gallery */}
-          {article.additional_images && article.additional_images.length > 0 && (
+          {article.image_urls && article.image_urls.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -284,7 +284,7 @@ const NewsDetailPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {article.additional_images.map((imageUrl, index) => (
+                {article.image_urls.map((imageUrl, index) => (
                   <div key={index} className="relative">
                     <MediaRenderer 
                       src={imageUrl}

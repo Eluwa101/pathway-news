@@ -60,16 +60,16 @@ export default function HomePage() {
               Your gateway to education, career growth, and spiritual development. 
               Stay connected with the latest news, tools, and resources.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+            <div className="flex flex-wrap justify-center gap-3 md:gap-4">
+              <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground md:h-11 md:px-8 text-sm md:text-base">
                 <Link to="/student-tools/clock-calendar">
-                  <Clock className="mr-2 h-5 w-5" />
+                  <Clock className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                   Student Tools
                 </Link>
               </Button>
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground md:h-11 md:px-8 text-sm md:text-base">
                 <Link to="/career-map">
-                  <Map className="mr-2 h-5 w-5" />
+                  <Map className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                   Career Map
                 </Link>
               </Button>
@@ -113,7 +113,7 @@ export default function HomePage() {
                 <p className="text-center text-muted-foreground text-sm mb-3">
                   View upcoming devotionals and career chats.
                 </p>
-                <Button asChild className="w-full" size="sm">
+                <Button asChild className="w-full text-xs md:text-sm" size="sm">
                   <Link to="/student-tools/clock-calendar">Open Calendar</Link>
                 </Button>
               </CardContent>
@@ -128,7 +128,7 @@ export default function HomePage() {
                 <p className="text-center text-muted-foreground text-sm mb-3">
                   Access a wide range of textbooks and study materials easily.
                 </p>
-                <Button asChild className="w-full" size="sm">
+                <Button asChild className="w-full text-xs md:text-sm" size="sm">
                   <Link to="/resources/books">Browse Resources</Link>
                 </Button>
               </CardContent>
@@ -143,7 +143,7 @@ export default function HomePage() {
                 <p className="text-center text-muted-foreground text-sm mb-3">
                   Plan your career path with interactive tools.
                 </p>
-                <Button asChild className="w-full" size="sm">
+                <Button asChild className="w-full text-xs md:text-sm" size="sm">
                   <Link to="/career-map">Start Planning</Link>
                 </Button>
               </CardContent>
@@ -158,7 +158,7 @@ export default function HomePage() {
                 <p className="text-center text-muted-foreground text-sm mb-3">
                   Join study groups and connect with fellow students.
                 </p>
-                <Button asChild className="w-full" size="sm">
+                <Button asChild className="w-full text-xs md:text-sm" size="sm">
                   <Link to="/community">Join Community</Link>
                 </Button>
               </CardContent>

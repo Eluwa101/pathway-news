@@ -429,36 +429,41 @@ Generated on: ${new Date().toLocaleDateString()}
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Career Map</h1>
-            <p className="text-muted-foreground">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-7xl">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="px-2">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Career Map</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Build your personalized career plan based on your interests and goals
             </p>
           </div>
 
           <Tabs value={viewMode} onValueChange={setViewMode}>
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="preferences">
-                <Target className="h-4 w-4 mr-2" />
-                Preferences
+            <TabsList className="grid w-full grid-cols-5 h-auto">
+              <TabsTrigger value="preferences" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
+                <Target className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Preferences</span>
+                <span className="sm:hidden">Prefs</span>
               </TabsTrigger>
-              <TabsTrigger value="plan">
-                <FileText className="h-4 w-4 mr-2" />
-                Career Plan
+              <TabsTrigger value="plan" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
+                <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Career Plan</span>
+                <span className="sm:hidden">Plan</span>
               </TabsTrigger>
-              <TabsTrigger value="mindmap">
-                <Network className="h-4 w-4 mr-2" />
-                Visual Map
+              <TabsTrigger value="mindmap" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
+                <Network className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Visual Map</span>
+                <span className="sm:hidden">Map</span>
               </TabsTrigger>
-              <TabsTrigger value="timeline">
-                <Clock className="h-4 w-4 mr-2" />
-                Timeline
+              <TabsTrigger value="timeline" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Timeline</span>
+                <span className="sm:hidden">Time</span>
               </TabsTrigger>
-              <TabsTrigger value="export">
-                <Download className="h-4 w-4 mr-2" />
-                Export
+              <TabsTrigger value="export" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
+                <Download className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Export</span>
+                <span className="sm:hidden">Export</span>
               </TabsTrigger>
             </TabsList>
 
@@ -489,10 +494,10 @@ Generated on: ${new Date().toLocaleDateString()}
                             ? handleRemoveInterest(interest) 
                             : handleAddInterest(interest)
                           }
-                          className="justify-start"
+                          className="justify-start text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9"
                         >
-                          {preferences.interests.includes(interest) && <X className="h-3 w-3 mr-1" />}
-                          {interest}
+                          {preferences.interests.includes(interest) && <X className="h-3 w-3 mr-1 shrink-0" />}
+                          <span className="truncate">{interest}</span>
                         </Button>
                       ))}
                     </div>
@@ -554,10 +559,10 @@ Generated on: ${new Date().toLocaleDateString()}
                             ? handleRemoveSkill(skill) 
                             : handleAddSkill(skill)
                           }
-                          className="justify-start"
+                          className="justify-start text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9"
                         >
-                          {preferences.skills.includes(skill) && <X className="h-3 w-3 mr-1" />}
-                          {skill}
+                          {preferences.skills.includes(skill) && <X className="h-3 w-3 mr-1 shrink-0" />}
+                          <span className="truncate">{skill}</span>
                         </Button>
                       ))}
                     </div>
@@ -696,13 +701,14 @@ Generated on: ${new Date().toLocaleDateString()}
                 </Card>
               </div>
 
-              <div className="flex justify-center">
+              <div className="flex justify-center px-4">
                 <Button 
-                  size="lg" 
+                  size="sm"
                   onClick={generateCareerPlan}
                   disabled={preferences.interests.length === 0 || preferences.skills.length === 0}
+                  className="w-full sm:w-auto md:h-11 md:px-8 md:text-base"
                 >
-                  <Target className="h-5 w-5 mr-2" />
+                  <Target className="h-4 w-4 md:h-5 md:w-5 mr-2" />
                   Generate My Career Plan
                 </Button>
               </div>
@@ -712,14 +718,15 @@ Generated on: ${new Date().toLocaleDateString()}
               {careerPlan ? (
                 <Card>
                   <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Your Personalized Career Plan</CardTitle>
-                      <div className="flex gap-2">
-                        <Button variant="outline" onClick={printPlan}>
-                          Print Plan
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <CardTitle className="text-lg sm:text-xl">Your Personalized Career Plan</CardTitle>
+                      <div className="flex gap-2 flex-wrap">
+                        <Button variant="outline" onClick={printPlan} size="sm" className="text-xs sm:text-sm">
+                          <span className="hidden sm:inline">Print Plan</span>
+                          <span className="sm:hidden">Print</span>
                         </Button>
-                        <Button onClick={downloadPlan}>
-                          <Download className="h-4 w-4 mr-2" />
+                        <Button onClick={downloadPlan} size="sm" className="text-xs sm:text-sm">
+                          <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                           Download
                         </Button>
                       </div>
@@ -1041,32 +1048,32 @@ Generated on: ${new Date().toLocaleDateString()}
                       </div>
 
                       <div className="border-t pt-6">
-                        <h3 className="text-lg font-semibold mb-4">Comprehensive Export Options</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <Button onClick={downloadComprehensiveMarkdown} variant="secondary" className="h-20 flex-col space-y-2">
-                            <Download className="h-6 w-6" />
+                        <h3 className="text-base sm:text-lg font-semibold mb-4">Comprehensive Export Options</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                          <Button onClick={downloadComprehensiveMarkdown} variant="secondary" className="h-auto py-4 flex-col space-y-2">
+                            <Download className="h-5 w-5 sm:h-6 sm:w-6" />
                             <div className="text-center">
-                              <div className="font-medium">Complete Markdown</div>
+                              <div className="text-xs sm:text-sm font-medium">Complete Markdown</div>
                               <div className="text-xs text-muted-foreground">All views included</div>
                             </div>
                           </Button>
                           
-                          <Button onClick={exportComprehensivePDF} variant="secondary" className="h-20 flex-col space-y-2">
-                            <FileText className="h-6 w-6" />
+                          <Button onClick={exportComprehensivePDF} variant="secondary" className="h-auto py-4 flex-col space-y-2">
+                            <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
                             <div className="text-center">
-                              <div className="font-medium">Comprehensive PDF</div>
-                              <div className="text-xs text-muted-foreground">Plan + Mind Map + Timeline</div>
+                              <div className="text-xs sm:text-sm font-medium">Comprehensive PDF</div>
+                              <div className="text-xs text-muted-foreground">Plan + Map + Timeline</div>
                             </div>
                           </Button>
                         </div>
                       </div>
 
                       <div className="border-t pt-6">
-                        <h3 className="text-lg font-semibold mb-4">Individual Components</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <Button onClick={exportMindMapImage} variant="outline" className="h-16 flex-col space-y-1">
-                            <Camera className="h-5 w-5" />
-                            <div className="text-sm font-medium">Export Mind Map</div>
+                        <h3 className="text-base sm:text-lg font-semibold mb-4">Individual Components</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                          <Button onClick={exportMindMapImage} variant="outline" className="h-auto py-3 flex-col space-y-1">
+                            <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
+                            <div className="text-xs sm:text-sm font-medium">Export Mind Map</div>
                           </Button>
                           
                           <Button 
@@ -1096,10 +1103,10 @@ Generated on: ${new Date().toLocaleDateString()}
                               }
                             }}
                             variant="outline" 
-                            className="h-16 flex-col space-y-1"
+                            className="h-auto py-3 flex-col space-y-1"
                           >
-                            <ImageIcon className="h-5 w-5" />
-                            <div className="text-sm font-medium">Export Timeline</div>
+                            <ImageIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                            <div className="text-xs sm:text-sm font-medium">Export Timeline</div>
                           </Button>
                         </div>
                       </div>
