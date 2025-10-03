@@ -458,36 +458,36 @@ Generated on: ${new Date().toLocaleDateString()}
           </div>
 
           <Tabs value={viewMode} onValueChange={setViewMode}>
-            <TabsList className="grid w-full grid-cols-6 h-auto">
-              <TabsTrigger value="ai-chat" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
-                <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">AI Chat</span>
-                <span className="sm:hidden">AI</span>
+            <TabsList className="grid w-full grid-cols-6 h-auto overflow-x-auto">
+              <TabsTrigger value="ai-chat" className="flex-col sm:flex-row text-[10px] sm:text-sm py-1.5 px-1 sm:py-2 sm:px-3 min-w-0">
+                <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mb-0.5 sm:mb-0 sm:mr-2 shrink-0" />
+                <span className="hidden sm:inline truncate">AI Chat</span>
+                <span className="sm:hidden truncate">AI</span>
               </TabsTrigger>
-              <TabsTrigger value="preferences" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
-                <Target className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Preferences</span>
-                <span className="sm:hidden">Prefs</span>
+              <TabsTrigger value="preferences" className="flex-col sm:flex-row text-[10px] sm:text-sm py-1.5 px-1 sm:py-2 sm:px-3 min-w-0">
+                <Target className="h-3 w-3 sm:h-4 sm:w-4 mb-0.5 sm:mb-0 sm:mr-2 shrink-0" />
+                <span className="hidden sm:inline truncate">Preferences</span>
+                <span className="sm:hidden truncate">Prefs</span>
               </TabsTrigger>
-              <TabsTrigger value="plan" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
-                <FileText className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Career Plan</span>
-                <span className="sm:hidden">Plan</span>
+              <TabsTrigger value="plan" className="flex-col sm:flex-row text-[10px] sm:text-sm py-1.5 px-1 sm:py-2 sm:px-3 min-w-0">
+                <FileText className="h-3 w-3 sm:h-4 sm:w-4 mb-0.5 sm:mb-0 sm:mr-2 shrink-0" />
+                <span className="hidden sm:inline truncate">Career Plan</span>
+                <span className="sm:hidden truncate">Plan</span>
               </TabsTrigger>
-              <TabsTrigger value="mindmap" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
-                <Network className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Visual Map</span>
-                <span className="sm:hidden">Map</span>
+              <TabsTrigger value="mindmap" className="flex-col sm:flex-row text-[10px] sm:text-sm py-1.5 px-1 sm:py-2 sm:px-3 min-w-0">
+                <Network className="h-3 w-3 sm:h-4 sm:w-4 mb-0.5 sm:mb-0 sm:mr-2 shrink-0" />
+                <span className="hidden sm:inline truncate">Visual Map</span>
+                <span className="sm:hidden truncate">Map</span>
               </TabsTrigger>
-              <TabsTrigger value="timeline" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
-                <Clock className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Timeline</span>
-                <span className="sm:hidden">Time</span>
+              <TabsTrigger value="timeline" className="flex-col sm:flex-row text-[10px] sm:text-sm py-1.5 px-1 sm:py-2 sm:px-3 min-w-0">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 mb-0.5 sm:mb-0 sm:mr-2 shrink-0" />
+                <span className="hidden sm:inline truncate">Timeline</span>
+                <span className="sm:hidden truncate">Time</span>
               </TabsTrigger>
-              <TabsTrigger value="export" className="flex-col sm:flex-row text-xs sm:text-sm py-2 px-1 sm:px-3">
-                <Download className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Export</span>
-                <span className="sm:hidden">Export</span>
+              <TabsTrigger value="export" className="flex-col sm:flex-row text-[10px] sm:text-sm py-1.5 px-1 sm:py-2 sm:px-3 min-w-0">
+                <Download className="h-3 w-3 sm:h-4 sm:w-4 mb-0.5 sm:mb-0 sm:mr-2 shrink-0" />
+                <span className="hidden sm:inline truncate">Export</span>
+                <span className="sm:hidden truncate">Export</span>
               </TabsTrigger>
             </TabsList>
 
@@ -604,17 +604,30 @@ Generated on: ${new Date().toLocaleDateString()}
               </Card>
             </TabsContent>
 
-            <TabsContent value="preferences" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TabsContent value="preferences" className="space-y-4 sm:space-y-6">
+              <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5" />
+                    AI-Enhanced Career Planning
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Fill out your preferences below, then let AI create a personalized, actionable career plan with specific timelines and milestones.
+                  </p>
+                </CardHeader>
+              </Card>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Interests */}
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle>What are your interests?</CardTitle>
+                      <CardTitle className="text-base sm:text-lg">What are your interests?</CardTitle>
                       <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={() => setShowCustomInterest(!showCustomInterest)}
+                        className="h-8 w-8 p-0"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -631,7 +644,7 @@ Generated on: ${new Date().toLocaleDateString()}
                             ? handleRemoveInterest(interest) 
                             : handleAddInterest(interest)
                           }
-                          className="justify-start text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9"
+                          className="justify-start text-xs px-2 h-8 overflow-hidden"
                         >
                           {preferences.interests.includes(interest) && <X className="h-3 w-3 mr-1 shrink-0" />}
                           <span className="truncate">{interest}</span>
@@ -675,11 +688,12 @@ Generated on: ${new Date().toLocaleDateString()}
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle>What are your strengths?</CardTitle>
+                      <CardTitle className="text-base sm:text-lg">What are your strengths?</CardTitle>
                       <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={() => setShowCustomSkill(!showCustomSkill)}
+                        className="h-8 w-8 p-0"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -696,7 +710,7 @@ Generated on: ${new Date().toLocaleDateString()}
                             ? handleRemoveSkill(skill) 
                             : handleAddSkill(skill)
                           }
-                          className="justify-start text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9"
+                          className="justify-start text-xs px-2 h-8 overflow-hidden"
                         >
                           {preferences.skills.includes(skill) && <X className="h-3 w-3 mr-1 shrink-0" />}
                           <span className="truncate">{skill}</span>
@@ -739,7 +753,7 @@ Generated on: ${new Date().toLocaleDateString()}
                 {/* Industry Preference */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Preferred Industry</CardTitle>
+                    <CardTitle className="text-base sm:text-lg">Preferred Industry</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Select value={preferences.industry} onValueChange={(value) => 
@@ -760,7 +774,7 @@ Generated on: ${new Date().toLocaleDateString()}
                 {/* Work Style */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Work Style Preference</CardTitle>
+                    <CardTitle className="text-base sm:text-lg">Work Style Preference</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Select value={preferences.workStyle} onValueChange={(value) => 
@@ -782,7 +796,7 @@ Generated on: ${new Date().toLocaleDateString()}
                 {/* Plan Type */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Plan Type</CardTitle>
+                    <CardTitle className="text-base sm:text-lg">Plan Type</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Select value={preferences.planType} onValueChange={(value) => 
@@ -803,7 +817,7 @@ Generated on: ${new Date().toLocaleDateString()}
                 {/* Timeline */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Career Timeline</CardTitle>
+                    <CardTitle className="text-base sm:text-lg">Career Timeline</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Select value={preferences.timeframe} onValueChange={(value) => 
@@ -823,9 +837,9 @@ Generated on: ${new Date().toLocaleDateString()}
                 </Card>
 
                 {/* Career Goals */}
-                <Card>
+                <Card className="lg:col-span-2">
                   <CardHeader>
-                    <CardTitle>Career Goals</CardTitle>
+                    <CardTitle className="text-base sm:text-lg">Career Goals</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Textarea
@@ -838,15 +852,15 @@ Generated on: ${new Date().toLocaleDateString()}
                 </Card>
               </div>
 
-              <div className="flex justify-center px-4">
+              <div className="flex justify-center px-2 sm:px-4">
                 <Button 
                   size="sm"
                   onClick={generateCareerPlan}
                   disabled={preferences.interests.length === 0 || preferences.skills.length === 0}
-                  className="w-full sm:w-auto md:h-11 md:px-8 md:text-base"
+                  className="w-full sm:w-auto h-9 px-4 text-sm sm:h-10 sm:px-6 sm:text-base"
                 >
-                  <Target className="h-4 w-4 md:h-5 md:w-5 mr-2" />
-                  Generate My Career Plan
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate AI Career Plan
                 </Button>
               </div>
             </TabsContent>

@@ -84,13 +84,13 @@ export default function HomePage() {
 
         {/* Quick Stats */}
         <section>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             {quickStats.map((stat, index) => (
               <Card key={index} className="text-center">
-                <CardContent className="pt-6">
-                  <stat.icon className="h-12 w-12 text-primary mx-auto mb-4" />
-                  <div className="text-3xl font-bold text-primary mb-2">{stat.value}</div>
-                  <div className="text-muted-foreground">{stat.label}</div>
+                <CardContent className="pt-4 pb-4 px-3 md:pt-6 md:pb-6 md:px-6">
+                  <stat.icon className="h-8 w-8 md:h-10 md:w-10 text-primary mx-auto mb-2 md:mb-3" />
+                  <div className="text-xl md:text-2xl font-bold text-primary mb-1 md:mb-2">{stat.value}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">{stat.label}</div>
                 </CardContent>
               </Card>
             ))}
