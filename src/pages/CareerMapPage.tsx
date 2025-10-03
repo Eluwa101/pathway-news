@@ -56,13 +56,14 @@ export default function CareerMapPage() {
   const { toast } = useToast();
   const [preferences, setPreferences] = useState<CareerPreference>(defaultPreferences);
   const [careerPlan, setCareerPlan] = useState<string>('');
+  const [summary, setSummary] = useState<string>('');
   const [viewMode, setViewMode] = useState("ai-chat");
   const [customInterestInput, setCustomInterestInput] = useState('');
   const [customSkillInput, setCustomSkillInput] = useState('');
   const [showCustomInterest, setShowCustomInterest] = useState(false);
   const [showCustomSkill, setShowCustomSkill] = useState(false);
   const [userInput, setUserInput] = useState("");
-  const { messages, isLoading, sendMessage, clearConversation, generateCareerPlan: generateAIPlan } = useCareerAdvisor();
+  const { messages, isLoading, sendMessage, clearConversation, generateCareerPlan: generateAIPlan, generateSummary } = useCareerAdvisor();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const mindMapRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -163,6 +164,7 @@ export default function CareerMapPage() {
     try {
       const aiPlan = await generateAIPlan(preferences);
       setCareerPlan(aiPlan);
+      setSummary('');
       setViewMode("plan");
       toast({
         title: "AI Career Plan Generated!",
@@ -173,6 +175,20 @@ export default function CareerMapPage() {
       console.error("Failed to generate career plan:", error);
     } finally {
       setIsGeneratingPlan(false);
+    }
+  };
+
+  const handleGenerateSummary = async () => {
+    if (!careerPlan) return;
+    try {
+      const summaryText = await generateSummary(careerPlan);
+      setSummary(summaryText);
+      toast({
+        title: "Summary Generated!",
+        description: "Your AI summary is ready."
+      });
+    } catch (error) {
+      console.error("Failed to generate summary:", error);
     }
   };
 
@@ -804,28 +820,56 @@ export default function CareerMapPage() {
 
             <TabsContent value="plan" className="space-y-6">
               {careerPlan ? (
-                <Card>
-                  <CardHeader>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <CardTitle className="text-lg sm:text-xl">Your Personalized Career Plan</CardTitle>
-                      <div className="flex gap-2 flex-wrap">
-                        <Button variant="outline" onClick={printPlan} size="sm" className="text-xs sm:text-sm">
-                          <span className="hidden sm:inline">Print Plan</span>
-                          <span className="sm:hidden">Print</span>
-                        </Button>
-                        <Button onClick={downloadPlan} size="sm" className="text-xs sm:text-sm">
-                          <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                          Download
-                        </Button>
+                <>
+                  <Card>
+                    <CardHeader>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <CardTitle className="text-lg sm:text-xl">Your Personalized Career Plan</CardTitle>
+                        <div className="flex gap-2 flex-wrap">
+                          <Button 
+                            variant="outline" 
+                            onClick={handleGenerateSummary}
+                            disabled={isLoading}
+                            size="sm" 
+                            className="text-xs sm:text-sm"
+                          >
+                            <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                            {isLoading ? "Generating..." : "AI Summary"}
+                          </Button>
+                          <Button variant="outline" onClick={printPlan} size="sm" className="text-xs sm:text-sm">
+                            <span className="hidden sm:inline">Print Plan</span>
+                            <span className="sm:hidden">Print</span>
+                          </Button>
+                          <Button onClick={downloadPlan} size="sm" className="text-xs sm:text-sm">
+                            <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                            Download
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
-                      {careerPlan}
-                    </pre>
-                  </CardContent>
-                </Card>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {summary && (
+                        <div className="bg-accent/30 border-2 border-primary/30 rounded-lg p-4 sm:p-6">
+                          <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-primary" />
+                            Executive Summary
+                          </h3>
+                          <div className="prose prose-sm sm:prose-base max-w-none prose-headings:font-bold prose-h2:text-base prose-h2:sm:text-lg prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-1 prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-1 prose-hr:border-border prose-hr:my-4">
+                            <div className="whitespace-pre-wrap font-sans text-sm leading-relaxed [&>h2]:text-base [&>h2]:sm:text-lg [&>h2]:font-bold [&>h2]:mt-6 [&>h2]:mb-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:space-y-1 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:space-y-1 [&>hr]:border-t [&>hr]:border-border [&>hr]:my-6">
+                              {summary}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="prose prose-sm sm:prose-base max-w-none">
+                        <div className="whitespace-pre-wrap font-sans text-sm leading-relaxed [&>h2]:text-base [&>h2]:sm:text-lg [&>h2]:font-bold [&>h2]:mt-6 [&>h2]:mb-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:space-y-1 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:space-y-1 [&>hr]:border-t [&>hr]:border-border [&>hr]:my-6">
+                          {careerPlan}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
               ) : (
                 <Card>
                   <CardContent className="text-center py-12">

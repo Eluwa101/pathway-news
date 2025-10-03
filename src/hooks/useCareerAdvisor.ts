@@ -124,11 +124,59 @@ Plan Type: ${preferences.planType}
     }
   };
 
+  const generateSummary = async (careerPlan: string): Promise<string> => {
+    setIsLoading(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("career-advisor", {
+        body: {
+          userInput: `GENERATE_SUMMARY:${careerPlan}`,
+          conversationHistory: [],
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.response) {
+        return data.response;
+      }
+      
+      throw new Error("No response from AI");
+    } catch (error: any) {
+      console.error("Error generating summary:", error);
+      
+      if (error.message?.includes("429")) {
+        toast({
+          title: "Rate Limit Exceeded",
+          description: "Please wait a moment before generating a summary.",
+          variant: "destructive",
+        });
+      } else if (error.message?.includes("402")) {
+        toast({
+          title: "Payment Required",
+          description: "Please contact support to continue using AI features.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to generate summary. Please try again.",
+          variant: "destructive",
+        });
+      }
+      
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     messages,
     isLoading,
     sendMessage,
     clearConversation,
     generateCareerPlan,
+    generateSummary,
   };
 };
