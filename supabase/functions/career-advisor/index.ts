@@ -28,11 +28,43 @@ serve(async (req) => {
 
 Keep responses conversational, encouraging, and Christ-centered. Always consider both spiritual and practical aspects of career development.`;
 
-    const messages = [
-      { role: "system", content: systemPrompt },
-      ...(conversationHistory || []),
-      { role: "user", content: userInput }
-    ];
+    let messages = [];
+    
+    // Check if this is a career plan generation request
+    if (userInput.startsWith("GENERATE_CAREER_PLAN:")) {
+      const preferencesData = userInput.replace("GENERATE_CAREER_PLAN:", "");
+      const careerPlanPrompt = `Based on the following user preferences, create a comprehensive, detailed, and highly personalized career plan. This should NOT be a generic template - analyze each preference deeply and create specific, actionable recommendations tailored to this individual's unique combination of interests, skills, and goals.
+
+User Preferences:
+${preferencesData}
+
+Generate a comprehensive career plan that includes:
+
+1. **Personalized Career Analysis** - Deep analysis of how their interests, skills, and goals interconnect
+2. **Specific Career Paths** - 3-5 specific job titles/roles that match their unique profile (not generic categories)
+3. **Detailed Action Plan** - Concrete, sequential steps with specific timelines and milestones
+4. **Skills Development Roadmap** - Specific courses, certifications, or experiences to pursue
+5. **Industry-Specific Networking Strategy** - Where and how to connect with the right people
+6. **Short-term Goals (0-6 months)** - Immediate, actionable steps they can take this week
+7. **Medium-term Goals (6-12 months)** - Measurable milestones with success criteria
+8. **Long-term Vision (1-5 years)** - Career progression path with alternative routes
+9. **Potential Challenges & Solutions** - Specific obstacles they may face and how to overcome them
+10. **Resources & Opportunities** - Specific programs, organizations, or opportunities relevant to their path
+11. **Faith Integration** - How their faith can guide and strengthen their career journey
+
+Make this plan deeply personal, specific, and actionable. Include actual numbers, dates, and tangible outcomes. Reference their specific skills and interests throughout. Format it as a well-structured markdown document with clear sections and bullet points.`;
+
+      messages = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: careerPlanPrompt }
+      ];
+    } else {
+      messages = [
+        { role: "system", content: systemPrompt },
+        ...(conversationHistory || []),
+        { role: "user", content: userInput }
+      ];
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

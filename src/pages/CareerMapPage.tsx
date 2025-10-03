@@ -62,7 +62,7 @@ export default function CareerMapPage() {
   const [showCustomInterest, setShowCustomInterest] = useState(false);
   const [showCustomSkill, setShowCustomSkill] = useState(false);
   const [userInput, setUserInput] = useState("");
-  const { messages, isLoading, sendMessage, clearConversation } = useCareerAdvisor();
+  const { messages, isLoading, sendMessage, clearConversation, generateCareerPlan: generateAIPlan } = useCareerAdvisor();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const mindMapRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -145,107 +145,35 @@ export default function CareerMapPage() {
     }
   };
 
-  const generateCareerPlan = () => {
-    const generateTimelineContent = () => {
-      let timelineContent = '\n## Career Timeline\n\n';
-      
-      if (preferences.planType === 'short' || preferences.planType === 'comprehensive') {
-        timelineContent += `### Short-term Plan (1-2 years)
-- **Months 1-3: Foundation** - Research ${preferences.industry} industry, identify key players and opportunities
-- **Months 4-8: Skill Development** - Focus on developing: ${preferences.skills.slice(0, 3).join(', ')}
-- **Months 9-12: Application** - Apply knowledge through projects, internships, or entry-level positions
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
 
-`;
-      }
-      
-      if (preferences.planType === 'long' || preferences.planType === 'comprehensive') {
-        timelineContent += `### Long-term Plan (3-5 years)
-- **Year 1-2: Establish Expertise** - Become proficient in core skills and build professional network
-- **Year 3-4: Leadership & Growth** - Take on leadership roles, mentor others, pursue advanced certifications
-- **Year 5+: Strategic Impact** - Drive strategic initiatives, consider entrepreneurship or executive roles
+  const handleGenerateCareerPlan = async () => {
+    // Validate that user has filled in preferences
+    if (preferences.interests.length === 0 || preferences.skills.length === 0 || !preferences.industry || !preferences.goals) {
+      toast({
+        title: "Incomplete Preferences",
+        description: "Please fill in your interests, skills, industry, and goals before generating a plan.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-`;
-      }
-      
-      return timelineContent;
-    };
-
-    const generateVisualMapContent = () => {
-      let visualContent = '\n## Visual Career Map Overview\n\n';
-      
-      if (preferences.goals) {
-        visualContent += `**Central Goal:** ${preferences.goals}\n\n`;
-      }
-      
-      if (preferences.interests.length > 0) {
-        visualContent += `**Interests:** ${preferences.interests.join(', ')}\n\n`;
-      }
-      
-      if (preferences.skills.length > 0) {
-        visualContent += `**Skills:** ${preferences.skills.join(', ')}\n\n`;
-      }
-      
-      if (preferences.industry) {
-        visualContent += `**Target Industry:** ${preferences.industry}\n\n`;
-      }
-      
-      if (preferences.workStyle) {
-        visualContent += `**Work Style Preference:** ${preferences.workStyle}\n\n`;
-      }
-      
-      if (preferences.planType) {
-        const planTypeDisplay = preferences.planType === 'short' ? 'Short-term (1-2 years)' :
-                               preferences.planType === 'long' ? 'Long-term (3-5 years)' : 'Comprehensive (Both)';
-        visualContent += `**Plan Type:** ${planTypeDisplay}\n\n`;
-      }
-      
-      if (preferences.timeframe) {
-        const timeframeDisplay = preferences.timeframe === 'immediate' ? '0-6 months' :
-                               preferences.timeframe === 'short' ? '6-12 months' :
-                               preferences.timeframe === 'medium' ? '1-2 years' : '2+ years';
-        visualContent += `**Timeline:** ${timeframeDisplay}\n\n`;
-      }
-      
-      return visualContent;
-    };
-
-    const plan = `# My Career Plan
-
-## Personal Interests
-${preferences.interests.map(interest => `- ${interest}`).join('\n')}
-
-## Key Skills
-${preferences.skills.map(skill => `- ${skill}`).join('\n')}
-
-## Career Preferences
-- **Industry:** ${preferences.industry}
-- **Work Style:** ${preferences.workStyle}
-- **Timeline:** ${preferences.timeframe}
-
-## Career Goals
-${preferences.goals}
-${generateVisualMapContent()}
-## Recommended Next Steps
-1. Research specific roles in ${preferences.industry} that align with your interests
-2. Develop skills in: ${preferences.skills.slice(0, 3).join(', ')}
-3. Network with professionals in your target industry
-4. Consider internships or volunteer opportunities
-5. Update your resume to highlight relevant experiences
-
-## Action Plan
-- Week 1-2: Research 5 companies in ${preferences.industry}
-- Week 3-4: Connect with 3 professionals on LinkedIn
-- Month 2: Apply for relevant internships or entry-level positions
-- Month 3: Evaluate progress and adjust plan as needed
-${generateTimelineContent()}
-Generated on: ${new Date().toLocaleDateString()}
-`;
-    setCareerPlan(plan);
-    setViewMode("plan");
-    toast({
-      title: "Career Plan Generated!",
-      description: "Your personalized career plan is ready."
-    });
+    setIsGeneratingPlan(true);
+    
+    try {
+      const aiPlan = await generateAIPlan(preferences);
+      setCareerPlan(aiPlan);
+      setViewMode("plan");
+      toast({
+        title: "AI Career Plan Generated!",
+        description: "Your personalized career plan is ready."
+      });
+    } catch (error) {
+      // Error already handled in the hook
+      console.error("Failed to generate career plan:", error);
+    } finally {
+      setIsGeneratingPlan(false);
+    }
   };
 
   const downloadPlan = () => {
@@ -855,12 +783,21 @@ Generated on: ${new Date().toLocaleDateString()}
               <div className="flex justify-center px-2 sm:px-4">
                 <Button 
                   size="sm"
-                  onClick={generateCareerPlan}
-                  disabled={preferences.interests.length === 0 || preferences.skills.length === 0}
+                  onClick={handleGenerateCareerPlan}
+                  disabled={preferences.interests.length === 0 || preferences.skills.length === 0 || isGeneratingPlan}
                   className="w-full sm:w-auto h-9 px-4 text-sm sm:h-10 sm:px-6 sm:text-base"
                 >
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate AI Career Plan
+                  {isGeneratingPlan ? (
+                    <>
+                      <span className="animate-spin mr-2">⏳</span>
+                      Analyzing Your Preferences...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Generate AI Career Plan
+                    </>
+                  )}
                 </Button>
               </div>
             </TabsContent>
