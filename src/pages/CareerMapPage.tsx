@@ -28,7 +28,11 @@ interface CareerPreference {
   goals: string; // Career objectives
   planType: string; // Type of career plan (e.g., short-term, long-term)
   customInterests: string[]; // User-defined interests beyond predefined options
-  customSkills: string[]; // User-defined skills beyond predefined options
+  customSkills: string[]; // User-defined skills beyond predefined 
+  customTimeframe: string; //user-defined timeFrame beyond predefineds
+  customIndustry: string; //user-defined industry beyond predefineds
+  customWorkStyle: string; //user-defined workStyle beyond predefineds
+  customPlanType: string; //user-defined planType beyond predefineds
 }
 
 // Default empty preferences state
@@ -41,7 +45,11 @@ const defaultPreferences: CareerPreference = {
   goals: '',
   planType: '',
   customInterests: [],
-  customSkills: []
+  customSkills: [],
+  customTimeframe: '',
+  customIndustry: '',
+  customWorkStyle: '',
+  customPlanType: ''
 };
 
 // Predefined interest options for users to select from
