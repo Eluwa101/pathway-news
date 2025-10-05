@@ -1,4 +1,6 @@
 import { useState } from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,7 +22,19 @@ interface AdminFormProps {
 
 export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }: AdminFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [content, setContent] = useState(editingItem?.content || '');
   const { toast } = useToast();
+
+  const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['link'],
+      ['clean']
+    ],
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,6 +71,11 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
           data[key] = value as string;
         }
       });
+
+      // Add rich text content for news
+      if (tableName === 'news') {
+        data.content = content;
+      }
 
       if (editingItem) {
         result = await supabase.from(tableName).update(data).eq('id', editingItem.id).select();
@@ -111,7 +130,13 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
       </div>
       <div>
         <Label htmlFor="content">Content</Label>
-        <Textarea id="content" name="content" rows={8} defaultValue={editingItem?.content || ''} required />
+        <ReactQuill 
+          theme="snow" 
+          value={content} 
+          onChange={setContent}
+          modules={quillModules}
+          className="bg-background rounded-md"
+        />
       </div>
       <div>
         <Label htmlFor="video_url">

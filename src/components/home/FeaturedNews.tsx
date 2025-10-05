@@ -133,7 +133,7 @@ export default function FeaturedNews() {
           </CardHeader>
           <CardContent>
             <p className="text-primary-foreground/80 line-clamp-3 mb-3">{featuredNews[0].summary}</p>
-            <Button asChild variant="secondary" className="w-full h-8 text-xs md:h-9 md:text-sm">
+            <Button asChild variant="secondary" className="w-full h-7 text-xs px-3 py-1">
               <Link to={`/news/${featuredNews[0].id}`}>Read More</Link>
             </Button>
           </CardContent>
@@ -176,7 +176,7 @@ export default function FeaturedNews() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-primary-foreground/80 line-clamp-3 mb-3">{news.summary}</p>
-                  <Button asChild variant="secondary" className="w-full h-8 text-xs md:h-9 md:text-sm">
+                  <Button asChild variant="secondary" className="w-full h-7 text-xs px-3 py-1">
                     <Link to={`/news/${news.id}`}>Read More</Link>
                   </Button>
                 </CardContent>

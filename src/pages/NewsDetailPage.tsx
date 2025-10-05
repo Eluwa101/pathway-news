@@ -265,9 +265,10 @@ const NewsDetailPage = () => {
 
             {/* Article Content */}
             <div className="prose prose-lg max-w-none">
-              <div className="text-foreground leading-relaxed whitespace-pre-wrap">
-                {article.content}
-              </div>
+              <div 
+                className="text-foreground leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: article.content }}
+              />
             </div>
           </article>
         </div>
