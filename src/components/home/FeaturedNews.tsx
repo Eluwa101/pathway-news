@@ -1,56 +1,73 @@
+// React hooks for state and lifecycle management
 import { useState, useEffect, useRef } from 'react';
+// UI components
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+// Icons
 import { TrendingUp } from 'lucide-react';
+// Routing
 import { Link } from 'react-router-dom';
+// Supabase client for database queries
 import { supabase } from '@/integrations/supabase/client';
+// Toast notifications
 import { useToast } from '@/hooks/use-toast';
+// Carousel autoplay plugin
 import Autoplay from "embla-carousel-autoplay";
 
+// Interface for news article data structure
 interface NewsItem {
-  id: string;
-  title: string;
-  summary: string;
-  category: string;
-  is_hot: boolean;
-  featured_on_homepage: boolean;
-  created_at: string;
+  id: string; // Unique identifier
+  title: string; // Article title
+  summary: string; // Brief description
+  category: string; // Article category
+  is_hot: boolean; // Flag for trending news
+  featured_on_homepage: boolean; // Flag for homepage feature
+  created_at: string; // Publication timestamp
 }
 
+// Main component for displaying featured news on the homepage
 export default function FeaturedNews() {
+  // State to store featured news articles
   const [featuredNews, setFeaturedNews] = useState<NewsItem[]>([]);
+  // Loading state
   const [isLoading, setIsLoading] = useState(true);
+  // Toast notifications
   const { toast } = useToast();
 
+  // Autoplay plugin configuration for carousel
   const autoplayPlugin = useRef<any>(
     Autoplay({
-      delay: 5000,
-      stopOnInteraction: false,
-      stopOnMouseEnter: true,
-      playOnInit: true,
-      stopOnFocusIn: false
+      delay: 5000, // Auto-advance every 5 seconds
+      stopOnInteraction: false, // Keep playing after user interaction
+      stopOnMouseEnter: true, // Pause when mouse hovers
+      playOnInit: true, // Start playing immediately
+      stopOnFocusIn: false // Don't stop on focus
     })
   );
 
+  // Fetch featured news on component mount
   useEffect(() => {
     fetchFeaturedNews();
   }, []);
 
+  // Function to fetch featured news from database
   const fetchFeaturedNews = async () => {
     try {
       setIsLoading(true);
+      // Query Supabase for published news marked as featured
       const { data, error } = await supabase
         .from('news')
         .select('id, title, summary, category, is_hot, featured_on_homepage, created_at')
-        .eq('is_published', true)
-        .eq('featured_on_homepage', true)
-        .order('created_at', { ascending: false });
+        .eq('is_published', true) // Only published articles
+        .eq('featured_on_homepage', true) // Only featured articles
+        .order('created_at', { ascending: false }); // Most recent first
 
       if (error) throw error;
       setFeaturedNews(data || []);
     } catch (error) {
+      // Log error and show user notification
       console.error('Error fetching featured news:', error);
       toast({
         title: "Error",

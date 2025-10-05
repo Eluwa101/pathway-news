@@ -1,50 +1,65 @@
+// React state management
 import { useState } from "react";
+// Rich text editor for news content
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+// UI components
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// Supabase client for database operations
 import { supabase } from "@/integrations/supabase/client";
+// Toast notifications
 import { useToast } from "@/hooks/use-toast";
+// Icons
 import { Plus, Calendar, Image, Video } from "lucide-react";
+// Jobs-specific form fields component
 import { JobsFields } from "./JobsFields";
 
+// Props interface for the AdminForm component
 interface AdminFormProps {
-  type: string;
-  tableName: 'news' | 'books' | 'devotionals' | 'career_events' | 'whatsapp_groups' | 'jobs';
-  editingItem: any;
-  onSuccess: () => void;
-  onCancel: () => void;
+  type: string; // Display name of the content type
+  tableName: 'news' | 'books' | 'devotionals' | 'career_events' | 'whatsapp_groups' | 'jobs'; // Database table name
+  editingItem: any; // Item being edited (null for new items)
+  onSuccess: () => void; // Callback after successful save
+  onCancel: () => void; // Callback when user cancels
 }
 
+// Main AdminForm component for creating/editing content
 export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }: AdminFormProps) => {
+  // Loading state for form submission
   const [isLoading, setIsLoading] = useState(false);
+  // State for rich text content (used for news articles)
   const [content, setContent] = useState(editingItem?.content || '');
+  // Toast notifications
   const { toast } = useToast();
 
+  // Rich text editor configuration (toolbar options)
   const quillModules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['link'],
-      ['clean']
+      [{ 'header': [1, 2, 3, false] }], // Header levels
+      ['bold', 'italic', 'underline'], // Text formatting
+      [{ 'color': [] }, { 'background': [] }], // Text and background colors
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }], // Lists
+      ['link'], // Hyperlinks
+      ['clean'] // Remove formatting
     ],
   };
 
+  // Handle form submission (create or update)
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
+    // Extract form data
     const formData = new FormData(e.currentTarget);
     
     try {
       let result;
-      let data: any = {};
+      let data: any = {}; // Object to hold processed form data
 
       // Build data object based on form fields
       const formEntries = Array.from(formData.entries());

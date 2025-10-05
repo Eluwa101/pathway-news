@@ -1,4 +1,6 @@
+// React imports for state management and lifecycle hooks
 import { useState, useRef, useEffect } from 'react';
+// UI component imports from the design system
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,24 +9,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+// Icon imports from lucide-react
 import { Map, Target, BookOpen, TrendingUp, Plus, X, Download, FileText, Network, Edit, Calendar, Clock, Camera, Image as ImageIcon, Send, Sparkles, MessageCircle } from 'lucide-react';
+// Hooks and utilities
 import { useToast } from '@/hooks/use-toast';
 import { useCareerAdvisor } from '@/hooks/useCareerAdvisor';
+// Libraries for exporting career plans as images and PDFs
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
+// Interface defining the structure of user career preferences
 interface CareerPreference {
-  interests: string[];
-  skills: string[];
-  timeframe: string;
-  industry: string;
-  workStyle: string;
-  goals: string;
-  planType: string;
-  customInterests: string[];
-  customSkills: string[];
+  interests: string[]; // User's career interests
+  skills: string[]; // User's professional skills
+  timeframe: string; // Desired career timeline
+  industry: string; // Target industry
+  workStyle: string; // Preferred work environment
+  goals: string; // Career objectives
+  planType: string; // Type of career plan (e.g., short-term, long-term)
+  customInterests: string[]; // User-defined interests beyond predefined options
+  customSkills: string[]; // User-defined skills beyond predefined options
 }
 
+// Default empty preferences state
 const defaultPreferences: CareerPreference = {
   interests: [],
   skills: [],
@@ -37,51 +44,67 @@ const defaultPreferences: CareerPreference = {
   customSkills: []
 };
 
+// Predefined interest options for users to select from
 const interestOptions = [
   'Technology', 'Healthcare', 'Education', 'Business', 'Finance', 'Marketing',
   'Design', 'Engineering', 'Social Work', 'Research', 'Writing', 'Art'
 ];
 
+// Predefined skill options for users to select from
 const skillOptions = [
   'Communication', 'Leadership', 'Problem Solving', 'Technical Skills', 
   'Creativity', 'Analytics', 'Project Management', 'Teaching', 'Sales'
 ];
 
+// Available industry categories
 const industries = [
   'Technology', 'Healthcare', 'Education', 'Finance', 'Marketing',
   'Government', 'Non-Profit', 'Consulting', 'Manufacturing', 'Retail'
 ];
 
+// Main Career Map page component
 export default function CareerMapPage() {
+  // Hook for showing toast notifications
   const { toast } = useToast();
-  const [preferences, setPreferences] = useState<CareerPreference>(defaultPreferences);
-  const [careerPlan, setCareerPlan] = useState<string>('');
-  const [summary, setSummary] = useState<string>('');
-  const [viewMode, setViewMode] = useState("ai-chat");
-  const [customInterestInput, setCustomInterestInput] = useState('');
-  const [customSkillInput, setCustomSkillInput] = useState('');
-  const [showCustomInterest, setShowCustomInterest] = useState(false);
-  const [showCustomSkill, setShowCustomSkill] = useState(false);
-  const [userInput, setUserInput] = useState("");
+  
+  // State management
+  const [preferences, setPreferences] = useState<CareerPreference>(defaultPreferences); // User's career preferences
+  const [careerPlan, setCareerPlan] = useState<string>(''); // AI-generated career plan
+  const [summary, setSummary] = useState<string>(''); // AI-generated plan summary
+  const [viewMode, setViewMode] = useState("ai-chat"); // Current active tab
+  const [customInterestInput, setCustomInterestInput] = useState(''); // Temp input for custom interests
+  const [customSkillInput, setCustomSkillInput] = useState(''); // Temp input for custom skills
+  const [showCustomInterest, setShowCustomInterest] = useState(false); // Toggle custom interest input
+  const [showCustomSkill, setShowCustomSkill] = useState(false); // Toggle custom skill input
+  const [userInput, setUserInput] = useState(""); // AI chat input field
+  
+  // Career advisor hook for AI functionality
   const { messages, isLoading, sendMessage, clearConversation, generateCareerPlan: generateAIPlan, generateSummary } = useCareerAdvisor();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const mindMapRef = useRef<HTMLDivElement>(null);
-  const timelineRef = useRef<HTMLDivElement>(null);
+  
+  // Refs for scrolling and exporting visualizations
+  const messagesEndRef = useRef<HTMLDivElement>(null); // For auto-scrolling chat
+  const mindMapRef = useRef<HTMLDivElement>(null); // For exporting mind map as image
+  const timelineRef = useRef<HTMLDivElement>(null); // For exporting timeline as image
 
+  // Function to scroll chat to the latest message
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Auto-scroll chat when new messages arrive
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
+  // Handle sending a chat message to the AI
   const handleSendMessage = async () => {
+    // Prevent sending empty messages or while loading
     if (!userInput.trim() || isLoading) return;
     await sendMessage(userInput);
-    setUserInput("");
+    setUserInput(""); // Clear input after sending
   };
 
+  // Allow Enter key to send message (Shift+Enter for new line)
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -89,6 +112,7 @@ export default function CareerMapPage() {
     }
   };
 
+  // Add an interest to user preferences (avoid duplicates)
   const handleAddInterest = (interest: string) => {
     if (!preferences.interests.includes(interest)) {
       setPreferences(prev => ({
@@ -98,6 +122,7 @@ export default function CareerMapPage() {
     }
   };
 
+  // Remove an interest from user preferences
   const handleRemoveInterest = (interest: string) => {
     setPreferences(prev => ({
       ...prev,
@@ -105,6 +130,7 @@ export default function CareerMapPage() {
     }));
   };
 
+  // Add a skill to user preferences (avoid duplicates)
   const handleAddSkill = (skill: string) => {
     if (!preferences.skills.includes(skill)) {
       setPreferences(prev => ({
@@ -114,6 +140,7 @@ export default function CareerMapPage() {
     }
   };
 
+  // Remove a skill from user preferences (also from custom skills if applicable)
   const handleRemoveSkill = (skill: string) => {
     setPreferences(prev => ({
       ...prev,
@@ -122,30 +149,35 @@ export default function CareerMapPage() {
     }));
   };
 
+  // Add a custom user-defined interest
   const addCustomInterest = () => {
+    // Validate input and check for duplicates
     if (customInterestInput.trim() && !preferences.interests.includes(customInterestInput.trim())) {
       setPreferences(prev => ({
         ...prev,
         interests: [...prev.interests, customInterestInput.trim()],
-        customInterests: [...prev.customInterests, customInterestInput.trim()]
+        customInterests: [...prev.customInterests, customInterestInput.trim()] // Track as custom
       }));
-      setCustomInterestInput('');
-      setShowCustomInterest(false);
+      setCustomInterestInput(''); // Clear input
+      setShowCustomInterest(false); // Hide input field
     }
   };
 
+  // Add a custom user-defined skill
   const addCustomSkill = () => {
+    // Validate input and check for duplicates
     if (customSkillInput.trim() && !preferences.skills.includes(customSkillInput.trim())) {
       setPreferences(prev => ({
         ...prev,
         skills: [...prev.skills, customSkillInput.trim()],
-        customSkills: [...prev.customSkills, customSkillInput.trim()]
+        customSkills: [...prev.customSkills, customSkillInput.trim()] // Track as custom
       }));
-      setCustomSkillInput('');
-      setShowCustomSkill(false);
+      setCustomSkillInput(''); // Clear input
+      setShowCustomSkill(false); // Hide input field
     }
   };
 
+  // State for career plan generation loading
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
 
   const handleGenerateCareerPlan = async () => {

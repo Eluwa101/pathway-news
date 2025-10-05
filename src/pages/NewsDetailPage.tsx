@@ -1,52 +1,69 @@
+// React hooks for state and lifecycle
 import { useState, useEffect } from "react";
+// Routing hooks and components
 import { useParams, Link } from "react-router-dom";
+// UI components
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// Supabase client for database queries
 import { supabase } from "@/integrations/supabase/client";
+// Toast notifications
 import { useToast } from "@/hooks/use-toast";
+// Icons
 import { ArrowLeft, Calendar, Tag, Flame, Share2, Image as ImageIcon } from "lucide-react";
+// Component for rendering images and videos
 import MediaRenderer from "@/components/ui/media-renderer";
 
+// Interface defining news article data structure
 interface NewsArticle {
-  id: string;
-  title: string;
-  summary: string;
-  content: string;
-  category: string;
-  tags: string[];
-  is_hot: boolean;
-  is_published: boolean;
-  created_at: string;
-  updated_at: string;
-  video_url?: string;
-  image_urls?: string[];
+  id: string; // Unique identifier
+  title: string; // Article title
+  summary: string; // Brief description
+  content: string; // Full article content (HTML)
+  category: string; // Article category
+  tags: string[]; // Associated tags
+  is_hot: boolean; // Trending flag
+  is_published: boolean; // Publication status
+  created_at: string; // Creation timestamp
+  updated_at: string; // Last update timestamp
+  video_url?: string; // Optional video URL
+  image_urls?: string[]; // Optional array of image URLs
 }
 
+// Main component for displaying full news article details
 const NewsDetailPage = () => {
+  // Get article ID from URL parameters
   const { id } = useParams<{ id: string }>();
+  // State for the main article
   const [article, setArticle] = useState<NewsArticle | null>(null);
+  // Loading state
   const [isLoading, setIsLoading] = useState(true);
+  // State for related articles in same category
   const [relatedArticles, setRelatedArticles] = useState<NewsArticle[]>([]);
+  // Toast notifications
   const { toast } = useToast();
 
+  // Fetch article when ID changes
   useEffect(() => {
     if (id) {
       fetchArticle();
     }
   }, [id]);
 
+  // Function to fetch article and related articles from database
   const fetchArticle = async () => {
     setIsLoading(true);
     
-    // Fetch the main article
+    // Fetch the main article by ID (only if published)
     const { data: articleData, error: articleError } = await supabase
       .from('news')
       .select('*')
       .eq('id', id)
-      .eq('is_published', true)
+      .eq('is_published', true) // Only show published articles
       .single();
 
+    // Handle fetch errors
     if (articleError) {
       toast({
         title: "Error",
@@ -57,6 +74,7 @@ const NewsDetailPage = () => {
       return;
     }
 
+    // If article found, set it and fetch related articles
     if (articleData) {
       setArticle(articleData);
 
@@ -64,17 +82,18 @@ const NewsDetailPage = () => {
       const { data: relatedData } = await supabase
         .from('news')
         .select('*')
-        .eq('category', articleData.category)
-        .eq('is_published', true)
-        .neq('id', id)
-        .order('created_at', { ascending: false })
-        .limit(3);
+        .eq('category', articleData.category) // Same category
+        .eq('is_published', true) // Only published
+        .neq('id', id) // Exclude current article
+        .order('created_at', { ascending: false }) // Most recent first
+        .limit(3); // Limit to 3 articles
 
       setRelatedArticles(relatedData || []);
     }
     setIsLoading(false);
   };
 
+  // Format date for display (e.g., "January 1, 2025, 12:00 PM")
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -85,6 +104,7 @@ const NewsDetailPage = () => {
     });
   };
 
+  // Get color styling based on article category
   const getCategoryColor = (category: string) => {
     const colors = {
       academic: "bg-blue-100 text-blue-800",
@@ -95,15 +115,17 @@ const NewsDetailPage = () => {
     return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
+  // Handle sharing article via Web Share API or clipboard
   const handleShare = async () => {
     try {
+      // Try native share if available (mobile)
       await navigator.share({
         title: article?.title,
         text: article?.summary,
         url: window.location.href,
       });
     } catch (error) {
-      // Fallback to copying to clipboard
+      // Fallback to copying URL to clipboard
       navigator.clipboard.writeText(window.location.href);
       toast({
         title: "Link copied",
@@ -112,17 +134,19 @@ const NewsDetailPage = () => {
     }
   };
 
+  // Convert YouTube URLs to embeddable format
   const convertYouTubeUrl = (url: string) => {
-    // Convert YouTube watch URLs to embed URLs
+    // Handle standard YouTube watch URLs
     if (url.includes('youtube.com/watch?v=')) {
       const videoId = url.split('v=')[1]?.split('&')[0];
       return `https://www.youtube.com/embed/${videoId}`;
     }
+    // Handle shortened youtu.be URLs
     if (url.includes('youtu.be/')) {
       const videoId = url.split('youtu.be/')[1]?.split('?')[0];
       return `https://www.youtube.com/embed/${videoId}`;
     }
-    return url;
+    return url; // Return original if not YouTube
   };
 
   if (isLoading) {
