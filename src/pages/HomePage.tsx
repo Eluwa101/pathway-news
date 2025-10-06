@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import UpcomingEventsCarousel from '@/components/home/UpcomingEventsCarousel';
 import FeaturedNews from '@/components/home/FeaturedNews';
 import heroImage from '@/assets/hero-image.jpg';
+import { BackToTop } from '@/components/ui/BackToTop';
 
 const hotNews = [
   {
@@ -166,6 +167,7 @@ export default function HomePage() {
           </div>
         </section>
       </div>
+      <BackToTop />
     </div>
   );
 }

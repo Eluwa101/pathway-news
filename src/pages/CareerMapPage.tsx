@@ -1,5 +1,7 @@
 // React imports for state management and lifecycle hooks
 import { useState, useRef, useEffect } from 'react';
+// Supabase client for data persistence
+import { supabase } from '@/integrations/supabase/client';
 // UI component imports from the design system
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,17 +11,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Label } from '@/components/ui/label';
 // Icon imports from lucide-react
-import { Map, Target, BookOpen, TrendingUp, Plus, X, Download, FileText, Network, Edit, Calendar, Clock, Camera, Image as ImageIcon, Send, Sparkles, MessageCircle } from 'lucide-react';
+import { Map, Target, BookOpen, TrendingUp, Plus, X, Download, FileText, Network, Edit, Calendar, Clock, Camera, Image as ImageIcon, Send, Sparkles, MessageCircle, Save } from 'lucide-react';
 // Hooks and utilities
 import { useToast } from '@/hooks/use-toast';
 import { useCareerAdvisor } from '@/hooks/useCareerAdvisor';
+// Back to top button component
+import { BackToTop } from '@/components/ui/BackToTop';
 // Libraries for exporting career plans as images and PDFs
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 // Interface defining the structure of user career preferences
 interface CareerPreference {
+  fullName: string; // User's full name (required)
   interests: string[]; // User's career interests
   skills: string[]; // User's professional skills
   timeframe: string; // Desired career timeline
@@ -37,6 +43,7 @@ interface CareerPreference {
 
 // Default empty preferences state
 const defaultPreferences: CareerPreference = {
+  fullName: '',
   interests: [],
   skills: [],
   timeframe: '',
@@ -70,6 +77,21 @@ const industries = [
   'Government', 'Non-Profit', 'Consulting', 'Manufacturing', 'Retail'
 ];
 
+// Available work style options
+const workStyles = [
+  'Remote Work', 'Hybrid (Remote + Office)', 'Office-based', 'Flexible'
+];
+
+// Available timeline options  
+const timeframes = [
+  '0-6 months', '6-12 months', '1-2 years', '2+ years'
+];
+
+// Available plan type options
+const planTypes = [
+  'Short-term (1-2 years)', 'Long-term (3-5 years)', 'Comprehensive (Both)'
+];
+
 // Main Career Map page component
 export default function CareerMapPage() {
   // Hook for showing toast notifications
@@ -85,6 +107,8 @@ export default function CareerMapPage() {
   const [showCustomInterest, setShowCustomInterest] = useState(false); // Toggle custom interest input
   const [showCustomSkill, setShowCustomSkill] = useState(false); // Toggle custom skill input
   const [userInput, setUserInput] = useState(""); // AI chat input field
+  const [savedPlanId, setSavedPlanId] = useState<string | null>(null); // Track saved plan ID for updates
+  const [isSaving, setIsSaving] = useState(false); // Loading state for save operations
   
   // Career advisor hook for AI functionality
   const { messages, isLoading, sendMessage, clearConversation, generateCareerPlan: generateAIPlan, generateSummary } = useCareerAdvisor();
@@ -189,7 +213,16 @@ export default function CareerMapPage() {
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
 
   const handleGenerateCareerPlan = async () => {
-    // Validate that user has filled in preferences
+    // Validate that user has filled in required fields including full name
+    if (!preferences.fullName.trim()) {
+      toast({
+        title: "Full Name Required",
+        description: "Please enter your full name before generating a plan.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     if (preferences.interests.length === 0 || preferences.skills.length === 0 || !preferences.industry || !preferences.goals) {
       toast({
         title: "Incomplete Preferences",
@@ -287,7 +320,8 @@ export default function CareerMapPage() {
 
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Comprehensive Career Plan', pageWidth / 2, yPosition, { align: 'center' });
+      const planTitle = preferences.fullName ? `${preferences.fullName}'s Career Plan` : 'Comprehensive Career Plan';
+      pdf.text(planTitle, pageWidth / 2, yPosition, { align: 'center' });
       yPosition += 15;
 
       pdf.setFontSize(12);
@@ -408,10 +442,11 @@ export default function CareerMapPage() {
   const printPlan = () => {
     const printWindow = window.open('', '_blank');
     if (printWindow) {
+      const planTitle = preferences.fullName ? `${preferences.fullName}'s Career Plan` : 'My Career Plan';
       printWindow.document.write(`
         <html>
           <head>
-            <title>My Career Plan</title>
+            <title>${planTitle}</title>
             <style>
               body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
               h1 { color: #333; border-bottom: 2px solid #333; }
@@ -427,6 +462,144 @@ export default function CareerMapPage() {
       `);
       printWindow.document.close();
       printWindow.print();
+    }
+  };
+
+  // Load saved career plan on component mount
+  useEffect(() => {
+    loadSavedPlan();
+  }, []);
+
+  // Function to load user's saved career plan from database
+  const loadSavedPlan = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return; // User not logged in, skip loading
+
+      // Fetch most recent career plan for this user
+      const { data, error } = await supabase
+        .from('career_plans')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+        console.error('Error loading saved plan:', error);
+        return;
+      }
+
+      // If plan found, load it into state
+      if (data) {
+        setSavedPlanId(data.id);
+        setPreferences({
+          fullName: data.full_name || '',
+          interests: data.interests || [],
+          skills: data.skills || [],
+          timeframe: data.timeframe || '',
+          industry: data.industry || '',
+          workStyle: data.work_style || '',
+          goals: data.goals || '',
+          planType: data.plan_type || '',
+          customInterests: data.custom_interests || [],
+          customSkills: data.custom_skills || [],
+          customTimeframe: data.custom_timeframe || '',
+          customIndustry: data.custom_industry || '',
+          customWorkStyle: data.custom_work_style || '',
+          customPlanType: data.custom_plan_type || ''
+        });
+        setCareerPlan(data.career_plan || '');
+        setSummary(data.summary || '');
+        
+        toast({
+          title: "Plan Loaded",
+          description: "Your previous career plan has been restored."
+        });
+      }
+    } catch (error) {
+      console.error('Error in loadSavedPlan:', error);
+    }
+  };
+
+  // Function to save career plan to database
+  const savePlan = async () => {
+    try {
+      setIsSaving(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to save your career plan.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Validate full name is filled
+      if (!preferences.fullName.trim()) {
+        toast({
+          title: "Full Name Required",
+          description: "Please enter your full name before saving.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const planData = {
+        user_id: user.id,
+        full_name: preferences.fullName,
+        interests: preferences.interests,
+        skills: preferences.skills,
+        timeframe: preferences.timeframe,
+        industry: preferences.industry,
+        work_style: preferences.workStyle,
+        goals: preferences.goals,
+        plan_type: preferences.planType,
+        custom_interests: preferences.customInterests,
+        custom_skills: preferences.customSkills,
+        custom_timeframe: preferences.customTimeframe,
+        custom_industry: preferences.customIndustry,
+        custom_work_style: preferences.customWorkStyle,
+        custom_plan_type: preferences.customPlanType,
+        career_plan: careerPlan,
+        summary: summary
+      };
+
+      if (savedPlanId) {
+        // Update existing plan
+        const { error } = await supabase
+          .from('career_plans')
+          .update(planData)
+          .eq('id', savedPlanId);
+
+        if (error) throw error;
+      } else {
+        // Insert new plan
+        const { data, error } = await supabase
+          .from('career_plans')
+          .insert([planData])
+          .select()
+          .single();
+
+        if (error) throw error;
+        if (data) setSavedPlanId(data.id);
+      }
+
+      toast({
+        title: "Plan Saved",
+        description: "Your career plan has been saved successfully."
+      });
+    } catch (error) {
+      console.error('Error saving plan:', error);
+      toast({
+        title: "Save Failed",
+        description: "Could not save your career plan. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -591,14 +764,47 @@ export default function CareerMapPage() {
             <TabsContent value="preferences" className="space-y-4 sm:space-y-6">
               <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5" />
-                    AI-Enhanced Career Planning
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Fill out your preferences below, then let AI create a personalized, actionable career plan with specific timelines and milestones.
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5" />
+                        AI-Enhanced Career Planning
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Fill out your preferences below, then let AI create a personalized, actionable career plan with specific timelines and milestones.
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={savePlan} 
+                      disabled={isSaving || !preferences.fullName.trim()}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {isSaving ? "Saving..." : "Save Plan"}
+                    </Button>
+                  </div>
                 </CardHeader>
+              </Card>
+
+              {/* Full Name Field - Required */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base sm:text-lg">
+                    Full Name <span className="text-destructive">*</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Input
+                    placeholder="Enter your full name..."
+                    value={preferences.fullName}
+                    onChange={(e) => setPreferences(prev => ({ ...prev, fullName: e.target.value }))}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    This will be used in your career plan document title
+                  </p>
+                </CardContent>
               </Card>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
@@ -739,10 +945,14 @@ export default function CareerMapPage() {
                   <CardHeader>
                     <CardTitle className="text-base sm:text-lg">Preferred Industry</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <Select value={preferences.industry} onValueChange={(value) => 
-                      setPreferences(prev => ({ ...prev, industry: value }))
-                    }>
+                  <CardContent className="space-y-3">
+                    <Select value={preferences.industry || preferences.customIndustry} onValueChange={(value) => {
+                      if (value === "custom") {
+                        setPreferences(prev => ({ ...prev, industry: '' }));
+                      } else {
+                        setPreferences(prev => ({ ...prev, industry: value, customIndustry: '' }));
+                      }
+                    }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select an industry" />
                       </SelectTrigger>
@@ -750,8 +960,16 @@ export default function CareerMapPage() {
                         {industries.map(industry => (
                           <SelectItem key={industry} value={industry}>{industry}</SelectItem>
                         ))}
+                        <SelectItem value="custom">Other (Specify)</SelectItem>
                       </SelectContent>
                     </Select>
+                    {(!preferences.industry || preferences.customIndustry) && (
+                      <Input
+                        placeholder="Enter custom industry..."
+                        value={preferences.customIndustry}
+                        onChange={(e) => setPreferences(prev => ({ ...prev, customIndustry: e.target.value, industry: '' }))}
+                      />
+                    )}
                   </CardContent>
                 </Card>
 
@@ -760,20 +978,31 @@ export default function CareerMapPage() {
                   <CardHeader>
                     <CardTitle className="text-base sm:text-lg">Work Style Preference</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <Select value={preferences.workStyle} onValueChange={(value) => 
-                      setPreferences(prev => ({ ...prev, workStyle: value }))
-                    }>
+                  <CardContent className="space-y-3">
+                    <Select value={preferences.workStyle || preferences.customWorkStyle} onValueChange={(value) => {
+                      if (value === "custom") {
+                        setPreferences(prev => ({ ...prev, workStyle: '' }));
+                      } else {
+                        setPreferences(prev => ({ ...prev, workStyle: value, customWorkStyle: '' }));
+                      }
+                    }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select work style" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="remote">Remote Work</SelectItem>
-                        <SelectItem value="hybrid">Hybrid (Remote + Office)</SelectItem>
-                        <SelectItem value="office">Office-based</SelectItem>
-                        <SelectItem value="flexible">Flexible</SelectItem>
+                        {workStyles.map(style => (
+                          <SelectItem key={style} value={style}>{style}</SelectItem>
+                        ))}
+                        <SelectItem value="custom">Other (Specify)</SelectItem>
                       </SelectContent>
                     </Select>
+                    {(!preferences.workStyle || preferences.customWorkStyle) && (
+                      <Input
+                        placeholder="Enter custom work style..."
+                        value={preferences.customWorkStyle}
+                        onChange={(e) => setPreferences(prev => ({ ...prev, customWorkStyle: e.target.value, workStyle: '' }))}
+                      />
+                    )}
                   </CardContent>
                 </Card>
 
@@ -782,19 +1011,31 @@ export default function CareerMapPage() {
                   <CardHeader>
                     <CardTitle className="text-base sm:text-lg">Plan Type</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <Select value={preferences.planType} onValueChange={(value) => 
-                      setPreferences(prev => ({ ...prev, planType: value }))
-                    }>
+                  <CardContent className="space-y-3">
+                    <Select value={preferences.planType || preferences.customPlanType} onValueChange={(value) => {
+                      if (value === "custom") {
+                        setPreferences(prev => ({ ...prev, planType: '' }));
+                      } else {
+                        setPreferences(prev => ({ ...prev, planType: value, customPlanType: '' }));
+                      }
+                    }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select plan type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="short">Short-term (1-2 years)</SelectItem>
-                        <SelectItem value="long">Long-term (3-5 years)</SelectItem>
-                        <SelectItem value="comprehensive">Comprehensive (Both)</SelectItem>
+                        {planTypes.map(type => (
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                        <SelectItem value="custom">Other (Specify)</SelectItem>
                       </SelectContent>
                     </Select>
+                    {(!preferences.planType || preferences.customPlanType) && (
+                      <Input
+                        placeholder="Enter custom plan type..."
+                        value={preferences.customPlanType}
+                        onChange={(e) => setPreferences(prev => ({ ...prev, customPlanType: e.target.value, planType: '' }))}
+                      />
+                    )}
                   </CardContent>
                 </Card>
 
@@ -803,20 +1044,31 @@ export default function CareerMapPage() {
                   <CardHeader>
                     <CardTitle className="text-base sm:text-lg">Career Timeline</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <Select value={preferences.timeframe} onValueChange={(value) => 
-                      setPreferences(prev => ({ ...prev, timeframe: value }))
-                    }>
+                  <CardContent className="space-y-3">
+                    <Select value={preferences.timeframe || preferences.customTimeframe} onValueChange={(value) => {
+                      if (value === "custom") {
+                        setPreferences(prev => ({ ...prev, timeframe: '' }));
+                      } else {
+                        setPreferences(prev => ({ ...prev, timeframe: value, customTimeframe: '' }));
+                      }
+                    }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select timeline" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="immediate">0-6 months</SelectItem>
-                        <SelectItem value="short">6-12 months</SelectItem>
-                        <SelectItem value="medium">1-2 years</SelectItem>
-                        <SelectItem value="long">2+ years</SelectItem>
+                        {timeframes.map(tf => (
+                          <SelectItem key={tf} value={tf}>{tf}</SelectItem>
+                        ))}
+                        <SelectItem value="custom">Other (Specify)</SelectItem>
                       </SelectContent>
                     </Select>
+                    {(!preferences.timeframe || preferences.customTimeframe) && (
+                      <Input
+                        placeholder="Enter custom timeline..."
+                        value={preferences.customTimeframe}
+                        onChange={(e) => setPreferences(prev => ({ ...prev, customTimeframe: e.target.value, timeframe: '' }))}
+                      />
+                    )}
                   </CardContent>
                 </Card>
 
@@ -1299,6 +1551,7 @@ export default function CareerMapPage() {
           </Tabs>
         </div>
       </div>
+      <BackToTop />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 // React hooks for state and lifecycle
 import { useState, useEffect } from "react";
+// React Helmet for dynamic meta tags
+import { Helmet } from 'react-helmet-async';
 // Routing hooks and components
 import { useParams, Link } from "react-router-dom";
 // UI components
@@ -14,6 +16,8 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Calendar, Tag, Flame, Share2, Image as ImageIcon } from "lucide-react";
 // Component for rendering images and videos
 import MediaRenderer from "@/components/ui/media-renderer";
+// Back to top button
+import { BackToTop } from "@/components/ui/BackToTop";
 
 // Interface defining news article data structure
 interface NewsArticle {
@@ -177,7 +181,25 @@ const NewsDetailPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-6 py-8 max-w-7xl">
+    <>
+      <Helmet>
+        <title>{article.title} - BYU-Pathway News</title>
+        <meta name="description" content={article.summary} />
+        <meta property="og:title" content={article.title} />
+        <meta property="og:description" content={article.summary} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={window.location.href} />
+        {article.image_urls && article.image_urls[0] && (
+          <meta property="og:image" content={article.image_urls[0]} />
+        )}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={article.title} />
+        <meta name="twitter:description" content={article.summary} />
+        {article.image_urls && article.image_urls[0] && (
+          <meta name="twitter:image" content={article.image_urls[0]} />
+        )}
+      </Helmet>
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
       {/* Header */}
       <div className="mb-6">
         <Link to="/news">
@@ -333,7 +355,9 @@ const NewsDetailPage = () => {
           </div>
         )}
       </div>
+      <BackToTop />
     </div>
+    </>
   );
 };
 

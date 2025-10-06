@@ -167,6 +167,75 @@ export type Database = {
         }
         Relationships: []
       }
+      career_plans: {
+        Row: {
+          career_plan: string | null
+          created_at: string
+          custom_industry: string | null
+          custom_interests: string[] | null
+          custom_plan_type: string | null
+          custom_skills: string[] | null
+          custom_timeframe: string | null
+          custom_work_style: string | null
+          full_name: string
+          goals: string | null
+          id: string
+          industry: string | null
+          interests: string[]
+          plan_type: string | null
+          skills: string[]
+          summary: string | null
+          timeframe: string | null
+          updated_at: string
+          user_id: string
+          work_style: string | null
+        }
+        Insert: {
+          career_plan?: string | null
+          created_at?: string
+          custom_industry?: string | null
+          custom_interests?: string[] | null
+          custom_plan_type?: string | null
+          custom_skills?: string[] | null
+          custom_timeframe?: string | null
+          custom_work_style?: string | null
+          full_name: string
+          goals?: string | null
+          id?: string
+          industry?: string | null
+          interests?: string[]
+          plan_type?: string | null
+          skills?: string[]
+          summary?: string | null
+          timeframe?: string | null
+          updated_at?: string
+          user_id: string
+          work_style?: string | null
+        }
+        Update: {
+          career_plan?: string | null
+          created_at?: string
+          custom_industry?: string | null
+          custom_interests?: string[] | null
+          custom_plan_type?: string | null
+          custom_skills?: string[] | null
+          custom_timeframe?: string | null
+          custom_work_style?: string | null
+          full_name?: string
+          goals?: string | null
+          id?: string
+          industry?: string | null
+          interests?: string[]
+          plan_type?: string | null
+          skills?: string[]
+          summary?: string | null
+          timeframe?: string | null
+          updated_at?: string
+          user_id?: string
+          work_style?: string | null
+        }
+        Relationships: []
+      }
       devotionals: {
         Row: {
           author: string
