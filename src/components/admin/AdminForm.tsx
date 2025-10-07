@@ -1,8 +1,5 @@
 // React state management
 import { useState } from "react";
-// Rich text editor for news content
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
 // UI components
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,17 +34,6 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
   // Toast notifications
   const { toast } = useToast();
 
-  // Rich text editor configuration (toolbar options)
-  const quillModules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }], // Header levels
-      ['bold', 'italic', 'underline'], // Text formatting
-      [{ 'color': [] }, { 'background': [] }], // Text and background colors
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }], // Lists
-      ['link'], // Hyperlinks
-      ['clean'] // Remove formatting
-    ],
-  };
 
   // Handle form submission (create or update)
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -145,12 +131,15 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
       </div>
       <div>
         <Label htmlFor="content">Content</Label>
-        <ReactQuill 
-          theme="snow" 
+        <Textarea 
+          id="content" 
+          name="content" 
           value={content} 
-          onChange={setContent}
-          modules={quillModules}
-          className="bg-background rounded-md"
+          onChange={(e) => setContent(e.target.value)}
+          rows={12}
+          className="min-h-[300px]"
+          placeholder="Enter news article content..."
+          required
         />
       </div>
       <div>
