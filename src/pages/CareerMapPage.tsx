@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 // Icon imports from lucide-react
-import { Map, Target, BookOpen, TrendingUp, Plus, X, Download, FileText, Network, Edit, Calendar, Clock, Camera, Image as ImageIcon, Send, Sparkles, MessageCircle, Save } from 'lucide-react';
+import { Map, Target, BookOpen, TrendingUp, Plus, X, Download, FileText, Network, Edit, Clock, Camera, Image as ImageIcon, Send, Sparkles, MessageCircle, Save } from 'lucide-react';
 // Hooks and utilities
 import { useToast } from '@/hooks/use-toast';
 import { useCareerAdvisor } from '@/hooks/useCareerAdvisor';
@@ -116,7 +116,6 @@ export default function CareerMapPage() {
   // Refs for scrolling and exporting visualizations
   const messagesEndRef = useRef<HTMLDivElement>(null); // For auto-scrolling chat
   const mindMapRef = useRef<HTMLDivElement>(null); // For exporting mind map as image
-  const timelineRef = useRef<HTMLDivElement>(null); // For exporting timeline as image
 
   // Function to scroll chat to the latest message
   const scrollToBottom = () => {
@@ -363,32 +362,6 @@ export default function CareerMapPage() {
         }
       }
 
-      if (timelineRef.current) {
-        const timelineCanvas = await html2canvas(timelineRef.current, {
-          backgroundColor: '#ffffff',
-          scale: 1,
-          useCORS: true,
-          allowTaint: true
-        });
-        
-        pdf.addPage();
-        pdf.setFontSize(16);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('Career Timeline', pageWidth / 2, 20, { align: 'center' });
-        
-        const timelineImgData = timelineCanvas.toDataURL('image/png');
-        const timelineImgWidth = pageWidth - 40;
-        const timelineImgHeight = (timelineCanvas.height * timelineImgWidth) / timelineCanvas.width;
-        
-        if (timelineImgHeight <= pageHeight - 40) {
-          pdf.addImage(timelineImgData, 'PNG', 20, 30, timelineImgWidth, timelineImgHeight);
-        } else {
-          const scaledHeight = pageHeight - 40;
-          const scaledWidth = (timelineCanvas.width * scaledHeight) / timelineCanvas.height;
-          pdf.addImage(timelineImgData, 'PNG', (pageWidth - scaledWidth) / 2, 30, scaledWidth, scaledHeight);
-        }
-      }
-
       pdf.save('comprehensive-career-plan.pdf');
       
       toast({
@@ -531,9 +504,13 @@ export default function CareerMapPage() {
       if (!user) {
         toast({
           title: "Authentication Required",
-          description: "Please sign in to save your career plan.",
+          description: "You need to be signed in to save your career plan. Redirecting to login...",
           variant: "destructive"
         });
+        // Redirect to auth page after a brief delay
+        setTimeout(() => {
+          window.location.href = '/auth';
+        }, 2000);
         return;
       }
 
@@ -615,7 +592,7 @@ export default function CareerMapPage() {
           </div>
 
           <Tabs value={viewMode} onValueChange={setViewMode}>
-            <TabsList className="grid w-full grid-cols-6 h-auto overflow-x-auto">
+            <TabsList className="grid w-full grid-cols-5 h-auto overflow-x-auto">
               <TabsTrigger value="ai-chat" className="flex-col sm:flex-row text-[10px] sm:text-sm py-1.5 px-1 sm:py-2 sm:px-3 min-w-0">
                 <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mb-0.5 sm:mb-0 sm:mr-2 shrink-0" />
                 <span className="hidden sm:inline truncate">AI Chat</span>
@@ -635,11 +612,6 @@ export default function CareerMapPage() {
                 <Network className="h-3 w-3 sm:h-4 sm:w-4 mb-0.5 sm:mb-0 sm:mr-2 shrink-0" />
                 <span className="hidden sm:inline truncate">Visual Map</span>
                 <span className="sm:hidden truncate">Map</span>
-              </TabsTrigger>
-              <TabsTrigger value="timeline" className="flex-col sm:flex-row text-[10px] sm:text-sm py-1.5 px-1 sm:py-2 sm:px-3 min-w-0">
-                <Clock className="h-3 w-3 sm:h-4 sm:w-4 mb-0.5 sm:mb-0 sm:mr-2 shrink-0" />
-                <span className="hidden sm:inline truncate">Timeline</span>
-                <span className="sm:hidden truncate">Time</span>
               </TabsTrigger>
               <TabsTrigger value="export" className="flex-col sm:flex-row text-[10px] sm:text-sm py-1.5 px-1 sm:py-2 sm:px-3 min-w-0">
                 <Download className="h-3 w-3 sm:h-4 sm:w-4 mb-0.5 sm:mb-0 sm:mr-2 shrink-0" />
@@ -943,15 +915,25 @@ export default function CareerMapPage() {
                 {/* Industry Preference */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base sm:text-lg">Preferred Industry</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base sm:text-lg">Preferred Industry</CardTitle>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => {
+                          if (!preferences.industry || industries.includes(preferences.industry)) {
+                            setPreferences(prev => ({ ...prev, industry: '', customIndustry: '' }));
+                          }
+                        }}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <Select value={preferences.industry || preferences.customIndustry} onValueChange={(value) => {
-                      if (value === "custom") {
-                        setPreferences(prev => ({ ...prev, industry: '' }));
-                      } else {
-                        setPreferences(prev => ({ ...prev, industry: value, customIndustry: '' }));
-                      }
+                      setPreferences(prev => ({ ...prev, industry: value, customIndustry: value }));
                     }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select an industry" />
@@ -960,10 +942,9 @@ export default function CareerMapPage() {
                         {industries.map(industry => (
                           <SelectItem key={industry} value={industry}>{industry}</SelectItem>
                         ))}
-                        <SelectItem value="custom">Other (Specify)</SelectItem>
                       </SelectContent>
                     </Select>
-                    {(!preferences.industry || preferences.customIndustry) && (
+                    {(!industries.includes(preferences.industry) && preferences.industry) && (
                       <Input
                         placeholder="Enter custom industry..."
                         value={preferences.customIndustry}
@@ -976,15 +957,25 @@ export default function CareerMapPage() {
                 {/* Work Style */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base sm:text-lg">Work Style Preference</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base sm:text-lg">Work Style Preference</CardTitle>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => {
+                          if (!preferences.workStyle || workStyles.includes(preferences.workStyle)) {
+                            setPreferences(prev => ({ ...prev, workStyle: '', customWorkStyle: '' }));
+                          }
+                        }}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <Select value={preferences.workStyle || preferences.customWorkStyle} onValueChange={(value) => {
-                      if (value === "custom") {
-                        setPreferences(prev => ({ ...prev, workStyle: '' }));
-                      } else {
-                        setPreferences(prev => ({ ...prev, workStyle: value, customWorkStyle: '' }));
-                      }
+                      setPreferences(prev => ({ ...prev, workStyle: value, customWorkStyle: value }));
                     }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select work style" />
@@ -993,10 +984,9 @@ export default function CareerMapPage() {
                         {workStyles.map(style => (
                           <SelectItem key={style} value={style}>{style}</SelectItem>
                         ))}
-                        <SelectItem value="custom">Other (Specify)</SelectItem>
                       </SelectContent>
                     </Select>
-                    {(!preferences.workStyle || preferences.customWorkStyle) && (
+                    {(!workStyles.includes(preferences.workStyle) && preferences.workStyle) && (
                       <Input
                         placeholder="Enter custom work style..."
                         value={preferences.customWorkStyle}
@@ -1009,15 +999,25 @@ export default function CareerMapPage() {
                 {/* Plan Type */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base sm:text-lg">Plan Type</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base sm:text-lg">Plan Type</CardTitle>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => {
+                          if (!preferences.planType || planTypes.includes(preferences.planType)) {
+                            setPreferences(prev => ({ ...prev, planType: '', customPlanType: '' }));
+                          }
+                        }}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <Select value={preferences.planType || preferences.customPlanType} onValueChange={(value) => {
-                      if (value === "custom") {
-                        setPreferences(prev => ({ ...prev, planType: '' }));
-                      } else {
-                        setPreferences(prev => ({ ...prev, planType: value, customPlanType: '' }));
-                      }
+                      setPreferences(prev => ({ ...prev, planType: value, customPlanType: value }));
                     }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select plan type" />
@@ -1026,10 +1026,9 @@ export default function CareerMapPage() {
                         {planTypes.map(type => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
                         ))}
-                        <SelectItem value="custom">Other (Specify)</SelectItem>
                       </SelectContent>
                     </Select>
-                    {(!preferences.planType || preferences.customPlanType) && (
+                    {(!planTypes.includes(preferences.planType) && preferences.planType) && (
                       <Input
                         placeholder="Enter custom plan type..."
                         value={preferences.customPlanType}
@@ -1042,15 +1041,25 @@ export default function CareerMapPage() {
                 {/* Timeline */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base sm:text-lg">Career Timeline</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base sm:text-lg">Career Timeline</CardTitle>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => {
+                          if (!preferences.timeframe || timeframes.includes(preferences.timeframe)) {
+                            setPreferences(prev => ({ ...prev, timeframe: '', customTimeframe: '' }));
+                          }
+                        }}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <Select value={preferences.timeframe || preferences.customTimeframe} onValueChange={(value) => {
-                      if (value === "custom") {
-                        setPreferences(prev => ({ ...prev, timeframe: '' }));
-                      } else {
-                        setPreferences(prev => ({ ...prev, timeframe: value, customTimeframe: '' }));
-                      }
+                      setPreferences(prev => ({ ...prev, timeframe: value, customTimeframe: value }));
                     }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select timeline" />
@@ -1059,10 +1068,9 @@ export default function CareerMapPage() {
                         {timeframes.map(tf => (
                           <SelectItem key={tf} value={tf}>{tf}</SelectItem>
                         ))}
-                        <SelectItem value="custom">Other (Specify)</SelectItem>
                       </SelectContent>
                     </Select>
-                    {(!preferences.timeframe || preferences.customTimeframe) && (
+                    {(!timeframes.includes(preferences.timeframe) && preferences.timeframe) && (
                       <Input
                         placeholder="Enter custom timeline..."
                         value={preferences.customTimeframe}
@@ -1349,102 +1357,6 @@ export default function CareerMapPage() {
               )}
             </TabsContent>
 
-            <TabsContent value="timeline" className="space-y-6">
-              {careerPlan ? (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Career Timeline View</CardTitle>
-                      <Button onClick={exportMindMapImage} variant="outline" size="sm">
-                        <ImageIcon className="h-4 w-4 mr-2" />
-                        Export Timeline
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div ref={timelineRef} className="space-y-6">
-                      {preferences.planType === 'short' || preferences.planType === 'comprehensive' ? (
-                        <div className="bg-muted/50 p-6 rounded-lg">
-                          <h3 className="text-lg font-semibold mb-4 flex items-center">
-                            <Calendar className="h-5 w-5 mr-2" />
-                            Short-term Plan (1-2 years)
-                          </h3>
-                          <div className="space-y-4">
-                            <div className="flex items-start space-x-4">
-                              <div className="w-3 h-3 bg-primary rounded-full mt-2"></div>
-                              <div>
-                                <h4 className="font-medium">Months 1-3: Foundation</h4>
-                                <p className="text-sm text-muted-foreground">Research {preferences.industry} industry, identify key players and opportunities</p>
-                              </div>
-                            </div>
-                            <div className="flex items-start space-x-4">
-                              <div className="w-3 h-3 bg-primary rounded-full mt-2"></div>
-                              <div>
-                                <h4 className="font-medium">Months 4-8: Skill Development</h4>
-                                <p className="text-sm text-muted-foreground">Focus on developing: {preferences.skills.slice(0, 3).join(', ')}</p>
-                              </div>
-                            </div>
-                            <div className="flex items-start space-x-4">
-                              <div className="w-3 h-3 bg-primary rounded-full mt-2"></div>
-                              <div>
-                                <h4 className="font-medium">Months 9-12: Application</h4>
-                                <p className="text-sm text-muted-foreground">Apply knowledge through projects, internships, or entry-level positions</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : null}
-                      
-                      {preferences.planType === 'long' || preferences.planType === 'comprehensive' ? (
-                        <div className="bg-muted/30 p-6 rounded-lg">
-                          <h3 className="text-lg font-semibold mb-4 flex items-center">
-                            <Clock className="h-5 w-5 mr-2" />
-                            Long-term Plan (3-5 years)
-                          </h3>
-                          <div className="space-y-4">
-                            <div className="flex items-start space-x-4">
-                              <div className="w-3 h-3 bg-secondary rounded-full mt-2"></div>
-                              <div>
-                                <h4 className="font-medium">Year 1-2: Establish Expertise</h4>
-                                <p className="text-sm text-muted-foreground">Become proficient in core skills and build professional network</p>
-                              </div>
-                            </div>
-                            <div className="flex items-start space-x-4">
-                              <div className="w-3 h-3 bg-secondary rounded-full mt-2"></div>
-                              <div>
-                                <h4 className="font-medium">Year 3-4: Leadership & Growth</h4>
-                                <p className="text-sm text-muted-foreground">Take on leadership roles, mentor others, pursue advanced certifications</p>
-                              </div>
-                            </div>
-                            <div className="flex items-start space-x-4">
-                              <div className="w-3 h-3 bg-secondary rounded-full mt-2"></div>
-                              <div>
-                                <h4 className="font-medium">Year 5+: Strategic Impact</h4>
-                                <p className="text-sm text-muted-foreground">Drive strategic initiatives, consider entrepreneurship or executive roles</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <Clock className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Career Timeline</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Generate your career plan to see the timeline view
-                    </p>
-                    <Button onClick={() => setViewMode("preferences")}>
-                      Start Planning
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
-
             <TabsContent value="export" className="space-y-6">
               <Card>
                 <CardHeader>
@@ -1486,7 +1398,7 @@ export default function CareerMapPage() {
                             <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
                             <div className="text-center">
                               <div className="text-xs sm:text-sm font-medium">Comprehensive PDF</div>
-                              <div className="text-xs text-muted-foreground">Plan + Map + Timeline</div>
+                              <div className="text-xs text-muted-foreground">Plan + Visual Map</div>
                             </div>
                           </Button>
                         </div>
@@ -1498,39 +1410,6 @@ export default function CareerMapPage() {
                           <Button onClick={exportMindMapImage} variant="outline" className="h-auto py-3 flex-col space-y-1">
                             <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
                             <div className="text-xs sm:text-sm font-medium">Export Mind Map</div>
-                          </Button>
-                          
-                          <Button 
-                            onClick={() => {
-                              if (timelineRef.current) {
-                                html2canvas(timelineRef.current, {
-                                  backgroundColor: '#ffffff',
-                                  scale: 2,
-                                  useCORS: true,
-                                  allowTaint: true
-                                }).then(canvas => {
-                                  const link = document.createElement('a');
-                                  link.download = 'career-timeline.png';
-                                  link.href = canvas.toDataURL();
-                                  link.click();
-                                  toast({
-                                    title: "Timeline Exported",
-                                    description: "Your career timeline has been saved as an image."
-                                  });
-                                }).catch(() => {
-                                  toast({
-                                    title: "Export Failed",
-                                    description: "Could not export the timeline image.",
-                                    variant: "destructive"
-                                  });
-                                });
-                              }
-                            }}
-                            variant="outline" 
-                            className="h-auto py-3 flex-col space-y-1"
-                          >
-                            <ImageIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                            <div className="text-xs sm:text-sm font-medium">Export Timeline</div>
                           </Button>
                         </div>
                       </div>

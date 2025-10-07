@@ -53,35 +53,31 @@ When providing spiritual guidance, reference specific scriptures, talks, or teac
       // Extract preferences data by removing the prefix
       const preferencesData = userInput.replace("GENERATE_CAREER_PLAN:", "");
       
-      // Detailed prompt for generating a comprehensive career plan
-      // Emphasizes personalization and actionable recommendations
-      const careerPlanPrompt = `Based on the following user preferences, create a comprehensive, detailed, and highly personalized career plan. This should NOT be a generic template - analyze each preference deeply and create specific, actionable recommendations tailored to this individual's unique combination of interests, skills, and goals.
+      // Concise prompt for generating a focused career plan (max 4-5 pages)
+      // Emphasizes actionability and brevity
+      const careerPlanPrompt = `Based on the following user preferences, create a CONCISE and focused career plan. Keep it brief (4-5 pages max when printed) but actionable.
 
 User Preferences:
 ${preferencesData}
 
-Generate a comprehensive career plan that includes:
+Generate a focused career plan with these sections (be brief and specific):
 
-1. Personalized Career Analysis - Deep analysis of how their interests, skills, and goals interconnect
-2. Specific Career Paths - 3-5 specific job titles/roles that match their unique profile (not generic categories)
-3. Detailed Action Plan - Concrete, sequential steps with specific timelines and milestones
-4. Skills Development Roadmap - Specific courses, certifications, or experiences to pursue
-5. Industry-Specific Networking Strategy - Where and how to connect with the right people
-6. Short-term Goals (0-6 months) - Immediate, actionable steps they can take this week
-7. Medium-term Goals (6-12 months) - Measurable milestones with success criteria
-8. Long-term Vision (1-5 years) - Career progression path with alternative routes
-9. Potential Challenges & Solutions - Specific obstacles they may face and how to overcome them
-10. Resources & Opportunities - Specific programs, organizations, or opportunities relevant to their path
-11. Faith Integration - How their faith can guide and strengthen their career journey
+1. Career Match Analysis (2-3 paragraphs) - How their profile connects to opportunities
+2. Top 3 Career Paths - List 3 specific job titles/roles with brief descriptions
+3. 90-Day Action Plan - 5-7 immediate, concrete steps they can start this week
+4. Key Skills to Develop - List 3-5 priority skills with 1-2 recommended resources each
+5. 6-Month Milestones - 3-4 measurable goals with success criteria
+6. 1-Year Vision - Brief description of where they should be in 12 months
+7. Faith Integration - 2-3 sentences on how faith guides their journey
 
-Format using clean markdown with:
-- Use bullet points (-) for lists, NOT asterisks
-- Use numbered lists (1., 2., 3.) for sequential steps
-- Separate each major section with a horizontal rule (---)
+Format rules:
+- Use bullet points (-) for lists
+- Use numbered lists (1., 2., 3.) for steps
 - Use ## for section headers
-- Keep formatting clean and professional
+- Keep each section under 200 words
+- Be specific but concise - no fluff
 
-Make this plan deeply personal, specific, and actionable. Include actual numbers, dates, and tangible outcomes. Reference their specific skills and interests throughout.`;
+Make it actionable and personal, but KEEP IT SHORT. Focus on the essentials they need to get started.`;
 
       // Create messages array with system and user prompts for career plan generation
       messages = [
