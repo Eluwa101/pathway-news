@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 // Icon imports from lucide-react
-import { Map, Target, BookOpen, TrendingUp, Plus, X, Download, FileText, Network, Edit, Clock, Camera, Image as ImageIcon, Send, Sparkles, MessageCircle, Save } from 'lucide-react';
+import { Map, Target, BookOpen, TrendingUp, Plus, X, Download, FileText, Network, Edit, Clock, Camera, Image as ImageIcon, Send, Sparkles, MessageCircle } from 'lucide-react';
 // Hooks and utilities
 import { useToast } from '@/hooks/use-toast';
 import { useCareerAdvisor } from '@/hooks/useCareerAdvisor';
@@ -746,15 +746,6 @@ export default function CareerMapPage() {
                         Fill out your preferences below, then let AI create a personalized, actionable career plan with specific timelines and milestones.
                       </p>
                     </div>
-                    <Button 
-                      onClick={savePlan} 
-                      disabled={isSaving || !preferences.fullName.trim()}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <Save className="h-4 w-4 mr-2" />
-                      {isSaving ? "Saving..." : "Save Plan"}
-                    </Button>
                   </div>
                 </CardHeader>
               </Card>

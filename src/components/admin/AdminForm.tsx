@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 // Supabase client for database operations
 import { supabase } from "@/integrations/supabase/client";
 // Toast notifications
@@ -131,15 +132,10 @@ export const AdminForm = ({ type, tableName, editingItem, onSuccess, onCancel }:
       </div>
       <div>
         <Label htmlFor="content">Content</Label>
-        <Textarea 
-          id="content" 
-          name="content" 
-          value={content} 
-          onChange={(e) => setContent(e.target.value)}
-          rows={12}
-          className="min-h-[300px]"
+        <RichTextEditor 
+          content={content}
+          onChange={setContent}
           placeholder="Enter news article content..."
-          required
         />
       </div>
       <div>
