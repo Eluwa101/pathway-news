@@ -66,7 +66,7 @@ export default function BooksPage() {
 
   const BookCard = ({ book }: { book: Book }) => (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
-      <div className="flex flex-col sm:flex-row h-auto sm:h-52">
+      <div className="flex flex-col sm:flex-row">
         <div className="w-full sm:w-32 h-48 sm:h-full bg-muted flex items-center justify-center flex-shrink-0">
           {book.cover_image_url ? (
             <img 
@@ -88,13 +88,13 @@ export default function BooksPage() {
             </div>
           </CardHeader>
           
-          <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
+          <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col">
             <p className="text-sm text-muted-foreground line-clamp-2 sm:line-clamp-3 mb-3">
               {book.description}
             </p>
             
             <Button 
-              size="sm"
+              size="lg"
               className="w-full text-sm h-9"
               onClick={() => window.open(book.file_url, '_blank')}
             >
