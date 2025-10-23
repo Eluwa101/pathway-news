@@ -53,9 +53,9 @@ When providing spiritual guidance, reference specific scriptures, talks, or teac
       // Extract preferences data by removing the prefix
       const preferencesData = userInput.replace("GENERATE_CAREER_PLAN:", "");
       
-      // Concise prompt for generating a focused career plan (max 4-5 pages)
+      // Concise prompt for generating a focused career plan (max 2-3 pages)
       // Emphasizes actionability and brevity
-      const careerPlanPrompt = `Based on the following user preferences, create a CONCISE and focused career plan. Keep it brief (4-5 pages max when printed) but actionable.
+      const careerPlanPrompt = `Based on the following user preferences, create a CONCISE and focused career plan. Keep it brief (2-3 pages max when printed) but actionable.
 
 User Preferences:
 ${preferencesData}
@@ -71,9 +71,9 @@ Generate a focused career plan with these sections (be brief and specific):
 7. Faith Integration - 2-3 sentences on how faith guides their journey
 
 Format rules:
-- Use bullet points (-) for lists
+- Use bullet points (•) for lists
 - Use numbered lists (1., 2., 3.) for steps
-- Use ## for section headers
+- Use → for section headers
 - Keep each section under 200 words
 - Be specific but concise - no fluff
 
@@ -103,9 +103,9 @@ Create a summary that includes:
 - Timeline overview
 
 Format using clean markdown with:
-- Use bullet points (-) for lists, NOT asterisks
+- Use bullet points (•) for lists, NOT asterisks
 - Use numbered lists (1., 2., 3.) for action items
-- Use ## for section headers
+- Use → for section headers
 - Keep it concise (300-500 words maximum)
 
 Make the summary actionable and easy to scan.`;
