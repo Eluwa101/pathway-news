@@ -76,6 +76,8 @@ Format rules:
 - Use → for section headers
 - Keep each section under 200 words
 - Be specific but concise - no fluff
+- Do not use asterisks for iteration
+- Apply formatting with ✅ action items and → section headers
 
 Make it actionable and personal, but KEEP IT SHORT. Focus on the essentials they need to get started.`;
 
@@ -135,7 +137,7 @@ Make the summary actionable and easy to scan.`;
       body: JSON.stringify({
         model: "google/gemini-2.5-flash", // Fast and efficient model for career guidance
         messages,
-        stream: false, // Get complete response at once rather than streaming
+        stream: true, // Get response streaming
       }),
     });
 

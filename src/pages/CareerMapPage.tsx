@@ -121,10 +121,17 @@ export default function CareerMapPage() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-  // Auto-scroll chat when new messages arrive
+  // Auto-scroll chat when new messages arrive, but only within the ScrollArea
   useEffect(() => {
-    scrollToBottom();
+    if (messagesEndRef.current) {
+      const scrollContainer = messagesEndRef.current.closest('.scroll-area-viewport');
+      if (scrollContainer) {
+        scrollContainer.scrollTo({
+          top: scrollContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }
   }, [messages]);
 
   // Handle sending a chat message to the AI
@@ -638,10 +645,10 @@ export default function CareerMapPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setUserInput("What career path is best for someone interested in theology and counseling?")}
+                            onClick={() => setUserInput("What advice for someone considering any career path, what to know before they start?")}
                             className="text-xs"
                           >
-                            Theology + Counseling
+                            How to Consider any career path
                           </Button>
                           <Button
                             variant="outline"
@@ -654,15 +661,15 @@ export default function CareerMapPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setUserInput("What skills do I need for ministry work?")}
+                            onClick={() => setUserInput("What skills do I need for ministering to my assigned ministering brother or sister?")}
                             className="text-xs"
                           >
-                            Ministry Skills
+                            Ministering Skills
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setUserInput("How do I prepare for missions work?")}
+                            onClick={() => setUserInput("How do I prepare for full time missionary work for The Church of Jesus Christ of Latter-day Saints?")}
                             className="text-xs"
                           >
                             Missions Preparation
@@ -705,7 +712,7 @@ export default function CareerMapPage() {
                     <Input
                       value={userInput}
                       onChange={(e) => setUserInput(e.target.value)}
-                      onKeyPress={handleKeyPress}
+                      onKeyDown={handleKeyPress}
                       placeholder="Ask about career paths, spiritual gifts, or guidance..."
                       disabled={isLoading}
                       className="flex-1"
@@ -811,7 +818,7 @@ export default function CareerMapPage() {
                           placeholder="Add custom interest..."
                           value={customInterestInput}
                           onChange={(e) => setCustomInterestInput(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && addCustomInterest()}
+                          onKeyDown={(e) => e.key === 'Enter' && addCustomInterest()}
                         />
                         <Button onClick={addCustomInterest} size="sm">
                           <Plus className="h-4 w-4" />
@@ -877,7 +884,7 @@ export default function CareerMapPage() {
                           placeholder="Add custom skill..."
                           value={customSkillInput}
                           onChange={(e) => setCustomSkillInput(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && addCustomSkill()}
+                          onKeyDown={(e) => e.key === 'Enter' && addCustomSkill()}
                         />
                         <Button onClick={addCustomSkill} size="sm">
                           <Plus className="h-4 w-4" />
