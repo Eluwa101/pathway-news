@@ -189,13 +189,14 @@ const NewsDetailPage = () => {
         <meta property="og:description" content={article.summary} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={window.location.href} />
-        {article.image_urls && article.image_urls[0] && (
-          <meta property="og:image" content={article.image_urls[0]} />
-        )}
+          {article.image_urls?.[0] && (
+            <meta property="og:image" content={article.image_urls[0]} />
+          )}
+
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={article.title} />
         <meta name="twitter:description" content={article.summary} />
-        {article.image_urls && article.image_urls[0] && (
+        {article.image_urls?.[0] && (
           <meta name="twitter:image" content={article.image_urls[0]} />
         )}
       </Helmet>
