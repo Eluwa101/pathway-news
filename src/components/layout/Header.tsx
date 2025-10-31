@@ -21,7 +21,7 @@ export default function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold">BYU-Pathway News</span>
+            <span className="text-xl font-bold">Pathway News</span>
           </Link>
 
           {/* Desktop Navigation */}
