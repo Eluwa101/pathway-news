@@ -25,6 +25,7 @@ interface NewsItem {
   is_hot: boolean; // Flag for trending news
   featured_on_homepage: boolean; // Flag for homepage feature
   created_at: string; // Publication timestamp
+  image_urls?: string[]; // cover image URL
 }
 
 // Main component for displaying featured news on the homepage
@@ -59,7 +60,7 @@ export default function FeaturedNews() {
       // Query Supabase for published news marked as featured
       const { data, error } = await supabase
         .from('news')
-        .select('id, title, summary, category, is_hot, featured_on_homepage, created_at')
+        .select('id, title, summary, category, is_hot, featured_on_homepage, created_at, image_urls')
         .eq('is_published', true) // Only published articles
         .eq('featured_on_homepage', true) // Only featured articles
         .order('created_at', { ascending: false }); // Most recent first
@@ -182,6 +183,18 @@ export default function FeaturedNews() {
               <Card className="bg-primary text-primary-foreground hover:shadow-lg transition-shadow h-full">
                 <CardHeader>
                   <div className="flex items-start justify-between">
+                    {/* image display in the news card */}
+                    {news.image_urls && news.image_urls.length > 0 && (
+                      <div className="my-6 flex justify-center">
+                        <div className="w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 rounded-full overflow-hidden flex-shrink-0 border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300">
+                          <img
+                            src={news.image_urls[0]}
+                            alt={`Cover image for ${news.title}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
+                    )}
                     <Badge variant={news.is_hot ? "destructive" : "secondary"}>
                       {news.is_hot ? "🔥 Hot" : news.category}
                     </Badge>
@@ -193,9 +206,11 @@ export default function FeaturedNews() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-primary-foreground/80 line-clamp-3 mb-3">{news.summary}</p>
-                  <Button asChild variant="secondary" className="w-full h-7 text-xs px-3 py-1">
-                    <Link to={`/news/${news.id}`}>Read More</Link>
-                  </Button>
+                    <div className="flex justify-center">
+                      <Button asChild variant="secondary" size="sm" className="h-7 text-sm px-4 py-1 w-auto mx-auto">
+                        <Link to={`/news/${news.id}`}>Read More</Link>
+                      </Button>
+                    </div>
                 </CardContent>
               </Card>
             </CarouselItem>

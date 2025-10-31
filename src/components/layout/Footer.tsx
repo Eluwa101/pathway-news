@@ -13,9 +13,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">BYU-Pathway Worldwide</h3>
+            <h3 className="text-lg font-semibold text-foreground">Pathway News</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Empowering students worldwide through accessible education, career development, and spiritual growth.
+              Empowering students worldwide through current news and events, comprehensive career guidance, and personal development resources.
             </p>
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <span>Building futures, one student at a time</span>
@@ -68,7 +68,7 @@ export default function Footer() {
               </div>
               <div className="flex items-start space-x-2 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4 mt-0.5" />
-                <span>50 E North Temple St<br />Salt Lake City, UT 84150</span>
+                <span>50 E North<br />Salt Lake City, UT</span>
               </div>
             </div>
           </div>
@@ -114,7 +114,7 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="text-sm text-muted-foreground">
-            © {currentYear} Eluwa Victor Monday. All rights reserved.
+            © {currentYear} Ergasbasher Group.
           </div>
           <div className="flex flex-wrap gap-4 text-sm">
             <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { WatchModal } from '@/components/ui/watch-modal';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+// Carousel autoplay plugin
+import Autoplay from "embla-carousel-autoplay";
 
 interface BaseEvent {
   id: string;
@@ -104,6 +106,17 @@ export default function UpcomingEventsCarousel() {
     });
   };
 
+    // Autoplay plugin configuration for carousel
+    const autoplayPlugin = useRef<any>(
+      Autoplay({
+        delay: 5000, // Auto-advance every 5 seconds
+        stopOnInteraction: false, // Keep playing after user interaction
+        stopOnMouseEnter: true, // Pause when mouse hovers
+        playOnInit: true, // Start playing immediately
+        stopOnFocusIn: false // Don't stop on focus
+      })
+    );
+
   const getIndustryColor = (industry: string) => {
     const colors = {
       'Technology': 'bg-blue-100 text-blue-800',
@@ -148,10 +161,16 @@ export default function UpcomingEventsCarousel() {
           </CardContent>
         </Card>
       ) : (
-        <Carousel 
-          className="w-full" 
-          opts={{ align: "start", loop: true }}
-        >
+      <Carousel
+        opts={{
+          align: "start",
+          loop: true,
+        }}
+        plugins={[autoplayPlugin.current]}
+        className="w-full"
+        onMouseEnter={() => autoplayPlugin.current.stop()}
+        onMouseLeave={() => autoplayPlugin.current.play()}
+      >
           <CarouselContent className="-ml-2 md:-ml-4">
             {allEvents.map((event) => (
               <CarouselItem key={event.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2 xl:basis-1/3">

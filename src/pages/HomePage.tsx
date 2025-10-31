@@ -36,7 +36,7 @@ const hotNews = [
 ];
 
 const quickStats = [
-  { label: "Active Students", value: "15,000+", icon: Users },
+  { label: "Active Students", value: "Over 70,000+", icon: Users },
   { label: "Courses Available", value: "200+", icon: BookOpen },
   { label: "Career Paths", value: "50+", icon: Map },
 ];
@@ -55,7 +55,7 @@ export default function HomePage() {
         <div className="relative z-10 container mx-auto px-4">
           <div className="text-center space-y-6 text-white">
             <h1 className="text-4xl md:text-6xl font-bold">
-              Welcome to <span className="text-primary">BYU-Pathway News</span>
+              Welcome to <span className="text-primary">Pathway News</span>
             </h1>
             <p className="text-xl max-w-3xl mx-auto">
               Your gateway to education, career growth, and spiritual development. 
@@ -83,20 +83,36 @@ export default function HomePage() {
         {/* Upcoming Events */}
         <UpcomingEventsCarousel/>
 
-        {/* Quick Stats */}
-        <section>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            {quickStats.map((stat, index) => (
-              <Card key={index} className="text-center">
-                <CardContent className="pt-4 pb-4 px-3 md:pt-6 md:pb-6 md:px-6">
-                  <stat.icon className="h-8 w-8 md:h-10 md:w-10 text-primary mx-auto mb-2 md:mb-3" />
-                  <div className="text-xl md:text-2xl font-bold text-primary mb-1 md:mb-2">{stat.value}</div>
-                  <div className="text-xs md:text-sm text-muted-foreground">{stat.label}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
+      {/* Quick Stats (Compact Horizontal Scroll on Mobile) */}
+      <section className="my-4">
+        <div
+          className="
+            flex space-x-2 overflow-x-auto md:grid md:grid-cols-3 md:gap-4
+            scrollbar-hide pb-2
+          "
+        >
+          {quickStats.map((stat, index) => (
+            <Card
+              key={index}
+              className="
+                flex-shrink-0 w-28 sm:w-32 md:w-auto 
+                text-center p-2 md:p-3 rounded-lg shadow-sm
+              "
+            >
+              <CardContent className="py-2 px-1 sm:py-3 sm:px-2">
+                <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary mx-auto mb-1" />
+                <div className="text-sm sm:text-base font-semibold text-primary mb-0.5">
+                  {stat.value}
+                </div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground">
+                  {stat.label}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
 
         {/* Featured News Section */}
         <FeaturedNews />

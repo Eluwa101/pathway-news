@@ -182,24 +182,67 @@ const NewsDetailPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{article.title} - BYU-Pathway News</title>
-        <meta name="description" content={article.summary} />
-        <meta property="og:title" content={article.title} />
-        <meta property="og:description" content={article.summary} />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={window.location.href} />
-          {article.image_urls?.[0] && (
-            <meta property="og:image" content={article.image_urls[0]} />
-          )}
+      {(() => {
+        const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+        const origin = typeof window !== "undefined" ? window.location.origin : "";
+        const ogImage = article.image_urls?.[0] ?? `${origin}/favicon.ico`;
+        const jsonLd = {
+          "@context": "https://schema.org",
+          "@type": "NewsArticle",
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": currentUrl || origin
+          },
+          "headline": article.title,
+          "image": article.image_urls && article.image_urls.length ? article.image_urls : [ogImage],
+          "datePublished": article.created_at,
+          "dateModified": article.updated_at || article.created_at,
+          "author": {
+            "@type": "Organization",
+            "name": "Pathway News"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Pathway News",
+            "logo": {
+              "@type": "ImageObject",
+              "url": ogImage
+            }
+          },
+          "description": article.summary
+        };
 
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={article.title} />
-        <meta name="twitter:description" content={article.summary} />
-        {article.image_urls?.[0] && (
-          <meta name="twitter:image" content={article.image_urls[0]} />
-        )}
-      </Helmet>
+        return (
+          <Helmet>
+            <title>{article.title} - Pathway News</title>
+            <link rel="canonical" href={currentUrl || origin} />
+            <meta name="description" content={article.summary} />
+
+            {/* Open Graph */}
+            <meta property="og:site_name" content="Pathway News" />
+            <meta property="og:locale" content="en_US" />
+            <meta property="og:title" content={article.title} />
+            <meta property="og:description" content={article.summary} />
+            <meta property="og:type" content="article" />
+            <meta property="og:url" content={currentUrl || origin} />
+            {ogImage && <meta property="og:image" content={ogImage} />}
+            <meta property="article:published_time" content={article.created_at} />
+            <meta property="article:modified_time" content={article.updated_at ?? article.created_at} />
+            {article.tags?.map((t) => (
+              <meta key={t} property="article:tag" content={t} />
+            ))}
+
+            {/* Twitter */}
+            <meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
+            <meta name="twitter:title" content={article.title} />
+            <meta name="twitter:description" content={article.summary} />
+            {ogImage && <meta name="twitter:image" content={ogImage} />}
+
+            {/* Structured data */}
+            <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+          </Helmet>
+        );
+      })()}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
       {/* Header */}
       <div className="mb-6">
