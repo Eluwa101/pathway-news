@@ -179,43 +179,67 @@ export default function FeaturedNews() {
       >
         <CarouselContent>
           {featuredNews.map((news) => (
-            <CarouselItem key={news.id} className="md:basis-1/2 lg:basis-1/3">
-              <Card className="bg-primary text-primary-foreground hover:shadow-lg transition-shadow h-full">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    {/* image display in the news card */}
-                    {news.image_urls && news.image_urls.length > 0 && (
-                      <div className="my-6 flex justify-center">
-                        <div className="w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 rounded-full overflow-hidden flex-shrink-0 border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300">
-                          <img
-                            src={news.image_urls[0]}
-                            alt={`Cover image for ${news.title}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      </div>
-                    )}
-                    <Badge variant={news.is_hot ? "destructive" : "secondary"}>
+            <CarouselItem
+              key={news.id}
+              className="basis-full sm:basis-1/2 lg:basis-1/3 px-2 md:px-4"
+            >
+              <Card className="bg-primary text-primary-foreground hover:shadow-lg transition-shadow duration-300 h-full flex flex-col justify-between">
+                {/* Header Section */}
+                <CardHeader className="space-y-3">
+                  {/* Top Row: Badge + Date */}
+                  <div className="flex items-center justify-between">
+                    <Badge
+                      variant={news.is_hot ? "destructive" : "secondary"}
+                      className="text-xs md:text-sm"
+                    >
                       {news.is_hot ? "🔥 Hot" : news.category}
                     </Badge>
-                    <span className="text-sm text-primary-foreground/70">
+                    <span className="text-xs md:text-sm text-primary-foreground/70">
                       {new Date(news.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <CardTitle className="line-clamp-2 text-primary-foreground">{news.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-primary-foreground/80 line-clamp-3 mb-3">{news.summary}</p>
+
+                  {/* Image Section */}
+                  {news.image_urls && news.image_urls.length > 0 && (
                     <div className="flex justify-center">
-                      <Button asChild variant="secondary" size="sm" className="h-7 text-sm px-4 py-1 w-auto mx-auto">
-                        <Link to={`/news/${news.id}`}>Read More</Link>
-                      </Button>
+                      <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full overflow-hidden border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <img
+                          src={news.image_urls[0]}
+                          alt={`Cover image for ${news.title}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     </div>
+                  )}
+
+                  {/* Title */}
+                  <CardTitle className="text-base md:text-lg font-semibold line-clamp-2 text-center text-primary-foreground">
+                    {news.title}
+                  </CardTitle>
+                </CardHeader>
+
+                {/* Content Section */}
+                <CardContent className="flex flex-col justify-between flex-grow">
+                  <p className="text-sm md:text-base text-primary-foreground/80 line-clamp-3 text-center mb-4">
+                    {news.summary}
+                  </p>
+
+                  <div className="flex justify-center">
+                    <Button
+                      asChild
+                      variant="secondary"
+                      size="sm"
+                      className="h-7 text-xs md:text-sm px-4 py-1 w-auto"
+                    >
+                      <Link to={`/news/${news.id}`}>Read More</Link>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </CarouselItem>
           ))}
         </CarouselContent>
+
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
