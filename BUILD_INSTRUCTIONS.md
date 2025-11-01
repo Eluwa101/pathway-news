@@ -1,4 +1,22 @@
-# Build Instructions - LDS Student Community App
+# Build Instructions - Pathway News
+
+## About This App
+
+**Pathway News** is a comprehensive web application designed for BYU-Pathway Connect students and community members. It serves as a centralized hub for:
+
+- **Campus News & Updates**: Latest announcements, student stories, and campus events
+- **Spiritual Resources**: Daily devotionals and faith-based content  
+- **Career Development**: Job listings, career events, AI-powered career planning tools
+- **Community Engagement**: WhatsApp groups, student resources, and networking
+- **Educational Resources**: Book recommendations and learning materials
+
+### Key Features
+
+- **AI-Powered Career Advisor**: Interactive chat and career planning using Google Gemini AI
+- **Rich Content Management**: Admin dashboard with rich text editor for news, events, and resources
+- **Authentication System**: Secure email/password authentication for admin access
+- **Responsive Design**: Optimized for mobile, tablet, and desktop devices
+- **Social Media Integration**: Enhanced Open Graph meta tags for rich social media previews
 
 ## Prerequisites
 
@@ -142,10 +160,26 @@ If you see build errors:
 
 - **Frontend**: React 18, TypeScript
 - **Styling**: Tailwind CSS
-- **UI Components**: shadcn/ui
-- **Backend**: Supabase (Database, Auth, Storage)
+- **UI Components**: shadcn/ui, Radix UI
+- **Backend**: Supabase (Database, Auth, Storage, Edge Functions)
+- **AI Integration**: Google Gemini via Lovable AI Gateway
+- **Rich Text Editor**: Tiptap with extensions for text formatting, colors, and links
 - **Build Tool**: Vite
 - **Routing**: React Router v6
+- **State Management**: React Query (TanStack Query)
+
+## Admin Access
+
+To access the admin dashboard:
+
+1. Navigate to `/auth` to create an admin account
+2. Sign up with your email and password
+3. Verify your email (if email confirmation is enabled)
+4. Access the admin dashboard at `/admin`
+
+**Note**: For testing purposes, you may want to disable email confirmation in Supabase:
+- Go to Authentication → Providers in your Supabase dashboard
+- Disable "Confirm email" for faster testing
 
 ## Support
 

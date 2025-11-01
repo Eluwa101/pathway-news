@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { AdminForm } from "@/components/admin/AdminForm";
 import { AdminList } from "@/components/admin/AdminList";
 import HomepageFeaturedManager from "@/components/admin/HomepageFeaturedManager";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { User, Session } from '@supabase/supabase-js';
 import { 
   Newspaper, 
   BookOpen, 
@@ -15,7 +18,8 @@ import {
   MessageCircle, 
   BarChart3,
   Star,
-  Shield 
+  Shield,
+  LogOut 
 } from "lucide-react";
 
 interface AdminContent {
@@ -30,7 +34,11 @@ interface AdminContent {
 
 const AdminPage = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("news");
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Content state
   const [news, setNews] = useState<AdminContent[]>([]);
@@ -45,8 +53,34 @@ const AdminPage = () => {
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    fetchContent();
-  }, []);
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+        
+        if (!session?.user) {
+          navigate('/auth');
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+      
+      if (!session?.user) {
+        navigate('/auth');
+      } else {
+        fetchContent();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const fetchContent = async () => {
     try {
@@ -96,11 +130,40 @@ const AdminPage = () => {
     setShowForm(true);
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast({
+      title: "Signed Out",
+      description: "You have been signed out successfully"
+    });
+    navigate('/auth');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="container mx-auto px-6 py-8 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Manage all content for BYU-Pathway Connect</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Admin Dashboard</h1>
+          <p className="text-muted-foreground">Manage all content for BYU-Pathway Connect</p>
+        </div>
+        <Button variant="outline" onClick={handleSignOut}>
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
+        </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

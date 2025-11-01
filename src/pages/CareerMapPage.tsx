@@ -645,7 +645,12 @@ export default function CareerMapPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setUserInput("What advice for someone considering any career path, what to know before they start?")}
+                            onClick={async () => {
+                              const msg = "What advice for someone considering any career path, what to know before they start?";
+                              setUserInput(msg);
+                              await sendMessage(msg);
+                              setUserInput("");
+                            }}
                             className="text-xs"
                           >
                             How to Consider any career path
@@ -653,7 +658,12 @@ export default function CareerMapPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setUserInput("How can I discern God's calling for my career?")}
+                            onClick={async () => {
+                              const msg = "How can I discern God's calling for my career?";
+                              setUserInput(msg);
+                              await sendMessage(msg);
+                              setUserInput("");
+                            }}
                             className="text-xs"
                           >
                             Discerning God's Calling
@@ -661,7 +671,12 @@ export default function CareerMapPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setUserInput("What skills do I need for ministering to my assigned ministering brother or sister?")}
+                            onClick={async () => {
+                              const msg = "What skills do I need for ministering to my assigned ministering brother or sister?";
+                              setUserInput(msg);
+                              await sendMessage(msg);
+                              setUserInput("");
+                            }}
                             className="text-xs"
                           >
                             Ministering Skills
@@ -669,7 +684,12 @@ export default function CareerMapPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setUserInput("How do I prepare for full time missionary work for The Church of Jesus Christ of Latter-day Saints?")}
+                            onClick={async () => {
+                              const msg = "How do I prepare for full time missionary work for The Church of Jesus Christ of Latter-day Saints?";
+                              setUserInput(msg);
+                              await sendMessage(msg);
+                              setUserInput("");
+                            }}
                             className="text-xs"
                           >
                             Missions Preparation

@@ -17,6 +17,7 @@ import JobsPage from "./pages/resources/JobsPage";
 import CommunityPage from "./pages/CommunityPage";
 import UtilityAppsPage from "./pages/UtilityAppsPage";
 import AdminPage from "./pages/AdminPage";
+import AuthPage from "./pages/AuthPage";
 import NewsPage from "./pages/NewsPage";
 import NewsDetailPage from "./pages/NewsDetailPage";
 import AboutPage from "./pages/AboutPage";
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/utility-apps" element={<UtilityAppsPage />} />
               <Route path="/community" element={<CommunityPage />} />
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/auth" element={<AuthPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/news" element={<NewsPage />} />
               <Route path="/news/:id" element={<NewsDetailPage />} />
